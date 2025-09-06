@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GGVerse - MLM Business Platform</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            rel="stylesheet"
+        />
+        <link href="ggverse.css?v=244&user=dashboard&encash=fixed" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="ggverse.js?v=244&user=dashboard&encash=fixed"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        
+        
+    </head>
+    <body>
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a
+                    class="navbar-brand fw-bold"
+                    href="#"
+                    onclick="showPage('home-page')"
+                >
+                    <i class="fas fa-gem me-3"></i>GGVerse
+                </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a
+                                class="nav-link active"
+                                href="#"
+                                onclick="showPage('home-page')"
+                            >
+                                <i class="fas fa-home me-3"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="#"
+                                onclick="showPage('admin-page')"
+                            >
+                                <i class="fas fa-cog me-3"></i>Admin
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="#"
+                                onclick="showPage('account-summary')"
+                            >
+                                <i class="fas fa-user me-3"></i>User
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="#"
+                                onclick="showPage('pos-page')"
+                            >
+                                <i class="fas fa-cash-register me-3"></i>POS
+                            </a>
+                        </li>
+
+                        <!-- New Register Now link -->
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="#"
+                                onclick="showPage('register-page')"
+                            >
+                                <i class="fas fa-user-plus me-3"></i>Register Now
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Container -->
+        <div id="main-content">
+            <!-- Home Page -->
+            <div id="home-page" class="page-content">
+                <div class="hero-section text-white py-5">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6">
+                                <h1 class="display-4 fw-bold mb-4">
+                                    Welcome to GGVerse
+                                </h1>
+                                <p class="lead mb-4">
+                                    Complete MLM Business Platform - All Modules
+                                    Fully Functional
+                                </p>
+                                <div
+                                    class="alert alert-success d-inline-block mb-4"
+                                >
+                                    <i class="fas fa-check-circle me-3"></i>All
+                                    features operational with Philippine Peso
+                                    support
+                                </div>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <button
+                                        class="btn btn-light btn-lg px-4"
+                                        onclick="showPage('admin-page')"
+                                    >
+                                        <i class="fas fa-cog me-3"></i>Admin
+                                        Panel
+                                    </button>
+                                    <button
+                                        class="btn btn-outline-light btn-lg px-4 active"
+                                        onclick="showPage('account-summary')"
+                                    >
+                                        <i class="fas fa-user me-3"></i>User Dashboard
+                                    </button>
+                                    <button
+                                        class="btn btn-warning btn-lg px-4"
+                                        onclick="showPage('pos-page')"
+                                    >
+                                        <i class="fas fa-cash-register me-2"></i
+                                        >POS System
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="text-center">
+                                    <i
+                                        class="fas fa-network-wired display-1 opacity-75"
+                                    ></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container py-5">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card h-100 text-center">
+                                <div class="card-body">
+                                    <div class="feature-icon text-primary mb-3">
+                                        <i class="fas fa-users fa-3x"></i>
+                                    </div>
+                                    <h5 class="card-title">User Management</h5>
+                                    <p class="card-text">
+                                        Fully functional user dashboard with
+                                        eWallet transactions, network
+                                        organization charts, and real-time
+                                        performance tracking.
+                                    </p>
+                                    <button
+                                        class="btn btn-primary"
+                                        onclick="showPage('account-summary')"
+                                    >
+                                        Explore User Features
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 text-center">
+                                <div class="card-body">
+                                    <div class="feature-icon text-success mb-3">
+                                        <i class="fas fa-cogs fa-3x"></i>
+                                    </div>
+                                    <h5 class="card-title">Admin Control</h5>
+                                    <p class="card-text">
+                                        Complete admin panel with promotional
+                                        campaigns, store management, sales
+                                        analytics, business reports, and account
+                                        activation.
+                                    </p>
+                                    <button
+                                        class="btn btn-success"
+                                        onclick="showPage('admin-page')"
+                                    >
+                                        Access Admin Panel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 text-center">
+                                <div class="card-body">
+                                    <div class="feature-icon text-warning mb-3">
+                                        <i
+                                            class="fas fa-cash-register fa-3x"
+                                        ></i>
+                                    </div>
+                                    <h5 class="card-title">Point of Sale</h5>
+                                    <p class="card-text">
+                                        Fully operational POS system with
+                                        product catalog, shopping cart,
+                                        real-time inventory, and payment
+                                        processing.
+                                    </p>
+                                    <button
+                                        class="btn btn-warning"
+                                        onclick="showPage('pos-page')"
+                                    >
+                                        Open POS System
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-5">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-3">Platform Features</h3>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <i
+                                                class="fas fa-peso-sign text-primary mb-2 fa-2x d-block"
+                                            ></i>
+                                            <h6>Philippine Peso Support</h6>
+                                            <small class="text-muted"
+                                                >All transactions in ₱</small
+                                            >
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <i
+                                                class="fas fa-mobile-alt text-success mb-2 fa-2x d-block"
+                                            ></i>
+                                            <h6>Responsive Design</h6>
+                                            <small class="text-muted"
+                                                >Works on all devices</small
+                                            >
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <i
+                                                class="fas fa-sun text-info mb-2 fa-2x d-block"
+                                            ></i>
+                                            <h6>White & Blue Theme</h6>
+                                            <small class="text-muted"
+                                                >Clean professional
+                                                appearance</small
+                                            >
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <i
+                                                class="fas fa-check-circle text-success mb-2 fa-2x d-block"
+                                            ></i>
+                                            <h6>Complete Functionality</h6>
+                                            <small class="text-muted"
+                                                >All modules fully
+                                                operational</small
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3 class="text-center mb-4">
+                                        Complete Module Overview
+                                    </h3>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5 class="text-success mb-3">
+                                                <i class="fas fa-cogs me-2"></i
+                                                >Admin Modules - All Complete
+                                            </h5>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong>Dashboard:</strong>
+                                                    Comprehensive business
+                                                    metrics and analytics
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Promotional
+                                                        Campaigns:</strong
+                                                    >
+                                                    Full campaign management
+                                                    with performance tracking
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Store
+                                                        Management:</strong
+                                                    >
+                                                    Complete inventory system
+                                                    with stock alerts
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Sales
+                                                        Analytics:</strong
+                                                    >
+                                                    Detailed reports and
+                                                    commission tracking
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Business
+                                                        Reports:</strong
+                                                    >
+                                                    Custom report builder and
+                                                    scheduling
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Account
+                                                        Activation:</strong
+                                                    >
+                                                    User activation workflow and
+                                                    code generation
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Wallet
+                                                        Management:</strong
+                                                    >
+                                                    Financial transaction
+                                                    monitoring
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >System
+                                                        Settings:</strong
+                                                    >
+                                                    Platform configuration and
+                                                    preferences
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >SMS Management:</strong
+                                                    >
+                                                    Communication and messaging
+                                                    system
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5 class="text-primary mb-3">
+                                                <i class="fas fa-user me-2"></i
+                                                >User Modules - All Complete
+                                            </h5>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong>Dashboard:</strong>
+                                                    Personal performance metrics
+                                                    and overview
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong>eWallet:</strong>
+                                                    Digital wallet with
+                                                    transaction history and
+                                                    earnings
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Organization:</strong
+                                                    >
+                                                    Network structure and team
+                                                    management
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong>Network:</strong>
+                                                    Downline management and
+                                                    statistics
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Performance:</strong
+                                                    >
+                                                    Real-time tracking and
+                                                    analytics
+                                                </li>
+                                            </ul>
+                                            <h5 class="text-warning mt-4 mb-3">
+                                                <i
+                                                    class="fas fa-cash-register me-2"
+                                                ></i
+                                                >POS System - Complete
+                                            </h5>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Product
+                                                        Catalog:</strong
+                                                    >
+                                                    Full inventory with search
+                                                    and filtering
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Shopping Cart:</strong
+                                                    >
+                                                    Real-time cart updates and
+                                                    checkout
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i
+                                                        class="fas fa-check text-success me-2"
+                                                    ></i
+                                                    ><strong
+                                                        >Payment
+                                                        Processing:</strong
+                                                    >
+                                                    Multiple payment methods
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        <div
+                                            class="alert alert-success d-inline-block"
+                                        >
+                                            <i
+                                                class="fas fa-thumbs-up me-2"
+                                            ></i>
+                                            <strong
+                                                >All systems are fully
+                                                operational with white and blue
+                                                theme!</strong
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Page -->
+            <div id="admin-page" class="page-content d-none">
+                <!-- Floating Toggle Button for Mobile/Tablet -->
+                <button class="floating-toggle d-lg-none" onclick="toggleSidebar('admin')">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="user-layout">
+                    <!-- Admin Sidebar -->
+                    <aside class="user-sidebar">
+                        <div class="sidebar-header">
+                            <p>Admin Panel<br><strong>Administrator</strong></p>
+                        </div>
+
+                        <!-- Dashboard -->
+                        <div class="menu-section">
+                            <a href="#" onclick="loadAdminModule('dashboard'); return false;" class="nav-link">
+                                <i class="fas fa-home me-3"></i> Dashboard
+                            </a>
+                        </div>
+
+                        <!-- Accounts -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-users me-3"></i>Accounts <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('account-manager')"><i class="fas fa-user-cog me-3"></i>Account Manager</a></li>
+                                <li><a href="#" onclick="loadAdminModule('cd-accounts')"><i class="fas fa-id-card me-3"></i>CD Accounts</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Promos -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-gift me-3"></i>Promos <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('promo1')"><i class="fas fa-bolt me-3"></i>2Fast2Furious</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Store -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-building me-3"></i>Store <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('add-store')"><i class="fas fa-plus me-3"></i>Add Store</a></li>
+                                <li><a href="#" onclick="loadAdminModule('store-manager')"><i class="fas fa-store me-3"></i>Store Manager</a></li>
+                                <li><a href="#" onclick="loadAdminModule('store-user-manager')"><i class="fas fa-user-friends me-3"></i>Store User Manager</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Sales -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-shopping-cart me-3"></i>Sales <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('sales-manager')"><i class="fas fa-cash-register me-3"></i>Sales Manager</a></li>
+                                <li><a href="#" onclick="loadAdminModule('monthly-sales')"><i class="fas fa-calendar me-3"></i>Monthly Sales</a></li>
+                                <li><a href="#" onclick="loadAdminModule('daily-sales')"><i class="fas fa-calendar-day me-3"></i>Daily Sales</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-box me-3"></i>Item <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('add-item')"><i class="fas fa-plus-circle me-3"></i>Add New Item</a></li>
+                                <li><a href="#" onclick="loadAdminModule('manage-items')"><i class="fas fa-cubes me-3"></i>Manage Items</a></li>
+                                <li><a href="#" onclick="loadAdminModule('item-sales-report')"><i class="fas fa-chart-line me-3"></i>Item Sales Report</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Activation -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-ticket-alt me-3"></i>Activation <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('activation-summary')"><i class="fas fa-list me-3"></i>Summary</a></li>
+                                <li><a href="#" onclick="loadAdminModule('activation-search')"><i class="fas fa-search me-3"></i>Search Activation</a></li>
+                                <li><a href="#" onclick="loadAdminModule('activation-tracker')"><i class="fas fa-stream me-3"></i>Activation Tracker</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- eWallet -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-credit-card me-3"></i>eWallet <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('balance-summary')"><i class="fas fa-balance-scale me-3"></i>Balance Summary</a></li>
+                                <li><a href="#" onclick="loadAdminModule('credit-history')"><i class="fas fa-arrow-up me-3"></i>Credit History</a></li>
+                                <li><a href="#" onclick="loadAdminModule('debit-history')"><i class="fas fa-arrow-down me-3"></i>Debit History</a></li>
+                                <li><a href="#" onclick="loadAdminModule('process-withdrawals')"><i class="fas fa-hand-holding-usd me-3"></i>Process Withdrawals</a></li>
+                                <li><a href="#" onclick="loadAdminModule('withdrawal-summary')"><i class="fas fa-clipboard-list me-3"></i>Withdrawal Summary</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Configurations -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-cogs me-3"></i>Configurations <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('manage-category')"><i class="fas fa-tags me-3"></i>Category</a></li>
+                                <li><a href="#" onclick="loadAdminModule('payout-options')"><i class="fas fa-money-check me-3"></i>Payout Options</a></li>
+                                <li><a href="#" onclick="loadAdminModule('package-settings')"><i class="fas fa-boxes me-3"></i>Package Settings</a></li>
+                                <li><a href="#" onclick="loadAdminModule('superadmin')"><i class="fas fa-user-shield me-3"></i>Superadmin</a></li>
+                                <li><a href="#" onclick="loadAdminModule('maintenance')"><i class="fas fa-tools me-3"></i>Maintenance</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- SMS Server -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-mobile me-3"></i>SMS Server <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('otp-manager')"><i class="fas fa-key me-3"></i>OTP Manager</a></li>
+                                <li><a href="#" onclick="loadAdminModule('otp-mobile')"><i class="fas fa-mobile-alt me-3"></i>OTP Mobile</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Reports -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-list-alt me-3"></i>Reports <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('sponsoring-report')"><i class="fas fa-user-plus me-3"></i>Sponsoring</a></li>
+                                <li><a href="#" onclick="loadAdminModule('flushout-report')"><i class="fas fa-filter me-3"></i>Flushout</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Logs -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-clipboard-list me-3"></i>Logs <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadAdminModule('login-logs')"><i class="fas fa-sign-in-alt me-3"></i>User Login</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Links -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-link me-3"></i>Links <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="https://secure.onegrindersguild.com" target="_blank"><i class="fas fa-user-circle me-3"></i>User Dashboard</a></li>
+                                <li><a href="https://gpos.onegrindersguild.com" target="_blank"><i class="fas fa-cash-register me-3"></i>POS</a></li>
+                                <li><a href="https://gpos.onegrindersguild.com" target="_blank"><i class="fas fa-box-open me-3"></i>Stockist</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="divider">ACCOUNT</div>
+                        <button class="signout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </button>
+                    </aside>
+
+                    <!-- Admin Main Content -->
+                    <main class="user-main-content">
+                        <div id="admin-page-container">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-header bg-dark text-white">
+                                                <h2 class="card-title mb-0">
+                                                    <i class="fas fa-user-shield me-3"></i>Welcome to Admin Dashboard
+                                                </h2>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <p class="lead text-muted">Use the sidebar to manage accounts, sales, inventory, and system settings.</p>
+                                                <p>This is the main hub for administrator controls and reports.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+
+            <!-- User Page -->
+            <div id="user-page" class="page-content d-none">
+                <!-- Floating Toggle Button for Mobile/Tablet -->
+                <button class="floating-toggle d-lg-none" id="floatingToggle" onclick="toggleSidebar('user')">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="user-layout">
+                    <!-- User Sidebar -->
+                    <aside class="user-sidebar">
+                        <div class="sidebar-header">
+                            <p>Welcome back,<br><strong>Username</strong></p>
+                        </div>
+
+                        <!-- Dashboard -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-chart-line me-3"></i>Dashboard <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadUserModule('account-summary')"><i class="fas fa-chart-pie me-3"></i>Account Summary</a></li>
+                                <li><a href="#" onclick="loadUserModule('dashboard')"><i class="fas fa-tachometer-alt me-3"></i>Dashboard</a></li>
+                                <li><a href="#" onclick="loadUserModule('codebank')"><i class="fas fa-code me-3"></i>Codebank</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="divider">REALTIME TRANSACTIONS</div>
+
+                        <!-- eWallet -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-wallet me-3"></i>eWallet <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadUserPage('ewallet-summary')"><i class="fas fa-list me-3"></i>Summary</a></li>
+                                <li><a href="#" onclick="loadUserPage('encash-wallet')"><i class="fas fa-money-bill me-3"></i>Encash Wallet</a></li>
+                                <li><a href="#" onclick="loadUserPage('withdrawal-pin')"><i class="fas fa-lock me-3"></i>Withdrawal PIN</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- ePoints -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-coins me-3"></i>ePoints <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadUserPage('epoints-summary')"><i class="fas fa-list me-3"></i>Summary</a></li>
+                                <li><a href="#" onclick="loadUserPage('claim-products')"><i class="fas fa-gift me-3"></i>Claim Products</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Organization -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-sitemap me-3"></i>Organization <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadUserPage('switch-account')"><i class="fas fa-exchange-alt me-3"></i>Switch Account</a></li>
+                                <li><a href="#" onclick="loadUserPage('genealogy-tree')"><i class="fas fa-tree me-3"></i>Genealogy Tree</a></li>
+                                <li><a href="#" onclick="loadUserPage('direct-sponsors')"><i class="fas fa-users me-3"></i>Direct Sponsors</a></li>
+                                <li><a href="#" onclick="loadUserPage('binary-list')"><i class="fas fa-list-ol me-3"></i>Binary List</a></li>
+                                <li><a href="#" onclick="loadUserPage('unilevel-list')"><i class="fas fa-layer-group me-3"></i>Unilevel List</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Reports -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-chart-bar me-3"></i>Reports <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadUserPage('direct-referral')"><i class="fas fa-user-friends me-3"></i>Direct Referral</a></li>
+                                <li><a href="#" onclick="loadUserPage('sales-match')"><i class="fas fa-handshake me-3"></i>Sales Match Bonus</a></li>
+                                <li><a href="#" onclick="loadUserPage('leadership-bonus')"><i class="fas fa-crown me-3"></i>Leadership Bonus</a></li>
+                                <li><a href="#" onclick="loadUserPage('personal-rebates')"><i class="fas fa-percent me-3"></i>Personal Rebates</a></li>
+                                <li><a href="#" onclick="loadUserPage('unilevel-bonus')"><i class="fas fa-layer-group me-3"></i>Unilevel Bonus</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Shop -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-shopping-cart me-3"></i>Shop <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadUserPage('shop-now')"><i class="fas fa-store me-3"></i>Shop Now</a></li>
+                                <li><a href="#" onclick="loadUserPage('checkout')"><i class="fas fa-shopping-bag me-3"></i>Checkout</a></li>
+                                <li><a href="#" onclick="loadUserPage('transactions')"><i class="fas fa-receipt me-3"></i>Transactions</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="divider">MANAGE ACCOUNT</div>
+
+                        <!-- Account Settings -->
+                        <div class="menu-section">
+                            <button class="menu-toggle"><i class="fas fa-cog me-3"></i>Account Settings <i class="fas fa-chevron-right"></i></button>
+                            <ul class="submenu">
+                                <li><a href="#" onclick="loadUserPage('user-profile')"><i class="fas fa-user me-3"></i>User Profile</a></li>
+                                <li><a href="#" onclick="loadUserPage('withdrawal-settings')"><i class="fas fa-cog me-3"></i>Withdrawal Settings</a></li>
+                                <li><a href="#" onclick="loadUserPage('change-password')"><i class="fas fa-key me-3"></i>Change Password</a></li>
+                                <li><a href="#" onclick="loadUserPage('withdrawal-pin-settings')"><i class="fas fa-lock me-3"></i>Withdrawal PIN</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="divider">TRANSFORMING LIVES</div>
+
+                        <button class="signout-btn">Sign Out</button>
+                    </aside>
+
+                    <!-- User Main Content -->
+                    <main class="user-main-content">
+                        <div id="user-page-container">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-header bg-primary text-white">
+                                                <h2 class="card-title mb-0">
+                                                    <i class="fas fa-user me-3"></i>Welcome to User Dashboard
+                                                </h2>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <p class="lead text-muted">Select an option from the sidebar to get started.</p>
+                                                <p>Use the navigation menu on the left to access different sections of your account.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+            <!-- POS Page -->
+            <div id="pos-page" class="page-content d-none">
+
+            <!-- Floating Toggle Button for Mobile/Tablet -->
+            <button class="floating-toggle d-lg-none" onclick="toggleSidebar('pos')">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="user-layout">
+                <!-- POS Sidebar -->
+                <aside class="user-sidebar">
+                    <div class="sidebar-header">
+                        <p>POS Menu</p>
+                    </div>
+
+                    <!-- Home (simple link) -->
+                    <div class="menu-section">
+                        <a href="#" onclick="loadPosModule('pos-home')" class="nav-link">
+                            <i class="fas fa-home me-3"></i> Home
+                        </a>
+                    </div>
+
+                    <!-- My Orders -->
+                    <div class="menu-section">
+                        <button class="menu-toggle">
+                            <i class="fas fa-shopping-bag me-3"></i> My Orders 
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <ul class="submenu">
+                            <li><a href="#" onclick="loadPosModule('orders-summary')"><i class="fas fa-list me-3"></i>Summary</a></li>
+                            <li><a href="#" onclick="loadPosModule('orders-pending')"><i class="fas fa-clock me-3"></i>Pending</a></li>
+                            <li><a href="#" onclick="loadPosModule('orders-voided')"><i class="fas fa-ban me-3"></i>Voided</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Personal Sales -->
+                    <div class="menu-section">
+                        <button class="menu-toggle">
+                            <i class="fas fa-hand-holding-usd me-3"></i> Personal Sales 
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <ul class="submenu">
+                            <li><a href="#" onclick="loadPosModule('sales-summary')"><i class="fas fa-list me-3"></i>Summary</a></li>
+                            <li><a href="#" onclick="loadPosModule('sales-pending')"><i class="fas fa-clock me-3"></i>Pending</a></li>
+                            <li><a href="#" onclick="loadPosModule('sales-voided')"><i class="fas fa-ban me-3"></i>Voided</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Reports -->
+                    <div class="menu-section">
+                        <button class="menu-toggle">
+                            <i class="fas fa-chart-bar me-3"></i> Reports 
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <ul class="submenu">
+                            <li><a href="#" onclick="loadPosModule('monthly-sales')"><i class="fas fa-calendar me-3"></i>Monthly Sales</a></li>
+                            <li><a href="#" onclick="loadPosModule('daily-sales')"><i class="fas fa-calendar-day me-3"></i>Daily Sales</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Inventory -->
+                    <div class="menu-section">
+                        <button class="menu-toggle">
+                            <i class="fas fa-boxes me-3"></i> Inventory 
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <ul class="submenu">
+                            <li><a href="#" onclick="loadPosModule('sku-inventory')"><i class="fas fa-barcode me-3"></i>SKU Inventory</a></li>
+                            <li><a href="#" onclick="loadPosModule('item-inventory')"><i class="fas fa-cubes me-3"></i>Item Inventory</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Settings (simple link) -->
+                    <div class="menu-section">
+                        <a href="#" onclick="loadPosModule('settings')" class="nav-link">
+                            <i class="fas fa-cog me-3"></i> Settings
+                        </a>
+                    </div>
+
+                    <div class="divider">ACCOUNT</div>
+                    <button class="signout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </button>
+                </aside>
+
+
+                <!-- POS Main Content -->
+                <main class="user-main-content">
+                    <div id="pos-page-container">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-primary text-white">
+                                            <h2 class="card-title mb-0">
+                                                <i class="fas fa-cash-register me-3"></i> Point of Sale
+                                            </h2>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <p class="lead text-muted">Select an option from the sidebar.</p>
+                                            <p>Use the navigation menu on the left to access different POS features.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>  
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Register Now Page (light themed design copied from image) -->
+        <div id="register-page" class="page-content d-none">
+            <div class="container d-flex justify-content-center align-items-center py-5" style="min-height:70vh;">
+                <div class="card shadow-lg w-100" style="max-width:1000px; border-radius:12px; overflow:hidden;">
+                    <div class="row g-0">
+                        <!-- Left promotional panel (blue) -->
+                        <div class="col-md-6" style="background: linear-gradient(90deg,#0d6efd 0%, #0b5ed7 100%); color: #fff;">
+                            <div class="p-5 h-100 d-flex flex-column justify-content-center">
+                                <div class="mb-4">
+                                    <a href="#" onclick="showPage('home-page')" class="text-white text-decoration-none">
+                                        <i class="fas fa-gem fa-2x me-2"></i>
+                                        <span class="fw-bold fs-5">GGVerse</span>
+                                    </a>
+                                </div>
+
+                                <h2 class="fw-bold mb-3">Unlock Your Potential</h2>
+                                <p class="mb-4 text-white-50">
+                                    Join now and harness the power of a proven system, exceptional products,
+                                    and unwavering support to create your own success story. Your journey to a
+                                    brighter future starts here!
+                                </p>
+
+                                <div>
+                                    <button class="btn btn-outline-light rounded-pill px-4">
+                                        <i class="fas fa-play me-2"></i>Watch Trailer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right form panel (light) -->
+                        <div class="col-md-6 bg-white">
+                            <div id="register-right-panel" class="p-5">
+                                <!-- This content will be dynamically replaced -->
+                                <h3 class="mb-4">Validation Code</h3>
+
+                                <form id="register-validation-form" class="mb-4" onsubmit="return false;">
+                                    <div class="mb-3">
+                                        <label class="form-label">Activation Code</label>
+                                        <input type="text" class="form-control" placeholder="Enter code here" aria-label="Activation Code">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Activation PIN</label>
+                                        <input type="password" class="form-control" placeholder="Enter pin here" aria-label="Activation PIN">
+                                    </div>
+
+                                    <button class="btn btn-primary w-100">Next</button>
+                                </form>
+
+                                <div class="text-center">
+                                    <small class="text-muted">Stay connected on social media for updates</small>
+                                    <div class="d-flex justify-content-center gap-2 mt-3">
+                                        <a class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px" href="#" aria-label="facebook">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </a>
+                                        <a class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px" href="#" aria-label="telegram">
+                                            <i class="fab fa-telegram-plane"></i>
+                                        </a>
+                                        <a class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px" href="#" aria-label="youtube">
+                                            <i class="fab fa-youtube"></i>
+                                        </a>
+                                        <a class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px" href="#" aria-label="whatsapp">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </a>
+                                    </div>
+
+                                    <p class="mt-3 mb-0">
+                                        Already have an account?
+                                        <a href="#" onclick="showPage('account-summary')">Sign In</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="ggverse.js?v=244&user=dashboard&encash=fixed"></script>
+    </body>
+</html>
