@@ -8246,21 +8246,33 @@ function getAdminSettingsPayoutContent() {
 }
 
 function getAdminSettingsPackageContent() {
-  const data = [
+  let data = [
     { id: 1, userType: "SHADOW", product: "SILVER", price: 3500.00, cdPrice: 3500, pairing: 0.00, bv: 10.00, maxCycle: 10, maxPoints: 1250.00 },
     { id: 2, userType: "SILVER", product: "SILVER", price: 3500.00, cdPrice: 3500, pairing: 0.00, bv: 10.00, maxCycle: 10, maxPoints: 1250.00 },
     { id: 3, userType: "GOLD", product: "GOLD", price: 10500.00, cdPrice: 10500, pairing: 350.00, bv: 30.00, maxCycle: 30, maxPoints: 4000.00 },
     { id: 4, userType: "PLATINUM", product: "PLATINUM", price: 20500.00, cdPrice: 20500, pairing: 1050.00, bv: 50.00, maxCycle: 50, maxPoints: 8000.00 }
   ];
 
+  let currentPage = 1;
+  const rowsPerPage = 5;
+
   const formatMoney = val => parseFloat(val).toLocaleString("en-US", { minimumFractionDigits: 2 });
 
   const getPackageHeader = () => `
-    <h4 class="fw-bold mb-3">Package Settings</h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold">Package Settings</h4>
+      <button class="btn btn-success btn-sm" onclick="addPackageRow()">
+        <i class="bi bi-plus-circle"></i> Add Package
+      </button>
+    </div>
   `;
 
-  const getPackageTable = (data) => {
-    const rows = data.map(pkg => getPackageRow(pkg)).join("");
+  const getPackageTable = () => {
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageData = data.slice(start, end);
+
+    const rows = pageData.map(pkg => getPackageRow(pkg)).join("");
 
     return `
       <div class="table-responsive">
@@ -8276,6 +8288,7 @@ function getAdminSettingsPackageContent() {
               <th class="text-end">Base BV</th>
               <th class="text-end">Max Cycle Pair</th>
               <th class="text-end">Max Level Points</th>
+              <th class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -8283,32 +8296,108 @@ function getAdminSettingsPackageContent() {
           </tbody>
         </table>
       </div>
+      ${getPagination()}
     `;
   };
 
   const getPackageRow = (pkg) => `
-    <tr>
+    <tr id="row-${pkg.id}">
       <td class="text-center">${pkg.id}</td>
-      <td>${pkg.userType}</td>
-      <td>${pkg.product}</td>
-      <td class="text-end">${formatMoney(pkg.price)}</td>
-      <td class="text-end">${formatMoney(pkg.cdPrice)}</td>
-      <td class="text-end">${formatMoney(pkg.pairing)}</td>
-      <td class="text-end">${formatMoney(pkg.bv)}</td>
-      <td class="text-end">${pkg.maxCycle}</td>
-      <td class="text-end">${formatMoney(pkg.maxPoints)}</td>
+      <td contenteditable="true">${pkg.userType}</td>
+      <td contenteditable="true">${pkg.product}</td>
+      <td class="text-end" contenteditable="true">${formatMoney(pkg.price)}</td>
+      <td class="text-end" contenteditable="true">${formatMoney(pkg.cdPrice)}</td>
+      <td class="text-end" contenteditable="true">${formatMoney(pkg.pairing)}</td>
+      <td class="text-end" contenteditable="true">${formatMoney(pkg.bv)}</td>
+      <td class="text-end" contenteditable="true">${pkg.maxCycle}</td>
+      <td class="text-end" contenteditable="true">${formatMoney(pkg.maxPoints)}</td>
+      <td class="text-center">
+        <button class="btn btn-sm btn-primary" onclick="saveRow(${pkg.id})">
+          <i class="bi bi-save"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRow(${pkg.id})">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
     </tr>
   `;
 
-  return `
-    <div class="container-fluid py-4" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
-      <div class="card bg-white shadow-sm rounded-3 p-3">
-        ${getPackageHeader()}
-        ${getPackageTable(data)}
+  const getPagination = () => {
+    const totalPages = Math.ceil(data.length / rowsPerPage);
+
+    let buttons = "";
+    for (let i = 1; i <= totalPages; i++) {
+      buttons += `
+        <button class="btn btn-sm ${i === currentPage ? "btn-primary" : "btn-outline-primary"} me-1" onclick="goToPage(${i})">
+          ${i}
+        </button>
+      `;
+    }
+
+    return `
+      <div class="d-flex justify-content-center mt-3">
+        ${buttons}
       </div>
-    </div>
-  `;
+    `;
+  };
+
+  // Attach helper functions globally
+  window.goToPage = (page) => {
+    currentPage = page;
+    render();
+  };
+
+  window.addPackageRow = () => {
+    const newId = data.length ? Math.max(...data.map(d => d.id)) + 1 : 1;
+    data.push({ id: newId, userType: "NEW", product: "NEW", price: 0, cdPrice: 0, pairing: 0, bv: 0, maxCycle: 0, maxPoints: 0 });
+    render();
+  };
+
+  window.deleteRow = (id) => {
+    data = data.filter(pkg => pkg.id !== id);
+    render();
+  };
+
+  window.saveRow = (id) => {
+    const row = document.querySelector(`#row-${id}`);
+    const cells = row.querySelectorAll("td");
+
+    data = data.map(pkg => {
+      if (pkg.id === id) {
+        return {
+          id: id,
+          userType: cells[1].innerText,
+          product: cells[2].innerText,
+          price: parseFloat(cells[3].innerText.replace(/,/g, "")) || 0,
+          cdPrice: parseFloat(cells[4].innerText.replace(/,/g, "")) || 0,
+          pairing: parseFloat(cells[5].innerText.replace(/,/g, "")) || 0,
+          bv: parseFloat(cells[6].innerText.replace(/,/g, "")) || 0,
+          maxCycle: parseInt(cells[7].innerText) || 0,
+          maxPoints: parseFloat(cells[8].innerText.replace(/,/g, "")) || 0,
+        };
+      }
+      return pkg;
+    });
+
+    render();
+  };
+
+  function render() {
+    document.getElementById("admin-settings-container").innerHTML = `
+      <div class="container-fluid py-4" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
+        <div class="card bg-white shadow-sm rounded-3 p-3">
+          ${getPackageHeader()}
+          ${getPackageTable()}
+        </div>
+      </div>
+    `;
+  }
+
+  // Initial render
+  setTimeout(render, 0);
+  return `<div id="admin-settings-container"></div>`;
 }
+
 
 function getAdminSettingsSuperadminContent() {
   const getRecodeButton = (label, action) => `
