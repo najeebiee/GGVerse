@@ -382,6 +382,7 @@ function getAdminAccountsCdContent() {
     `;
 }
 
+
 /* Promos */
 function getAdminPromo2fastContent() {
   return `
@@ -468,6 +469,7 @@ function getAdminPromoPearlfarmContent() {
 function getAdminPromoListContent() {
     return `<div class="card"><div class="card-body">Other Promos Page</div></div>`;
 }
+
 
 /* Store */
 function getAdminStoreAddContent() {
@@ -1304,6 +1306,7 @@ function getAdminItemSalesReportContent() {
     `;
 }
 
+
 /* Activation */
 function getAdminActivationSummaryContent() {
   return `
@@ -1647,6 +1650,7 @@ function getAdminActivationTrackerContent() {
   </div>
   `;
 }
+
 
 
 /* eWallet */
@@ -2215,6 +2219,7 @@ function getAdminWalletDebitProcessContent() {
         </div>
     `;
 }
+
 function getAdminWalletDebitProcessCdContent() {
   const rows = [
     {
@@ -2898,7 +2903,6 @@ function getAdminSettingsPackageContent() {
   return `<div id="admin-settings-container"></div>`;
 }
 
-
 function getAdminSettingsSuperadminContent() {
   const getRecodeButton = (label, action) => `
     <button class="btn btn-primary btn-lg w-100 mb-3 rounded-pill shadow-sm fw-semibold"
@@ -2929,7 +2933,6 @@ function getAdminSettingsSuperadminContent() {
 
   return getRecodeCard(buttons);
 }
-
 
 function getAdminSettingsMaintenanceContent() {
   const settings = [
