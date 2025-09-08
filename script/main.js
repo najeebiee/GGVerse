@@ -435,28 +435,8 @@ function loadUserPage(pageName) {
     }
 }
 
-function getStandaloneContent(moduleId) {
-    const standaloneContents = {
-        "epoints-summary": getEPointsSummaryContent(),
-        "encash-wallet": getEncashWalletContent(),
-        "ewallet-summary": getEwalletSummaryContent(),
-        "withdrawal-pin": getWithdrawalPinContent(),
-        "claim-products": getClaimProductsContent(),
-        "direct-referral": getDirectReferralContent(),
-        "sales-match-bonus": getSalesMatchBonusContent(),
-        "leadership-bonus": getLeadershipBonusContent(),
-        "personal-rebates": getPersonalRebatesContent(),
-        "unilevel-bonus": getUnilevelBonusContent(),
-        "shop-now": getShopNowContent(),
-        "checkout": getCheckoutContent(),
-        "transactions": getTransactionsContent(),
-        "user-profile": getUserProfileContent(),
-        "withdrawal-settings": getWithdrawalSettingsContent(),
-        "change-password": getChangePasswordContent(),
-    };
 
-    return standaloneContents[moduleId] || null;
-}
+
 
 // canonical loadAdminModule - place this once at the end of ggverse.js
 function loadAdminModule(moduleId, event) {
@@ -517,12 +497,12 @@ function loadAdminModule(moduleId, event) {
   if (active) active.classList.add('active');
 }
 
-// Simple User Page Placeholder Function 
+// Simple User Page Placeholder Function
 function showUserPage() {
     const userPage = document.getElementById('user-page');
     if (userPage) {
         // Load Account Summary by default when user page is accessed
-        loadUserPage('account-summary');
+        loadUserModule('account-summary');
         console.log("User page loaded - Account Summary displayed");
     }
 }
