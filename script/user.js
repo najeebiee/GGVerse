@@ -2,6 +2,19 @@ function loadUserPage(pageName) {
     const userPageContainer = document.querySelector("#user-page-container");
     if (!userPageContainer) return;
 
+    // Dashboard and Main Pages
+    if (pageName === 'dashboard') {
+        userPageContainer.innerHTML = getUserDashboardContent();
+        console.log(`Loaded Dashboard page`);
+        return;
+    }
+
+    if (pageName === 'codebank') {
+        userPageContainer.innerHTML = getCodeBankContent();
+        console.log(`Loaded Code Bank page`);
+        return;
+    }
+
     // Account Settings
     if (pageName === 'user-profile') {
         userPageContainer.innerHTML = getUserProfileContent();
@@ -202,12 +215,15 @@ function loadUserPage(pageName) {
 function getStandaloneContent(moduleId) {
     const standaloneContents = {
         "epoints-summary": getEPointsSummaryContent(),
+        "account-summary": getAccountSummaryContent(),
+        "dashboard": getUserDashboardContent(),
+        "codebank": getCodeBankContent(),
         "encash-wallet": getEncashWalletContent(),
         "ewallet-summary": getEwalletSummaryContent(),
         "withdrawal-pin": getWithdrawalPinContent(),
         "claim-products": getClaimProductsContent(),
         "direct-referral": getDirectReferralContent(),
-        "sales-match-bonus": getSalesMatchBonusContent(),
+        "sales-match": getSalesMatchBonusContent(),
         "leadership-bonus": getLeadershipBonusContent(),
         "personal-rebates": getPersonalRebatesContent(),
         "unilevel-bonus": getUnilevelBonusContent(),
@@ -2936,14 +2952,17 @@ function getAccountSummaryContent() {
                 <!-- Second Row: Sales & Leadership -->
                 <div class="row g-3 mb-4">
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="card" style="background: #f8f9fa; border: 1px solid #dee2e6;">
+                        <div class="card" style="background: #f8f9fa; border: 1px solid #dee2e6; cursor: pointer" onclick="loadUserPage('sales-match')">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h6 class="card-title text-muted mb-0">TOTAL SALES MATCH</h6>
                                     <i class="fas fa-dollar-sign text-warning"></i>
                                 </div>
                                 <h3 class="mb-1 fw-bold text-dark">PHP324.00</h3>
-                                <small class="text-muted">POINTS RAISED</small>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">POINTS RAISED</small>
+                                    <i class="fas fa-arrow-right text-primary"></i>
+                                </div>
                             </div>
                         </div>
                     </div>

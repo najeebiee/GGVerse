@@ -294,12 +294,12 @@ function loadAdminModule(moduleId, event) {
   if (active) active.classList.add('active');
 }
 
-// Simple User Page Placeholder Function
+// Simple User Page Placeholder Function 
 function showUserPage() {
     const userPage = document.getElementById('user-page');
     if (userPage) {
         // Load Account Summary by default when user page is accessed
-        loadUserModule('account-summary');
+        loadUserPage('account-summary');
         console.log("User page loaded - Account Summary displayed");
     }
 }
