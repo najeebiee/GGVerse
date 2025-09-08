@@ -234,6 +234,209 @@ function loadPageContent(pageId) {
     }
 }
 
+function loadUserPage(pageName) {
+    const userPageContainer = document.querySelector("#user-page-container");
+    if (!userPageContainer) return;
+
+    // Account Settings
+    if (pageName === 'user-profile') {
+        userPageContainer.innerHTML = getUserProfileContent();
+        console.log(`Loaded User Profile page`);
+        return;
+    }
+
+    if (pageName === 'withdrawal-settings') {
+        userPageContainer.innerHTML = getWithdrawalSettingsContent();
+        console.log(`Loaded Withdrawal Settings page`);
+        return;
+    }
+
+    if (pageName === 'change-password') {
+        userPageContainer.innerHTML = getChangePasswordContent();
+        console.log(`Loaded Change Password page`);
+        return;
+    }
+
+    if (pageName === 'withdrawal-pin-settings') {
+        userPageContainer.innerHTML = getWithdrawalPinContent();
+        console.log(`Loaded Withdrawal PIN page`);
+        return;
+    }
+
+    // Shop
+    if (pageName === 'shop-now') {
+        userPageContainer.innerHTML = getShopNowContent();
+        console.log(`Loaded Shop Now page`);
+        return;
+    }
+
+    if (pageName === 'checkout') {
+        userPageContainer.innerHTML = getCheckoutContent();
+        console.log(`Loaded Checkout page`);
+        return;
+    }
+
+    if (pageName === 'transactions') {
+        userPageContainer.innerHTML = getTransactionsContent();
+        console.log(`Loaded Transactions page`);
+        return;
+    }
+
+    // Reports
+    if (pageName === 'direct-referral') {
+        userPageContainer.innerHTML = getDirectReferralContent();
+        console.log(`Loaded Direct Referral page`);
+        return;
+    }
+
+    if (pageName === 'sales-match') {
+        userPageContainer.innerHTML = getSalesMatchBonusContent();
+        console.log(`Loaded Sales Match page`);
+        return;
+    }
+
+    if (pageName === 'leadership-bonus') {
+        userPageContainer.innerHTML = getLeadershipBonusContent();
+        console.log(`Loaded Leadership Bonus page`);
+        return;
+    }
+
+    if (pageName === 'personal-rebates') {
+        userPageContainer.innerHTML = getPersonalRebatesContent();
+        console.log(`Loaded Personal Rebates page`);
+        return;
+    }
+
+    if (pageName === 'unilevel-bonus') {
+        userPageContainer.innerHTML = getUnilevelBonusContent();
+        console.log(`Loaded Unilevel Bonus page`);
+        return;
+    }
+
+    // Organization
+    if (pageName === 'switch-account') {
+        userPageContainer.innerHTML = getSwitchAccountContent();
+        console.log(`Loaded Switch Account page`);
+        return;
+    }
+
+    if (pageName === 'genealogy-tree') {
+        userPageContainer.innerHTML = getGenealogyTreeContent();
+        console.log(`Loaded Genealogy Tree page`);
+        return;
+    }
+
+    if (pageName === 'direct-sponsors') {
+        userPageContainer.innerHTML = getDirectSponsorsContent();
+        console.log(`Loaded Direct Sponsors page`);
+        return;
+    }
+
+    if (pageName === 'binary-list') {
+        userPageContainer.innerHTML = getBinaryListContent();
+        console.log(`Loaded Binary List page`);
+        return;
+    }
+
+    if (pageName === 'unilevel-list') {
+        userPageContainer.innerHTML = getUnilevelListContent();
+        console.log(`Loaded Unilevel List page`);
+        return;
+    }
+
+    // Check if this is a special page with custom content
+    if (pageName === 'ewallet-summary') {
+        userPageContainer.innerHTML = getEwalletSummaryContent();
+        console.log(`Loaded eWallet Summary page`);
+        return;
+    }
+
+    if (pageName === 'epoints-summary') {
+        userPageContainer.innerHTML = getEpointsSummaryContent();
+        console.log(`Loaded ePoints Summary page`);
+        return;
+    }
+
+    if (pageName === 'claim-products') {
+        userPageContainer.innerHTML = getEpointsClaimProductsContent();
+        console.log(`Loaded ePoints Claim Products page`);
+        return;
+    }
+
+    // Check if this is encash wallet page
+    if (pageName === 'encash-wallet') {
+        userPageContainer.innerHTML = getEncashWalletContent();
+        console.log(`Loaded Encash eWallet page`);
+        return;
+    }
+
+    if (pageName === 'withdrawal-pin') {
+        userPageContainer.innerHTML = getWithdrawalPinContent();
+        console.log(`Loaded Withdrawal PIN page`);
+        return;
+    }
+    
+    // Check if this is dashboard - redirect to Account Summary instead
+    if (pageName === 'account-summary') {
+        userPageContainer.innerHTML = getAccountSummaryContent();
+        console.log(`Loaded Account Summary for dashboard request`);
+        return;
+    }
+    
+    // Create page title from page name
+    const title = pageName
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    
+    // Update user page content with placeholder
+    userPageContainer.innerHTML = `
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="card-title mb-0">
+                                <i class="fas fa-file-alt me-2"></i>${title}
+                            </h2>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <p class="lead text-muted">Content coming soon...</p>
+                                    <p>This page will contain the <strong>${title}</strong> functionality.</p>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Page identifier: <code>${pageName}</code>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <h6 class="fw-bold mb-2">Quick Actions</h6>
+                                        <button class="btn btn-primary btn-sm me-2 mb-2">Action 1</button>
+                                        <button class="btn btn-secondary btn-sm mb-2">Action 2</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    console.log(`Loaded user page: ${pageName}`);
+    
+    // Close sidebar on mobile after page load
+    const userSidebar = document.querySelector(".user-sidebar");
+    const isDesktop = window.innerWidth >= 992;
+    if (!isDesktop && userSidebar && userSidebar.classList.contains("open")) {
+        userSidebar.classList.remove("open");
+    }
+}
+
+
+
 
 // canonical loadAdminModule - place this once at the end of ggverse.js
 function loadAdminModule(moduleId, event) {
@@ -294,12 +497,12 @@ function loadAdminModule(moduleId, event) {
   if (active) active.classList.add('active');
 }
 
-// Simple User Page Placeholder Function 
+// Simple User Page Placeholder Function
 function showUserPage() {
     const userPage = document.getElementById('user-page');
     if (userPage) {
         // Load Account Summary by default when user page is accessed
-        loadUserPage('account-summary');
+        loadUserModule('account-summary');
         console.log("User page loaded - Account Summary displayed");
     }
 }
