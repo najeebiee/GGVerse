@@ -1592,3 +1592,233 @@ body {
         border: 1px solid #000;
     }
 }
+
+/* POS CSS */
+/* Overlay Styles */
+.modal-overlay-right {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay-right.show {
+    opacity: 1;
+}
+
+/* Modal Content */
+.modal-content-right {
+    width: 65%;
+    height: 100%;
+    background: white;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 6px 0 0 6px;
+}
+
+.modal-content-right.show {
+    transform: translateX(0);
+}
+
+/* Modal Header */
+.modal-header-right {
+    background: #28a745;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Modal Body */
+.modal-body-right {
+    padding: 1.5rem;
+}
+
+/* Category Header */
+.category-header {
+    background-color: #6c757d;
+    color: white;
+    font-weight: bold;
+    padding: 8px 10px;
+    margin-top: 10px;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+table th,
+table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #dee2e6;
+}
+
+table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* Empty Category Message */
+.no-items {
+    text-align: center;
+    padding: 10px;
+    color: #888;
+    font-style: italic;
+}
+
+/* Footer Buttons */
+.footer-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+}
+
+/* Save Button */
+.btn-save {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Close Button */
+.btn-close-custom {
+    background-color: #ff8800;
+    color: white;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .modal-content-right {
+        width: 100%;
+    }
+}
+
+/* Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+/* Modal Box */
+.modal-box {
+    background: #fff;
+    width: 400px;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Animate Open */
+.modal-box.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Icon */
+.icon-container {
+    font-size: 60px;
+    color: #17a2b8;
+    margin-bottom: 10px;
+}
+
+/* Title */
+.modal-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Message */
+.modal-message {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+/* Buttons Container */
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Continue Button */
+.btn-continue {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+.btn-continue:hover {
+    background-color: #218838;
+}
+
+/* Cancel Button */
+.btn-cancel {
+    background-color: white;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+.btn-cancel:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+
+

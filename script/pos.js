@@ -1,3 +1,116 @@
+// MOCK DATA FOR PRODUCTS (Dynamic Categories & Items)
+const productData = [
+    {
+        category: "Products Lines",
+        products: [
+            { sku: "SGGUARD", description: "Synbiotic+Gutguard", price: 2090, stock: 24 },
+            { sku: "BPGUARD", description: "Synbiotic+Gutguard BPGUARD*1.00", price: 1299, stock: 10 },
+        ],
+    },
+    {
+        category: "Entry Packages",
+        products: [
+            { sku: "SILVER", description: "PAID SILVER", price: 3450, stock: 5 },
+            { sku: "GOLD", description: "PAID GOLD", price: 10350, stock: 3 },
+            { sku: "PLATINUM", description: "PAID PLATINUM", price: 34500, stock: 2 },
+        ],
+    },
+    {
+        category: "Unilevel Packages",
+        products: [
+            { sku: "Synbiotic+ MM", description: "Monthly Maintenance", price: 2090, stock: 15 },
+        ],
+    },
+    {
+        category: "Other Items",
+        products: [],
+    },
+];
+// Mock data (replace with API later)
+// MOCK DATA FOR ORDERS
+const OrderSummmaryContextMockOrder = [
+    {
+        transNo: 1,
+        refNo: "20250326-10232",
+        store: "DAVAO BRANCH",
+        cashier: "Guild, Grinders [98293]",
+        date: "2025-03-26 14:40:55",
+        status: "PAID / COMPLETED",
+        statusClass: "success",
+        amount: 7638,
+        dateCreated: "2025-03-26 12:00:00",
+        poTo: "DAVAO SUPPLY CENTER",
+        totalAmount: 7638,
+        products: [
+            {
+                ...productData[0].products[0], // Synbiotic+Gutguard
+                quantity: 2,
+            },
+            {
+                ...productData[0].products[1], // Synbiotic+Gutguard BPGUARD
+                quantity: 1,
+            }
+        ]
+    },
+    {
+        transNo: 47,
+        refNo: "20250330-10231",
+        store: "DAVAO BRANCH",
+        cashier: "Guild, Grinders [98293]",
+        date: "2025-03-30 16:25:26",
+        status: "PAID / COMPLETED",
+        statusClass: "success",
+        amount: 10350,
+        dateCreated: "2025-03-30 15:00:00",
+        poTo: "GAMER TECH SUPPLIES",
+        totalAmount: 10350,
+        products: [
+            {
+                ...productData[1].products[1], // GOLD Package
+                quantity: 1,
+            }
+        ]
+    },
+    {
+        transNo: 50,
+        refNo: "20250401-10231",
+        store: "DAVAO BRANCH",
+        cashier: "Guild, Grinders [98293]",
+        date: "2025-04-01 01:31:41",
+        status: "PAID / COMPLETED",
+        statusClass: "success",
+        amount: 13840,
+        dateCreated: "2025-04-01 00:10:00",
+        poTo: "TECHNO HUB DAVAO",
+        totalAmount: 13840,
+        products: [
+            {
+                ...productData[1].products[0], // SILVER Package
+                quantity: 2,
+            },
+            {
+                ...productData[2].products[0], // Monthly Maintenance
+                quantity: 1,
+            }
+        ]
+    },
+    {
+        transNo: 25,
+        refNo: "20350322-104302",
+        store: "DAVAO BRANCH",
+        cashier: "System",
+        date: "2025-03-22 11:00:00",
+        status: "VOIDED",
+        statusClass: "danger",
+        amount: 0.00,
+        dateCreated: "2025-03-22 10:20:00",
+        poTo: "N/A",
+        totalAmount: 0.00,
+        products: []
+    }
+];
+
+
 // POS Module Functions
 
 function loadPosContent() {
@@ -65,6 +178,20 @@ function loadPosModule(moduleName) {
     }
 }
 
+function openModal(type) {
+    if (type === "newPO") {
+        createNewPO();
+    } else if (type === "summary") {
+        loadPosModule('orders-summary')
+    } else if (type == "pending") {
+        loadPosModule('orders-pending')
+    } else if (type == "personal-sales-summary") {
+        loadPosModule('sales-summary')
+    } else if (type == "new-personal-sales") {
+        createNewPersonalSales();
+    }
+}
+
 function getPosContent() {
     return `
         <div id="pos-page" class="page-content">
@@ -105,7 +232,6 @@ function getPosContent() {
     `;
 }
 
-
 // --- POS HOME ---
 function getPosHomeContent() {
     return `
@@ -123,10 +249,11 @@ function getPosHomeContent() {
                                 </div>
                                 <div class="d-flex flex-column align-items-end gap-2">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-light border" title="Summary">
+                                        <button onclick="openModal('summary')" class="btn btn-sm btn-light border" title="Summary">
                                             <i class="fas fa-list"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-success">
+
+                                        <button onclick="openModal('newPO')" class="btn btn-sm btn-success">
                                             <i class="fas fa-plus me-1"></i> NEW PO
                                         </button>
                                     </div>
@@ -146,7 +273,7 @@ function getPosHomeContent() {
                                     <small class="text-warning">Your total pending orders</small>
                                 </div>
                                 <div class="d-flex flex-column align-items-end">
-                                    <button class="btn btn-sm btn-light border" title="Pending list">
+                                    <button onclick="openModal('pending')" class="btn btn-sm btn-light border" title="Pending list">
                                         <i class="fas fa-list"></i>
                                     </button>
                                 </div>
@@ -165,7 +292,7 @@ function getPosHomeContent() {
                                     <small class="text-success">Your total sales</small>
                                 </div>
                                 <div class="d-flex flex-column align-items-end">
-                                    <button class="btn btn-sm btn-success">
+                                    <button onclick="loadPosModule('sales-summary')" class="btn btn-sm btn-success">
                                         <i class="fas fa-list me-1"></i> Personal Sales
                                     </button>
                                 </div>
@@ -188,10 +315,10 @@ function getPosHomeContent() {
                                 </div>
                             </div>
                             <div class="d-flex gap-2 align-items-center">
-                                <button class="btn btn-light btn-sm border" title="Summary">
+                                <button onClick="loadPosModule('sales-summary')" class="btn btn-light btn-sm border" title="Summary">
                                     <i class="fas fa-list"></i>
                                 </button>
-                                <button class="btn btn-success btn-sm">
+                                <button onclick="openModal('new-personal-sales')" class="btn btn-success btn-sm">
                                     <i class="fas fa-plus me-1"></i> NEW
                                 </button>
                             </div>
@@ -210,7 +337,7 @@ function getPosHomeContent() {
                                 </div>
                             </div>
                             <div>
-                                <button class="btn btn-light btn-sm border" title="Pending list">
+                                <button onClick="loadPosModule('sales-pending')" class="btn btn-light btn-sm border" title="Pending list">
                                     <i class="fas fa-list"></i>
                                 </button>
                             </div>
@@ -340,7 +467,34 @@ function getPosHomeContent() {
 
 
 // --- MY ORDERS ---
+// Function to get dynamic HTML
 function getOrdersSummaryContent() {
+    // Generate dynamic rows
+    const rows = OrderSummmaryContextMockOrder.map((order, index) => `
+        <tr>
+            <td>${order.transNo}</td>
+            <td>${order.refNo}</td>
+            <td>${order.store}</td>
+            <td>${order.cashier}</td>
+            <td>${order.date}</td>
+            <td><span class="badge bg-${order.statusClass}">${order.status}</span></td>
+            <td>₱${order.amount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+            <td class="text-center">
+                ${order.statusClass === "danger"
+                    ? `<button onclick="confirmDeleteTransaction(${index})" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>`
+                    : `
+                        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openSearchOrderDetails(${OrderSummmaryContextMockOrder.indexOf(order)})">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="viewOrderDetails(OrderSummmaryContextMockOrder[${index}])">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    `
+                }
+            </td>
+        </tr>
+    `).join("");
+
     return `
         <div class="container-fluid px-3 px-md-4 py-4">
             <!-- Summary Cards -->
@@ -349,8 +503,8 @@ function getOrdersSummaryContent() {
                     <div class="card shadow-sm text-white" style="background: linear-gradient(135deg, #28a745, #218838);">
                         <div class="card-body text-center">
                             <h6 class="text-white-50">Completed Orders</h6>
-                            <h4 class="fw-bold">₱349,050.00</h4>
-                            <small>26 orders</small>
+                            <h4 class="fw-bold">₱${getTotalByStatus("success").toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h4>
+                            <small>${getCountByStatus("success")} orders</small>
                         </div>
                     </div>
                 </div>
@@ -358,8 +512,8 @@ function getOrdersSummaryContent() {
                     <div class="card shadow-sm text-white" style="background: linear-gradient(135deg, #dc3545, #c82333);">
                         <div class="card-body text-center">
                             <h6 class="text-white-50">Voided Orders</h6>
-                            <h4 class="fw-bold">₱0.00</h4>
-                            <small>1 order</small>
+                            <h4 class="fw-bold">₱${getTotalByStatus("danger").toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h4>
+                            <small>${getCountByStatus("danger")} orders</small>
                         </div>
                     </div>
                 </div>
@@ -367,8 +521,8 @@ function getOrdersSummaryContent() {
                     <div class="card shadow-sm text-dark" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
                         <div class="card-body text-center">
                             <h6 class="text-dark-50">Pending Orders</h6>
-                            <h4 class="fw-bold">₱0.00</h4>
-                            <small>0 orders</small>
+                            <h4 class="fw-bold">₱${getTotalByStatus("warning").toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h4>
+                            <small>${getCountByStatus("warning")} orders</small>
                         </div>
                     </div>
                 </div>
@@ -399,37 +553,7 @@ function getOrdersSummaryContent() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>30</td><td>20250326-10232</td><td>DAVAO BRANCH</td><td>Guild, Grinders [98293]</td><td>2025-03-26 14:40:55</td>
-                                    <td><span class="badge bg-success">PAID / COMPLETED</span></td><td>₱10,500.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-secondary me-1"><i class="fas fa-search"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-ellipsis-h"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>47</td><td>20250330-10231</td><td>DAVAO BRANCH</td><td>Guild, Grinders [98293]</td><td>2025-03-30 16:25:26</td>
-                                    <td><span class="badge bg-success">PAID / COMPLETED</span></td><td>₱10,350.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-secondary me-1"><i class="fas fa-search"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-ellipsis-h"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>50</td><td>20250401-10231</td><td>DAVAO BRANCH</td><td>Guild, Grinders [98293]</td><td>2025-04-01 01:31:41</td>
-                                    <td><span class="badge bg-success">PAID / COMPLETED</span></td><td>₱20,700.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-secondary me-1"><i class="fas fa-search"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-ellipsis-h"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>25</td><td>20350322-104302</td><td>DAVAO BRANCH</td><td>System</td><td>2025-03-22 11:00:00</td>
-                                    <td><span class="badge bg-danger">VOIDED</span></td><td>₱0.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
+                                ${rows}
                             </tbody>
                         </table>
                     </div>
@@ -437,7 +561,9 @@ function getOrdersSummaryContent() {
 
                 <!-- Pagination Footer -->
                 <div class="card-footer d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-                    <small class="text-muted mb-2 mb-md-0">Showing 0 to 0 of 0 entries</small>
+                    <small class="text-muted mb-2 mb-md-0">
+                        Showing ${OrderSummmaryContextMockOrder.length > 0 ? `1 to ${OrderSummmaryContextMockOrder.length}` : 0} of ${OrderSummmaryContextMockOrder.length} entries
+                    </small>
                     <nav aria-label="Pagination">
                         <ul class="pagination pagination-sm mb-0">
                             <li class="page-item disabled">
@@ -454,6 +580,18 @@ function getOrdersSummaryContent() {
         </div>
     `;
 }
+
+// Helper functions for totals & counts
+function getTotalByStatus(statusClass) {
+    return OrderSummmaryContextMockOrder
+        .filter(order => order.statusClass === statusClass)
+        .reduce((sum, order) => sum + order.amount, 0);
+}
+
+function getCountByStatus(statusClass) {
+    return OrderSummmaryContextMockOrder.filter(order => order.statusClass === statusClass).length;
+}
+
 
 function getOrdersPendingContent() {
     return `
@@ -1307,7 +1445,6 @@ function getItemInventoryContent() {
     `;
 }
 
-
 // --- SETTINGS ---
 function getSettingsContent() {
     return `
@@ -1365,3 +1502,785 @@ function getSettingsContent() {
     `;
 }
 
+function createNewPO() {
+    if (document.getElementById("newPOModal")) {
+        document.getElementById("newPOModal").style.display = "flex";
+        setTimeout(() => {
+            document.querySelector('.modal-content-right').classList.add('show');
+        }, 10);
+        return;
+    }
+
+    // Generate Product Table HTML Dynamically
+    let productTableHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>DESCRIPTION</th>
+                    <th>PRICE (₱)</th>
+                    <th>QUANTITY</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    productData.forEach(category => {
+        productTableHTML += `
+            <tr>
+                <td colspan="4" class="category-header">${category.category}</td>
+            </tr>
+        `;
+
+        if (category.products.length === 0) {
+            productTableHTML += `
+                <tr>
+                    <td colspan="4" class="no-items">NO ITEMS FOR THIS CATEGORY</td>
+                </tr>
+            `;
+        } else {
+            category.products.forEach(product => {
+                productTableHTML += `
+                    <tr>
+                        <td>${product.sku}</td>
+                        <td>${product.description}</td>
+                        <td class="price">${product.price.toFixed(2)}</td>
+                        <td>
+                            <input type="number" class="form-control qty" value="0" min="0" style="width: 80px;">
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+    });
+
+    productTableHTML += `</tbody></table>`;
+
+    // Create the HTML Content for the Modal
+    const htmlContent = `
+        <div id="newPOModal" class="modal-overlay-right">
+            <div class="modal-content-right">
+
+                <!-- NEW TOP HEADER -->
+                <div style="background-color: #28a745; color: white; padding: 12px; text-align: center; font-size: 1.3rem; font-weight: bold; border-radius: 6px 6px 0 0;">
+                    My New Purchase Order
+                </div>
+
+                <div class="modal-header-right">
+                    <span>My New Purchase Order</span>
+                    <button type="button" class="btn-close btn-close-white" id="modalHeaderCloseBtn" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body-right">
+                    <form id="newPOForm" onsubmit="return false;">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="poTo" class="form-label">PO TO:</label>
+                                <select class="form-select" id="poTo" required>
+                                    <option value="">Select Store...</option>
+                                    <option value="davao_sur">MEGA CENTER - Depot - Davao del Sur</option>
+                                    <option value="davao_branch">Branch - Davao Branch</option>
+                                    <option value="davao_norte">MEGA CENTER - Depot - Davao del Norte</option>
+                                    <option value="misamis_oriental">MEGA CENTER - Depot - Misamis Oriental</option>
+                                    <option value="grinderph">Country Hub - GRINDERPH</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="totalAmount" class="form-label">Total Amount:</label>
+                                <input type="text" class="form-control" id="totalAmount" value="0.00" readonly>
+                            </div>
+                        </div>
+                        ${productTableHTML}
+                        <div class="footer-buttons">
+                            <button type="button" class="btn-save" id="saveOrder">Save Order</button>
+                            <button type="button" class="btn-close-custom" id="modalFooterCloseBtn">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Append Modal HTML
+    document.body.insertAdjacentHTML("beforeend", htmlContent);
+
+    const modal = document.getElementById("newPOModal");
+    const modalContent = document.querySelector(".modal-content-right");
+
+    modal.style.display = "flex";
+    setTimeout(() => {
+        modal.classList.add("show");
+        modalContent.classList.add("show");
+    }, 10);
+
+    // Close when clicking outside modal content
+    modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+            closeNewPOModal();
+        }
+    });
+
+    // Attach live calculation listener (limit to this modal)
+    modal.querySelectorAll(".qty").forEach(input => {
+        input.addEventListener("input", updateTotals);
+    });
+
+    // Attach close handlers
+    document.getElementById("modalHeaderCloseBtn").addEventListener("click", closeNewPOModal);
+    document.getElementById("modalFooterCloseBtn").addEventListener("click", closeNewPOModal);
+
+    // Save order button
+    document.getElementById("saveOrder").addEventListener("click", submitNewPO);
+}
+
+
+// Function to close/remove the modal
+function closeNewPOModal() {
+    const modal = document.getElementById("newPOModal");
+    const modalContent = document.querySelector(".modal-content-right");
+    if (modal && modalContent) {
+        modal.classList.remove("show");
+        modalContent.classList.remove("show");
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+// Update Total Amount Dynamically (scoped to modal)
+function updateTotals() {
+    let total = 0;
+    const modal = document.getElementById("newPOModal");
+    if (!modal) return;
+
+    modal.querySelectorAll("tbody tr").forEach(row => {
+        const priceElement = row.querySelector(".price");
+        const qtyElement = row.querySelector(".qty");
+        if (priceElement && qtyElement) {
+            const price = parseFloat(priceElement.textContent) || 0;
+            const qty = parseFloat(qtyElement.value) || 0;
+            total += price * qty;
+            // Update subtotal cell if you want to show a subtotal column later
+            // const subtotalCell = row.querySelector('.subtotal');
+            // if (subtotalCell) subtotalCell.textContent = (price*qty).toFixed(2);
+        }
+    });
+    const totalAmountField = document.getElementById("totalAmount");
+    if (totalAmountField) totalAmountField.value = total.toFixed(2);
+}
+
+// Handle Save Order
+function submitNewPO() {
+    const storeSelect = document.getElementById("poTo");
+    const store = storeSelect ? storeSelect.value : "";
+    const totalField = document.getElementById("totalAmount");
+    const total = totalField ? parseFloat(totalField.value) : 0;
+
+    if (!store || total <= 0) {
+        alert("Please select a store and add at least one product.");
+        return;
+    }
+
+    // Build order items from modal
+    const modal = document.getElementById("newPOModal");
+    const items = [];
+    if (modal) {
+        modal.querySelectorAll("tbody tr").forEach(row => {
+            const sku = row.querySelector("td:nth-child(1)")?.textContent?.trim();
+            const desc = row.querySelector("td:nth-child(2)")?.textContent?.trim();
+            const priceText = row.querySelector(".price")?.textContent?.trim();
+            const qtyInput = row.querySelector(".qty");
+            if (sku && priceText && qtyInput) {
+                const price = parseFloat(priceText) || 0;
+                const qty = parseInt(qtyInput.value) || 0;
+                if (qty > 0) {
+                    items.push({ sku, description: desc, price, quantity: qty, subtotal: price * qty });
+                }
+            }
+        });
+    }
+
+    if (items.length === 0) {
+        alert("Please select at least one product!");
+        return;
+    }
+
+    // For now we just log — replace with your AJAX call as needed
+    console.log("Purchase Order saved:", {
+        store,
+        total,
+        items
+    });
+
+    alert(`Purchase Order saved!\nStore: ${storeSelect.selectedOptions[0].text}\nTotal: ₱${total.toLocaleString()}`);
+    closeNewPOModal();
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.getElementById('newPOModal')) {
+        closeNewPOModal();
+    }
+});
+
+function createNewPersonalSales() {
+    // If modal already exists, open it
+    if (document.getElementById("newPersonalSalesModal")) {
+        document.getElementById("newPersonalSalesModal").style.display = "flex";
+        setTimeout(() => {
+            document.querySelector('.modal-content-right').classList.add('show');
+        }, 10);
+        return;
+    }
+
+    // Generate Product Table HTML Dynamically
+    let productTableHTML = `
+        <table class="table table-bordered table-striped">
+            <thead style="background-color: #6c757d; color: white;">
+                <tr>
+                    <th>SKU</th>
+                    <th>STOCK</th>
+                    <th>PRICE</th>
+                    <th>QUANTITY</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    productData.forEach(category => {
+        productTableHTML += `
+            <tr>
+                <td colspan="4" class="category-header" style="background-color: #6c757d; color: white; font-weight: bold; padding: 6px;">
+                    ${category.category}
+                </td>
+            </tr>
+        `;
+
+        if (category.products.length === 0) {
+            productTableHTML += `
+                <tr>
+                    <td colspan="4" style="text-align: center; font-style: italic; padding: 10px;">NO ITEMS FOR THIS CATEGORY</td>
+                </tr>
+            `;
+        } else {
+            category.products.forEach(product => {
+                productTableHTML += `
+                    <tr>
+                        <td>${product.sku}</td>
+                        <td>${product.stock}</td>
+                        <td class="price">${product.price.toFixed(2)}</td>
+                        <td>
+                            <input type="number" class="form-control qty" value="0" min="0" style="width: 80px;">
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+    });
+
+    productTableHTML += `</tbody></table>`;
+
+    // Create Modal HTML Content
+    const htmlContent = `
+        <div id="newPersonalSalesModal" class="modal-overlay-right">
+            <div class="modal-content-right">
+
+                <!-- HEADER -->
+                <div style="background-color: #28a745; color: white; padding: 12px; text-align: center; font-size: 1.3rem; font-weight: bold; border-radius: 6px 6px 0 0;">
+                    New Personal Sales
+                </div>
+
+                <div class="modal-body-right">
+                    <form id="newPersonalSalesForm" onsubmit="return false;">
+                        <!-- Top Section -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="username" class="form-label">USERNAME:</label>
+                                <input type="text" class="form-control" id="username" placeholder="Type username here" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="accountName" class="form-label">Account name</label>
+                                <input type="text" class="form-control" id="accountName" placeholder="Account name" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="totalAmount" class="form-label">Total Amount:</label>
+                                <input type="text" class="form-control" id="totalAmount" value="0.00" readonly style="font-weight: bold; text-align: right;">
+                            </div>
+                        </div>
+
+                        <!-- Product Table -->
+                        ${productTableHTML}
+
+                        <!-- Footer Buttons -->
+                        <div class="footer-buttons" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                            <button type="button" class="btn btn-success" id="placeOrderBtn">Place Order</button>
+                            <button type="button" class="btn btn-warning" id="modalFooterCloseBtn">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Append Modal HTML to Body
+    document.body.insertAdjacentHTML("beforeend", htmlContent);
+
+    const modal = document.getElementById("newPersonalSalesModal");
+    const modalContent = document.querySelector(".modal-content-right");
+
+    modal.style.display = "flex";
+    setTimeout(() => {
+        modal.classList.add("show");
+        modalContent.classList.add("show");
+    }, 10);
+
+    // Close when clicking outside modal
+    modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+            closeNewPersonalSalesModal();
+        }
+    });
+
+    // Attach live calculation listener
+    modal.querySelectorAll(".qty").forEach(input => {
+        input.addEventListener("input", updatePersonalSalesTotal);
+    });
+
+    // Attach close handlers
+    document.getElementById("modalFooterCloseBtn").addEventListener("click", closeNewPersonalSalesModal);
+
+    // Place Order Button
+    document.getElementById("placeOrderBtn").addEventListener("click", submitNewPersonalSales);
+}
+
+// Function to close modal
+function closeNewPersonalSalesModal() {
+    const modal = document.getElementById("newPersonalSalesModal");
+    const modalContent = document.querySelector(".modal-content-right");
+    if (modal && modalContent) {
+        modal.classList.remove("show");
+        modalContent.classList.remove("show");
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+// Update Total Amount Dynamically
+function updatePersonalSalesTotal() {
+    let total = 0;
+    const modal = document.getElementById("newPersonalSalesModal");
+    if (!modal) return;
+
+    modal.querySelectorAll("tbody tr").forEach(row => {
+        const priceElement = row.querySelector(".price");
+        const qtyElement = row.querySelector(".qty");
+        if (priceElement && qtyElement) {
+            const price = parseFloat(priceElement.textContent) || 0;
+            const qty = parseFloat(qtyElement.value) || 0;
+            total += price * qty;
+        }
+    });
+    const totalAmountField = document.getElementById("totalAmount");
+    if (totalAmountField) totalAmountField.value = total.toFixed(2);
+}
+
+// Handle Submit Order
+function submitNewPersonalSales() {
+    const username = document.getElementById("username").value.trim();
+    const accountName = document.getElementById("accountName").value.trim();
+    const totalField = document.getElementById("totalAmount");
+    const total = totalField ? parseFloat(totalField.value) : 0;
+
+    if (!username || total <= 0) {
+        alert("Please enter a username and add at least one product.");
+        return;
+    }
+
+    // Collect products
+    const modal = document.getElementById("newPersonalSalesModal");
+    const items = [];
+    if (modal) {
+        modal.querySelectorAll("tbody tr").forEach(row => {
+            const sku = row.querySelector("td:nth-child(1)")?.textContent?.trim();
+            const priceText = row.querySelector(".price")?.textContent?.trim();
+            const qtyInput = row.querySelector(".qty");
+            if (sku && priceText && qtyInput) {
+                const price = parseFloat(priceText) || 0;
+                const qty = parseInt(qtyInput.value) || 0;
+                if (qty > 0) {
+                    items.push({ sku, price, quantity: qty, subtotal: price * qty });
+                }
+            }
+        });
+    }
+
+    if (items.length === 0) {
+        alert("Please select at least one product!");
+        return;
+    }
+
+    // Log for testing, replace with AJAX later
+    console.log("Personal Sales saved:", {
+        username,
+        accountName,
+        total,
+        items
+    });
+
+    alert(`Personal Sales saved!\nUsername: ${username}\nTotal: ₱${total.toLocaleString()}`);
+    closeNewPersonalSalesModal();
+}
+
+// View Order Details
+function viewOrderDetails(orderData) {
+    if (document.getElementById("orderDetailsModal")) {
+        document.getElementById("orderDetailsModal").style.display = "flex";
+        setTimeout(() => {
+            document.querySelector('.modal-content-right').classList.add('show');
+        }, 10);
+        return;
+    }
+
+    // Generate Product Table HTML Dynamically
+    let productTableHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>DESCRIPTION</th>
+                    <th>PRICE (₱)</th>
+                    <th>QUANTITY</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    orderData.products.forEach(product => {
+        productTableHTML += `
+            <tr>
+                <td>${product.sku}</td>
+                <td>${product.description}</td>
+                <td>${product.price.toFixed(2)}</td>
+                <td>${product.quantity}</td>
+            </tr>
+        `;
+    });
+
+    productTableHTML += `</tbody></table>`;
+
+    // Create the HTML Content for the Modal
+    const htmlContent = `
+        <div id="orderDetailsModal" class="modal-overlay-right">
+            <div class="modal-content-right">
+
+                <!-- HEADER -->
+                <div style="background-color: #007bff; color: white; padding: 12px; text-align: center; font-size: 1.3rem; font-weight: bold; border-radius: 6px 6px 0 0;">
+                    My Order Details
+                </div>
+
+                <div class="modal-header-right">
+                    <span>Item Check List</span>
+                    <button type="button" class="btn-close btn-close-white" id="orderDetailsHeaderCloseBtn" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body-right">
+                    <form id="orderDetailsForm" onsubmit="return false;">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>TRANS#:</strong></label>
+                                <input type="text" class="form-control" value="${orderData.transNo}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Date Created:</strong></label>
+                                <input type="text" class="form-control" value="${orderData.dateCreated}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>PO TO:</strong></label>
+                                <input type="text" class="form-control" value="${orderData.poTo}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Total Amount:</strong></label>
+                                <input type="text" class="form-control" value="₱${orderData.totalAmount.toFixed(2)}" readonly>
+                            </div>
+                        </div>
+
+                        ${productTableHTML}
+
+                        <div class="footer-buttons">
+                            <button type="button" class="btn-close-custom" id="orderDetailsFooterCloseBtn">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Append Modal HTML
+    document.body.insertAdjacentHTML("beforeend", htmlContent);
+
+    const modal = document.getElementById("orderDetailsModal");
+    const modalContent = document.querySelector(".modal-content-right");
+
+    modal.style.display = "flex";
+    setTimeout(() => {
+        modal.classList.add("show");
+        modalContent.classList.add("show");
+    }, 10);
+
+    // Close when clicking outside modal content
+    modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+            closeOrderDetails();
+        }
+    });
+
+    // Attach close handlers
+    document.getElementById("orderDetailsHeaderCloseBtn").addEventListener("click", closeOrderDetails);
+    document.getElementById("orderDetailsFooterCloseBtn").addEventListener("click", closeOrderDetails);
+}
+
+// Function to close/remove the modal
+function closeOrderDetails() {
+    const modal = document.getElementById("orderDetailsModal");
+    const modalContent = document.querySelector(".modal-content-right");
+    if (modal && modalContent) {
+        modal.classList.remove("show");
+        modalContent.classList.remove("show");
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+function openSearchOrderDetails(index) {
+    const order = OrderSummmaryContextMockOrder[index];
+    if (!order) {
+        alert("Order not found!");
+        return;
+    }
+
+    // Build Product Rows
+    let productRows = "";
+    if (order.products && order.products.length > 0) {
+        productRows = order.products.map(p => `
+            <tr>
+                <td>${p.sku}</td>
+                <td>${p.description}</td>
+                <td>₱${p.price.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+                <td>${p.quantity}</td>
+            </tr>
+        `).join("");
+    } else {
+        productRows = `<tr><td colspan="4" class="text-center text-muted">No products found</td></tr>`;
+    }
+
+    // Build Modal HTML
+    const modalHTML = `
+        <div id="searchOrderModal" class="modal-overlay-right">
+            <div class="modal-content-right">
+
+                <!-- HEADER -->
+                <div class="modal-header-right">
+                    <h4 class="modal-title">My Order Details</h4>
+                    <button type="button" class="btn-close btn-close-white" id="orderDetailsHeaderCloseBtn" aria-label="Close"></button>
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body-right">
+                    <div class="mb-2"><strong>TRANS#:</strong> ${order.transNo}</div>
+                    <div class="mb-2"><strong>Date Created:</strong> ${order.dateCreated}</div>
+                    <div class="mb-2"><strong>PO TO:</strong> ${order.poTo}</div>
+                    <div class="mb-3"><strong>Total Amount:</strong> ₱${order.totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+                    
+                    <!-- PRODUCT TABLE -->
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Description</th>
+                                <th>PRICE</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${productRows}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="footer-buttons">
+                    <button class="btn-close-custom" onclick="closeSearchOrderDetails()">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove existing modal before appending
+    const existingModal = document.getElementById("searchOrderModal");
+    if (existingModal) existingModal.remove();
+
+    // Append new modal
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    // Animate modal open
+    const modal = document.getElementById("searchOrderModal");
+    const modalContent = modal.querySelector(".modal-content-right");
+    setTimeout(() => {
+        modal.classList.add("show");
+        modalContent.classList.add("show");
+    }, 10);
+}
+
+function closeSearchOrderDetails() {
+    const modal = document.getElementById("searchOrderModal");
+    const modalContent = modal?.querySelector(".modal-content-right");
+    if (modal && modalContent) {
+        modal.classList.remove("show");
+        modalContent.classList.remove("show");
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+
+// Close modal on Escape key
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.getElementById('orderDetailsModal')) {
+        closeOrderDetails();
+    } else if (e.key === 'Escape' && document.getElementById('searchOrderModal')) {
+        closeSearchOrderDetails();
+    } 
+});
+
+// Function to open delete confirmation modal
+function confirmDeleteTransaction(transactionId) {
+    Swal.fire({
+        title: '<span style="font-size:22px; font-weight:bold;">Delete Transaction</span>',
+        html: `
+            <p style="font-size:16px; margin:10px 0;">
+                Are you sure you want to <b style="color:#e74c3c;">DELETE</b> this transaction?<br>
+                <span style="color:#555;">You have to be an <b>ADMIN</b> to continue this transaction.</span>
+            </p>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Continue!',
+        cancelButtonText: 'Cancel',
+        focusConfirm: false,
+        reverseButtons: true,
+        customClass: {
+            popup: 'delete-transaction-popup',
+            confirmButton: 'btn-continue',
+            cancelButton: 'btn-cancel'
+        },
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ✅ MOCK DELETE FOR NOW (Replace this with API call later)
+            deleteTransaction(transactionId);
+        }
+    });
+}
+
+// Function to actually delete the transaction
+function deleteTransaction(transactionId) {
+    // Find index based on the ID
+    const index = OrderSummmaryContextMockOrder.findIndex(order => order.transNo === transactionId);
+
+    if (index !== -1) {
+        // Remove it from mock data
+        OrderSummmaryContextMockOrder.splice(index, 1);
+
+        // Remove the corresponding table row from the DOM
+        const row = document.querySelector(`[data-trans-id="${transactionId}"]`);
+        if (row) row.remove();
+
+        // Success alert
+        Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: `Transaction ${transactionId} has been successfully deleted.`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Not Found!',
+            text: 'The transaction could not be found.',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+// Confirm Delete Transaction Modal
+function confirmDeleteTransaction(index) {
+    const order = OrderSummmaryContextMockOrder[index];
+    if (!order) {
+        alert("Order not found!");
+        return;
+    }
+
+    // Modal HTML
+    const modalHTML = `
+        <div id="deleteTransactionModal" class="modal-overlay">
+            <div class="modal-box">
+                <!-- ICON -->
+                <div class="icon-container">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+
+                <!-- TITLE -->
+                <h4 class="modal-title">Delete Transaction</h4>
+
+                <!-- MESSAGE -->
+                <p class="modal-message">
+                    Are you sure you want to <b>DELETE</b> this transaction (<b>${order.transNo}</b>)? <br>
+                    You have to be an <b>ADMIN</b> to continue this transaction.
+                </p>
+
+                <!-- BUTTONS -->
+                <div class="button-group">
+                    <button class="btn-continue" onclick="deleteTransaction('${order.transNo}')">Continue!</button>
+                    <button class="btn-cancel" onclick="closeDeleteTransactionModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove existing modal if already open
+    const existingModal = document.getElementById("deleteTransactionModal");
+    if (existingModal) existingModal.remove();
+
+    // Append modal to body
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    // Animate open
+    setTimeout(() => {
+        document.querySelector(".modal-box").classList.add("show");
+    }, 10);
+}
+
+// Close Delete Modal
+function closeDeleteTransactionModal() {
+    const modal = document.getElementById("deleteTransactionModal");
+    const modalBox = modal?.querySelector(".modal-box");
+    if (modal && modalBox) {
+        modalBox.classList.remove("show");
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// Handle Delete Action (Mock)
+function deleteTransaction(transNo) {
+    const index = OrderSummmaryContextMockOrder.findIndex(o => o.transNo === transNo);
+    if (index !== -1) {
+        OrderSummmaryContextMockOrder.splice(index, 1);
+        closeDeleteTransactionModal();
+        alert(`Transaction ${transNo} deleted successfully!`);
+        refreshOrdersTable();
+    }
+}
