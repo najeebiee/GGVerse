@@ -110,6 +110,63 @@ const OrderSummmaryContextMockOrder = [
     }
 ];
 
+// --- PERSONAL SALES MOCK DATA ---
+const PersonalSalesMockData = [
+    {
+        transNo: 'PS158',
+        customer: 'ADSUARA, ROMELYN [HEIDI]',
+        dateCreated: '2023-05-14 09:29:40',
+        status: 'PENDING / SETTLED CLAIMED PERSONAL',
+        statusClass: 'warning',
+        totalAmount: 45600.00,
+        payment: 45600.00,
+        cashier: 'JESSYLE MAE, DLONSOD',
+        products: [
+            { sku: 'GOLD', price: 10500.00, pts: 30.00, quantity: 1, total: 10500.00 },
+            { sku: 'PLATINUM', price: 35000.00, pts: 100.00, quantity: 1, total: 35000.00 }
+        ]
+    },
+    {
+        transNo: 'PS159',
+        customer: 'Salanggang, Grace [Gracious01]',
+        dateCreated: '2023-05-14 11:17:38',
+        status: 'PENDING / SETTLED CLAIMED PERSONAL',
+        statusClass: 'warning',
+        totalAmount: 7000.00,
+        payment: 7000.00,
+        cashier: 'JESSYLE MAE, DLONSOD',
+        products: [
+            { sku: 'GOLD', price: 7000.00, pts: 20.00, quantity: 1, total: 7000.00 }
+        ]
+    },
+    {
+        transNo: 'PS163',
+        customer: 'Salanggang, Grace [Gracious01]',
+        dateCreated: '2023-05-14 16:52:23',
+        status: 'PENDING / SETTLED CLAIMED PERSONAL',
+        statusClass: 'warning',
+        totalAmount: 1500.00,
+        payment: 1500.00,
+        cashier: 'JESSYLE MAE, DLONSOD',
+        products: [
+            { sku: 'SILVER', price: 1500.00, pts: 10.00, quantity: 1, total: 1500.00 }
+        ]
+    },
+    {
+        transNo: 'PS148',
+        customer: 'ASIDIGBAH IPOMELYN (PEDRO)',
+        dateCreated: '2023-03-14 00:22:50',
+        status: 'PENDING / INCOMPLETE CLAIMS PERSONAL',
+        statusClass: 'success',
+        totalAmount: 4200.00,
+        payment: 4200.00,
+        cashier: 'JESSYLE MAE, DLONSOD',
+        products: [
+            { sku: 'SGGUARD', price: 2100.00, pts: 5.00, quantity: 2, total: 4200.00 }
+        ]
+    }
+    // Add more mock sales as needed
+];
 
 // POS Module Functions
 
@@ -486,7 +543,7 @@ function getOrdersSummaryContent() {
                         <button class="btn btn-sm btn-outline-secondary me-1" onclick="openSearchOrderDetails(${OrderSummmaryContextMockOrder.indexOf(order)})">
                             <i class="fas fa-search"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="viewOrderDetails(OrderSummmaryContextMockOrder[${index}])">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="viewItemCheckList(OrderSummmaryContextMockOrder[${index}])">
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
                     `
@@ -619,10 +676,10 @@ function getOrdersPendingContent() {
                     </div>
 
                     <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-success btn-sm">
+                        <button onclick="openModal('newPO')" class="btn btn-success btn-sm">
                             <i class="fas fa-plus me-1"></i> NEW PO
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm">
+                        <button onclick="openModal('summary')" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-eye me-1"></i> View All Orders
                         </button>
                     </div>
@@ -762,6 +819,25 @@ function getOrdersVoidedContent() {
 
 // --- PERSONAL SALES ---
 function getSalesSummaryContent() {
+    // Calculate summary stats
+    const totalSales = PersonalSalesMockData.reduce((sum, sale) => sum + sale.totalAmount, 0);
+    const totalVoided = 2280.00; // Example static, replace with actual if needed
+    const totalPending = PersonalSalesMockData.filter(sale => sale.statusClass === 'warning').reduce((sum, sale) => sum + sale.totalAmount, 0);
+
+    const rows = PersonalSalesMockData.map(sale => `
+        <tr>
+            <td>${sale.transNo}</td>
+            <td>${sale.customer}</td>
+            <td>${sale.dateCreated}</td>
+            <td><span class="badge bg-${sale.statusClass} text-dark">${sale.status}</span></td>
+            <td>₱${sale.totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary me-1" onclick='viewPersonalSalesDetails(${JSON.stringify(sale)})'><i class="fas fa-eye"></i></button>
+                <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
+            </td>
+        </tr>
+    `).join("");
+
     return `
         <div class="container-fluid px-3 px-md-4 py-4">
             <!-- Summary Cards -->
@@ -770,8 +846,8 @@ function getSalesSummaryContent() {
                     <div class="card shadow-sm text-white" style="background: linear-gradient(135deg, #198754, #157347);">
                         <div class="card-body text-center">
                             <h6 class="text-white-50">Total Sales</h6>
-                            <h4 class="fw-bold">₱472,280.00</h4>
-                            <small>45 transactions</small>
+                            <h4 class="fw-bold">₱${totalSales.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h4>
+                            <small>${PersonalSalesMockData.length} transactions</small>
                         </div>
                     </div>
                 </div>
@@ -779,7 +855,7 @@ function getSalesSummaryContent() {
                     <div class="card shadow-sm text-white" style="background: linear-gradient(135deg, #dc3545, #b02a37);">
                         <div class="card-body text-center">
                             <h6 class="text-white-50">Voided Sales</h6>
-                            <h4 class="fw-bold">₱2,280.00</h4>
+                            <h4 class="fw-bold">₱${totalVoided.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h4>
                             <small>1 transaction</small>
                         </div>
                     </div>
@@ -788,14 +864,14 @@ function getSalesSummaryContent() {
                     <div class="card shadow-sm text-dark" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
                         <div class="card-body text-center">
                             <h6 class="text-dark-50">Pending Sales</h6>
-                            <h4 class="fw-bold">₱0.00</h4>
-                            <small>0 transactions</small>
+                            <h4 class="fw-bold">₱${totalPending.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h4>
+                            <small>${PersonalSalesMockData.filter(sale => sale.statusClass === 'warning').length} transactions</small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Unified Personal Sales Table -->
+            <!-- Personal Sales Table -->
             <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="fas fa-hand-holding-usd me-2"></i> Personal Sales</h5>
@@ -805,7 +881,7 @@ function getSalesSummaryContent() {
                         <table class="table table-bordered table-hover mb-0 w-100">
                             <thead class="table-light">
                                 <tr>
-                                    <th>TRANSAK</th>
+                                    <th>TRANS#</th>
                                     <th>CUSTOMER</th>
                                     <th>DATE</th>
                                     <th>STATUS</th>
@@ -814,83 +890,7 @@ function getSalesSummaryContent() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>168</td>
-                                    <td>ADSUARA, ROMELYN [HEIDI]</td>
-                                    <td>2023-05-14 09:29:40</td>
-                                    <td><span class="badge bg-warning text-dark">PENDING / SETTLED CLAIMED PERSONAL</span></td>
-                                    <td>₱45,600.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>169</td>
-                                    <td>Salanggang, Grace [Gracious01]</td>
-                                    <td>2023-05-14 11:17:38</td>
-                                    <td><span class="badge bg-warning text-dark">PENDING / SETTLED CLAIMED PERSONAL</span></td>
-                                    <td>₱7,000.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>163</td>
-                                    <td>Salanggang, Grace [Gracious01]</td>
-                                    <td>2023-05-14 16:52:23</td>
-                                    <td><span class="badge bg-warning text-dark">PENDING / SETTLED CLAIMED PERSONAL</span></td>
-                                    <td>₱1,500.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>148</td>
-                                    <td>ASIDIGBAH IPOMELYN (PEDRO)</td>
-                                    <td>2023-03-14 00:22:50</td>
-                                    <td><span class="badge bg-success">PENDING / INCOMPLETE CLAIMS PERSONAL</span></td>
-                                    <td>₱4,200.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>149</td>
-                                    <td>Salangwang Grace (Glaucous)</td>
-                                    <td>2023-03-14 11:17:38</td>
-                                    <td><span class="badge bg-success">PENDING / INCOMPLETE CLAIMS PERSONAL</span></td>
-                                    <td>₱7,000.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>150</td>
-                                    <td>Salangwang Grace (Glaucous)</td>
-                                    <td>2023-03-14 16:22:23</td>
-                                    <td><span class="badge bg-success">PENDING / INCOMPLETE CLAIMS PERSONAL</span></td>
-                                    <td>₱0.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>151</td>
-                                    <td>Lentoha Jemeto (APEMO)</td>
-                                    <td>2023-03-14 17:00:00</td>
-                                    <td><span class="badge bg-success">PENDING / INCOMPLETE CLAIMS PERSONAL</span></td>
-                                    <td>₱0.00</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-                                    </td>
-                                </tr>
+                                ${rows}
                             </tbody>
                         </table>
                     </div>
@@ -1033,7 +1033,6 @@ function getSalesVoidedContent() {
         </div>
     `;
 }
-
 
 // --- REPORTS ---
 function getMonthlySalesContent() {
@@ -1279,7 +1278,6 @@ function getDailySalesContent() {
         </div>
     `;
 }
-
 
 // --- INVENTORY ---
 function getSkuInventoryContent() {
@@ -1932,8 +1930,8 @@ function submitNewPersonalSales() {
     closeNewPersonalSalesModal();
 }
 
-// View Order Details
-function viewOrderDetails(orderData) {
+// View Item Check List Modal
+function viewItemCheckList(orderData) {
     if (document.getElementById("orderDetailsModal")) {
         document.getElementById("orderDetailsModal").style.display = "flex";
         setTimeout(() => {
@@ -1976,7 +1974,7 @@ function viewOrderDetails(orderData) {
 
                 <!-- HEADER -->
                 <div style="background-color: #007bff; color: white; padding: 12px; text-align: center; font-size: 1.3rem; font-weight: bold; border-radius: 6px 6px 0 0;">
-                    My Order Details
+                    Item Check List
                 </div>
 
                 <div class="modal-header-right">
@@ -2043,20 +2041,18 @@ function viewOrderDetails(orderData) {
     document.getElementById("orderDetailsFooterCloseBtn").addEventListener("click", closeOrderDetails);
 }
 
-// Function to close/remove the modal
 function closeOrderDetails() {
     const modal = document.getElementById("orderDetailsModal");
-    const modalContent = document.querySelector(".modal-content-right");
+    const modalContent = modal?.querySelector(".modal-content-right");
     if (modal && modalContent) {
         modal.classList.remove("show");
         modalContent.classList.remove("show");
-        setTimeout(() => {
-            modal.remove();
-        }, 300);
+        setTimeout(() => modal.remove(), 300);
     }
 }
 
 function openSearchOrderDetails(index) {
+    console.log("Open Search Order Details for index:", index);
     const order = OrderSummmaryContextMockOrder[index];
     if (!order) {
         alert("Order not found!");
@@ -2084,9 +2080,13 @@ function openSearchOrderDetails(index) {
             <div class="modal-content-right">
 
                 <!-- HEADER -->
+                <div style="background-color: #007bff; color: white; padding: 12px; text-align: center; font-size: 1.3rem; font-weight: bold; border-radius: 6px 6px 0 0;">
+                    My Order Details
+                </div>
+
                 <div class="modal-header-right">
-                    <h4 class="modal-title">My Order Details</h4>
-                    <button type="button" class="btn-close btn-close-white" id="orderDetailsHeaderCloseBtn" aria-label="Close"></button>
+                    <span>My Order Details</span>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeSearchOrderDetails()" aria-label="Close"></button>
                 </div>
 
                 <!-- BODY -->
@@ -2145,16 +2145,6 @@ function closeSearchOrderDetails() {
         setTimeout(() => modal.remove(), 300);
     }
 }
-
-
-// Close modal on Escape key
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && document.getElementById('orderDetailsModal')) {
-        closeOrderDetails();
-    } else if (e.key === 'Escape' && document.getElementById('searchOrderModal')) {
-        closeSearchOrderDetails();
-    } 
-});
 
 // Function to open delete confirmation modal
 function confirmDeleteTransaction(transactionId) {
