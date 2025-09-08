@@ -2937,13 +2937,16 @@ function getAccountSummaryContent() {
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="card text-white position-relative" style="background: linear-gradient(135deg, #f7b801, #ffa726); min-height: 120px;">
+                        <div class="card text-white position-relative" style="background: linear-gradient(135deg, #f7b801, #ffa726); min-height: 120px; cursor: pointer" onclick="loadUserPage('encash-wallet')">
                             <div class="card-body d-flex flex-column justify-content-between">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <h6 class="card-title text-white-50 mb-2">AVAILABLE WALLET</h6>
                                     <i class="fas fa-wallet text-white-50"></i>
                                 </div>
-                                <h2 class="mb-0 fw-bold">PHP1,854.00</h2>
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <h2 class="mb-0 fw-bold">PHP1,854.00</h2>
+                                    <i class="fas fa-arrow-right text-light-bg"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2961,7 +2964,7 @@ function getAccountSummaryContent() {
                                 <h3 class="mb-1 fw-bold text-dark">PHP324.00</h3>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">POINTS RAISED</small>
-                                    <i class="fas fa-arrow-right text-primary"></i>
+                                    <i class="fas fa-arrow-right text-warning"></i>
                                 </div>
                             </div>
                         </div>
@@ -3221,13 +3224,16 @@ function getUserDashboardContent() {
                 
                 <!-- Total Sales Match -->
                 <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
+                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px; cursor: pointer" onclick="loadUserPage('sales-match')">
                         <div class="card-body py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">TOTAL SALES MATCH</h6>
                                 <i class="fas fa-trophy text-warning"></i>
                             </div>
-                            <h4 class="mb-0 fw-bold text-dark">PHP324.00</h4>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <h4 class="mb-0 fw-bold text-dark">PHP324.00</h4>
+                                <i class="fas fa-arrow-right text-muted"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3253,13 +3259,16 @@ function getUserDashboardContent() {
             <div class="row g-3 mb-4">
                 <!-- Total Leadership -->
                 <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
+                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px; cursor: pointer" onclick="loadUserPage('leadership-bonus')">
                         <div class="card-body py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">TOTAL LEADERSHIP</h6>
                                 <i class="fas fa-users text-warning"></i>
                             </div>
-                            <h4 class="mb-0 fw-bold text-dark">PHP0.00</h4>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <h4 class="mb-0 fw-bold text-dark">PHP0.00</h4>
+                                <i class="fas fa-arrow-right text-muted"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
