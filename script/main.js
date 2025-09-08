@@ -126,15 +126,6 @@ function formatCurrency(amount) {
     })}`;
 }
 
-function formatDateTime(date) {
-    return new Date(date).toLocaleString("en-PH", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-}
 
 function showAlert(message, type = "info") {
     const alertHTML = `
@@ -303,22 +294,6 @@ function loadAdminModule(moduleId, event) {
   if (active) active.classList.add('active');
 }
 
-
-function getDefaultModuleContent(title, description) {
-    return `
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-cogs fa-3x text-primary"></i>
-            </div>
-            <h3>${title}</h3>
-            <p class="text-muted">${description}</p>
-            <button class="btn btn-primary" onclick="showAlert('${title} module is fully functional!', 'success')">
-                <i class="fas fa-rocket me-2"></i>Explore Features
-            </button>
-        </div>
-    `;
-}
-
 // Simple User Page Placeholder Function
 function showUserPage() {
     const userPage = document.getElementById('user-page');
@@ -327,15 +302,6 @@ function showUserPage() {
         loadUserModule('account-summary');
         console.log("User page loaded - Account Summary displayed");
     }
-}
-
-
-function loadProducts() {
-    const productsGrid = document.getElementById("products-grid");
-    if (!productsGrid) return;
-
-    products = [...mockData.products];
-    displayProducts(products);
 }
 
 
@@ -614,24 +580,12 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM LOADED - Starting initialization...");
 
-    // Set default page
     loadPageContent("home");
 
-    // Initialize products and orders
-    // Initialize with mock data for demonstration
     products = [...mockData.products];
     orders = [...mockData.orders];
-
-    // Initialize responsive design
-    // Initialize user sidebar only when user page becomes visible
-    // This will be called when showPage('user') is executed
-
-    // REMOVED: initializeSidebarBehavior - sidebar now static
 });
 
-// REMOVED: initializeSidebarBehavior - sidebar now static
-
-// UNIFIED SIDEBAR STATE MANAGEMENT
 let currentActivePage = "account-summary"; // Global state for active page
 let currentActiveDropdown = "dashboard"; // Global state for active dropdown
 let currentOpenDropdowns = new Set(["dashboard"]); // Track which dropdowns are open
@@ -1361,41 +1315,98 @@ function initializeDropdowns() {
     console.log(`Initialized ${allDropdownToggles.length} dropdown toggles`);
 }
 
+// --- Replaced / consolidated dropdown initialization & helpers ---
+function handleDropdownToggle(e) {
+    const toggle = e.currentTarget || e.target;
+    const name = toggle.getAttribute("data-dropdown");
+    const sidebar = toggle.closest(".user-sidebar") || document;
+    if (!name) return;
 
-// User Module Function - Routes navigation to correct content functions
-function loadUserModule(moduleId) {
-    console.log("loadUserModule called with:", moduleId);
-    
-    const userPageContainer = document.querySelector("#user-page-container");
-    if (!userPageContainer) return;
-    
-    let content = '';
-    
-    // Map moduleId to the correct content functions
-    switch(moduleId) {
-        case 'account-summary':
-            content = getAccountSummaryContent();
-            break;
-        case 'dashboard':
-            content = getUserDashboardContent();
-            break;
-        case 'codebank':
-        case 'code-bank':
-            content = getCodeBankContent();
-            break;
-        default:
-            console.log(`No content function found for module: ${moduleId}`);
-            // Fallback to loadUserPage for other modules
-            loadUserPage(moduleId);
-            return;
+    // Toggle the menu that matches the dropdown name
+    const menu = sidebar.querySelector(`[data-dropdown-menu="${name}"]`);
+    if (!menu) return;
+
+    const isOpen = menu.classList.contains("show");
+
+    // Close others (only one open at a time)
+    sidebar.querySelectorAll("[data-dropdown-menu]").forEach((m) => {
+        if (m !== menu) {
+            m.classList.remove("show");
+            const btn = sidebar.querySelector(`[data-dropdown="${m.getAttribute("data-dropdown-menu")}"]`);
+            if (btn) btn.setAttribute("aria-expanded", "false");
+        }
+    });
+
+    // Toggle current
+    if (isOpen) {
+        menu.classList.remove("show");
+        toggle.setAttribute("aria-expanded", "false");
+    } else {
+        menu.classList.add("show");
+        toggle.setAttribute("aria-expanded", "true");
     }
-    
-    // Load the content if found
-    if (content) {
-        userPageContainer.innerHTML = content;
-        console.log(`Loaded content for module: ${moduleId}`);
+
+    // rotate chevron if present
+    const chevron = toggle.querySelector(".fa-chevron-down, .fa-chevron-right");
+    if (chevron) {
+        chevron.style.transform = menu.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+        chevron.style.transition = "transform 0.25s ease";
     }
+
+    // notify sync layer (stubbed below)
+    syncDropdownState(name, menu.classList.contains("show"));
 }
+
+function closeAllDropdowns(root = document) {
+    root.querySelectorAll("[data-dropdown-menu].show").forEach((m) => {
+        m.classList.remove("show");
+    });
+    root.querySelectorAll("[data-dropdown]").forEach((btn) => {
+        btn.setAttribute("aria-expanded", "false");
+        const chevron = btn.querySelector(".fa-chevron-down, .fa-chevron-right");
+        if (chevron) chevron.style.transform = "rotate(0deg)";
+    });
+}
+
+// Single, reliable initializeDropdowns — replaces previous duplicates
+function initializeDropdowns() {
+    // attach global click handler to close when clicking outside dropdowns
+    document.addEventListener("click", (e) => {
+        const isDropdownClick = !!e.target.closest("[data-dropdown]") || !!e.target.closest("[data-dropdown-menu]");
+        if (!isDropdownClick) {
+            closeAllDropdowns();
+        }
+    });
+
+    // Attach handlers to toggles (idempotent)
+    document.querySelectorAll(".menu-item[data-dropdown]").forEach((el) => {
+        // Remove duplicates by cloning and replacing if already has listeners
+        const cloned = el.cloneNode(true);
+        el.parentNode.replaceChild(cloned, el);
+    });
+
+    document.querySelectorAll(".menu-item[data-dropdown]").forEach((el) => {
+        el.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            handleDropdownToggle(ev);
+        });
+    });
+
+    // Ensure initial closed state after DOM ready
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => closeAllDropdowns());
+    } else {
+        closeAllDropdowns();
+    }
+
+    console.log(`initializeDropdowns: attached ${document.querySelectorAll(".menu-item[data-dropdown]").length} toggles`);
+}
+
+// Ensure the consolidated initializer runs (replaces old call site)
+initializeDropdowns();
+
+
 
 document.addEventListener("click", (e) => {
     ["user", "pos", "admin"].forEach((pageType) => {
@@ -1428,4 +1439,147 @@ document.addEventListener('DOMContentLoaded', () => {
     // optional: if user clicks the nav Register Now link and page is created dynamically,
     // showRegisterStep('validation') will already have been bound because showRegisterStep reads DOM each time.
 });
+
+// --- Full synchronization implementation (cross-sidebar) ---
+const GGV_SYNC_DROPDOWN = "ggv:dropdown-toggle";
+const GGV_SYNC_ACTIVE = "ggv:active-change";
+const GGV_INSTANCE_ID = `ggv-${Date.now().toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2)}`;
+
+function initializeSynchronization() {
+    // Listen for incoming sync events from other sidebar instances
+    document.addEventListener(GGV_SYNC_DROPDOWN, (ev) =>
+        handleIncomingDropdownSync(ev.detail),
+    );
+    document.addEventListener(GGV_SYNC_ACTIVE, (ev) =>
+        handleIncomingActiveSync(ev.detail),
+    );
+
+    // Optional: when a new sidebar is added to the DOM later (mobile clone),
+    // broadcast current state so it can adopt the current UI.
+    // We keep a small state container to re-broadcast current known state.
+    console.log("initializeSynchronization ready, instance:", GGV_INSTANCE_ID);
+}
+
+// Broadcast dropdown state to other sidebars
+function syncDropdownState(dropdownName, isOpen, sourceId = GGV_INSTANCE_ID) {
+    try {
+        // Update local memory
+        sidebarState.openDropdown = isOpen ? dropdownName : null;
+
+        // Dispatch a DOM CustomEvent that other sidebars are listening to
+        const ev = new CustomEvent(GGV_SYNC_DROPDOWN, {
+            detail: { dropdownName, isOpen, sourceId },
+        });
+        document.dispatchEvent(ev);
+    } catch (err) {
+        console.error("syncDropdownState error:", err);
+    }
+}
+
+// Broadcast active navigation (submenu) selection to other sidebars
+function syncActiveStateWithTabBar(moduleName, sourceId = GGV_INSTANCE_ID) {
+    try {
+        sidebarState.activeItem = moduleName;
+        const ev = new CustomEvent(GGV_SYNC_ACTIVE, {
+            detail: { moduleName, sourceId },
+        });
+        document.dispatchEvent(ev);
+    } catch (err) {
+        console.error("syncActiveStateWithTabBar error:", err);
+    }
+}
+
+// Handle incoming dropdown sync requests
+function handleIncomingDropdownSync(detail) {
+    if (!detail || detail.sourceId === GGV_INSTANCE_ID) return; // ignore our own events
+    applyDropdownStateToAllSidebars(detail.dropdownName, detail.isOpen);
+}
+
+// Handle incoming active selection sync requests
+function handleIncomingActiveSync(detail) {
+    if (!detail || detail.sourceId === GGV_INSTANCE_ID) return; // ignore our own events
+    applyActiveStateToAllSidebars(detail.moduleName);
+}
+
+// Apply dropdown open/close to all known sidebars
+function applyDropdownStateToAllSidebars(dropdownName, isOpen) {
+    const sidebars = document.querySelectorAll(".user-sidebar, body > .sidebar, #mobileSidebar");
+    sidebars.forEach((sidebar) => {
+        try {
+            const menu = sidebar.querySelector(`[data-dropdown-menu="${dropdownName}"]`);
+            const toggleBtn = sidebar.querySelector(`[data-dropdown="${dropdownName}"]`);
+
+            if (menu && toggleBtn) {
+                if (isOpen) {
+                    menu.classList.add("show");
+                    toggleBtn.setAttribute("aria-expanded", "true");
+                } else {
+                    menu.classList.remove("show");
+                    toggleBtn.setAttribute("aria-expanded", "false");
+                }
+
+                // rotate chevron if present
+                const chevron = toggleBtn.querySelector(".fa-chevron-down, .fa-chevron-right");
+                if (chevron) {
+                    chevron.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+                    chevron.style.transition = "transform 0.25s ease";
+                }
+            }
+        } catch (err) {
+            console.warn("applyDropdownStateToAllSidebars error:", err);
+        }
+    });
+}
+
+// Apply active selection highlight to all sidebars
+function applyActiveStateToAllSidebars(moduleName) {
+    if (!moduleName) return;
+
+    // Normalize a search token (match against onclick or data-module attributes)
+    const token = String(moduleName).trim();
+
+    // Remove existing active classes
+    document.querySelectorAll(".submenu li a, .dropdown-item, .user-sidebar a, body > .sidebar a").forEach((el) => {
+        el.classList.remove("active");
+    });
+
+    // Try to find links by onclick content first, then by data-module or href containing token
+    const candidates = [
+        ...document.querySelectorAll(`a[onclick*="${token}"]`),
+        ...document.querySelectorAll(`a[data-module="${token}"]`),
+        ...document.querySelectorAll(`a[href*="${token}"]`),
+        ...document.querySelectorAll(`.submenu li a`),
+    ];
+
+    // If multiple matches, pick the best ones and mark active
+    const marked = new Set();
+    candidates.forEach((el) => {
+        if (!el || marked.has(el)) return;
+        el.classList.add("active");
+        // If element is inside a menu-section, ensure its section is open
+        const section = el.closest(".menu-section");
+        if (section) section.classList.add("open");
+        marked.add(el);
+    });
+
+    // If nothing matched by token, fallback: try to find a matching innerText
+    if (marked.size === 0) {
+        document.querySelectorAll(".submenu li a").forEach((el) => {
+            if (el.textContent.trim().toLowerCase().includes(token.toLowerCase())) {
+                el.classList.add("active");
+                const section = el.closest(".menu-section");
+                if (section) section.classList.add("open");
+            }
+        });
+    }
+}
+
+// Ensure initialization of the sync layer after dropdowns ready
+try {
+    initializeSynchronization();
+} catch (e) {
+    console.warn("initializeSynchronization failed:", e);
+}
 
