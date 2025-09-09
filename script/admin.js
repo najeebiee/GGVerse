@@ -2,7 +2,11 @@
 /* ----------------- ADMIN PAGE CONTENT FUNCTIONS ----------------- */
 
 
-// Dashboard
+/*
+
+  Dashboard Content
+
+*/ 
 function getAdminDashboardContent() {
     return `
         <div class="container-fluid py-3" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
@@ -193,7 +197,1261 @@ function getAdminDashboardContent() {
     `;
 }
 
-/* Accounts */
+/* View Store Details */
+if (!window.__adminDashboardGlobalHandlers) {
+    window.__adminDashboardGlobalHandlers = true;
+
+    document.addEventListener('click', function (ev) {
+        // STATUS toggle
+        const statusBtn = ev.target.closest('.status-toggle');
+        if (statusBtn) {
+            ev.preventDefault();
+            const id = statusBtn.dataset.id;
+            const current = statusBtn.dataset.state === 'active' ? 'active' : 'inactive';
+
+            if (current === 'active') {
+                const ok = confirm('Are you sure you want to deactivate this store?');
+                if (!ok) return;
+                statusBtn.dataset.state = 'inactive';
+                statusBtn.classList.remove('btn-success');
+                statusBtn.classList.add('btn-danger');
+                statusBtn.textContent = 'Deactivate';
+                statusBtn.setAttribute('aria-pressed', 'false');
+                // TODO: send server update here (fetch/axios)
+                console.log('Store', id, 'deactivated');
+                return;
+            }
+
+            // currently inactive -> activate
+            const ok2 = confirm('Activate this store?');
+            if (!ok2) return;
+            statusBtn.dataset.state = 'active';
+            statusBtn.classList.remove('btn-danger');
+            statusBtn.classList.add('btn-success');
+            statusBtn.textContent = 'Active';
+            statusBtn.setAttribute('aria-pressed', 'true');
+            // TODO: send server update here
+            console.log('Store', id, 'activated');
+            return;
+        }
+
+        // TOOL buttons
+        const viewStock = ev.target.closest('.btn-view-stock');
+        if (viewStock) {
+            ev.preventDefault();
+            const id = viewStock.dataset.id;
+            alert('View Stocklist Details for ID: ' + id);
+            return;
+        }
+
+        const viewUsers = ev.target.closest('.btn-view-users');
+        if (viewUsers) {
+            ev.preventDefault();
+            const id = viewUsers.dataset.id;
+            alert('View Users for ID: ' + id);
+            return;
+        }
+
+        const changePass = ev.target.closest('.btn-change-pass');
+        if (changePass) {
+            ev.preventDefault();
+            const id = changePass.dataset.id;
+            alert('Change password for ID: ' + id);
+            return;
+        }
+    }, false);
+}
+
+const __ggv_store_mock = [
+    { id: 1, personalAccount: "GGUILD01", accountName: "GUILD GRINDERS", storeName: "GRINDERSGUILDGLOBAL", companyName: "GRINDERS GLOBAL", stockistType: "admin", contactNo: "63917111111", username: "GGGLOBAL", password: "321@ss@P", country: "Philippines", region: "REGION XI (DAVAO REGION)", province: "DAVAO DEL SUR", city: "CITY OF DIGOS (Capital)", barangay: "Aplaya" },
+    { id: 2, personalAccount: "GGUILD02", accountName: "GROCERYN CO", storeName: "GROCERYN", companyName: "GROCERYN INC", stockistType: "Country Hub", contactNo: "63917112222", username: "GROCERYN", password: "pass123", country: "Philippines", region: "", province: "", city: "", barangay: "" },
+    // ... add more mocks as needed ...
+];
+
+function getStoreMockById(id) {
+    return __ggv_store_mock.find(s => Number(s.id) === Number(id)) || {
+        id, personalAccount: "", accountName: "", storeName: "", companyName: "", stockistType: "", contactNo: "", username: "", password: "", country: "", region: "", province: "", city: "", barangay: ""
+    };
+}
+
+function buildStoreModalHtml(store) {
+    return `
+    <div class="modal fade" id="storeDetailsModal" tabindex="-1" aria-labelledby="storeDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="storeDetailsModalLabel">View Store Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="storeDetailsForm" class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Personal Account</label>
+                <input type="text" class="form-control form-control-sm" name="personalAccount" value="${store.personalAccount || ""}">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Account Name</label>
+                <input type="text" class="form-control form-control-sm" name="accountName" value="${store.accountName || ""}">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Store Name</label>
+                <input type="text" class="form-control form-control-sm" name="storeName" value="${store.storeName || ""}">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Company Name</label>
+                <input type="text" class="form-control form-control-sm" name="companyName" value="${store.companyName || ""}">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label small">Stockist Type</label>
+                <select class="form-select form-select-sm" name="stockistType">
+                  <option ${store.stocklistType === "admin" ? "selected" : ""}>admin</option>
+                  <option ${store.stocklistType === "Country Hub" ? "selected" : ""}>Country Hub</option>
+                  <option ${store.stocklistType === "Store" ? "selected" : ""}>Store</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label small">Contact No</label>
+                <input type="text" class="form-control form-control-sm" name="contactNo" value="${store.contactNo || ""}">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label small">Username</label>
+                <input type="text" class="form-control form-control-sm" name="username" value="${store.username || ""}">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Password</label>
+                <input type="text" class="form-control form-control-sm" name="password" value="${store.password || ""}">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Country</label>
+                <input type="text" class="form-control form-control-sm" name="country" value="${store.country || ""}">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Region</label>
+                <input type="text" class="form-control form-control-sm" name="region" value="${store.region || ""}">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Province</label>
+                <input type="text" class="form-control form-control-sm" name="province" value="${store.province || ""}">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small">City</label>
+                <input type="text" class="form-control form-control-sm" name="city" value="${store.city || ""}">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Barangay</label>
+                <input type="text" class="form-control form-control-sm" name="barangay" value="${store.barangay || ""}">
+              </div>
+
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary btn-sm" id="storeDetailsSaveBtn">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showStoreDetailsModal(id) {
+    // ensure single modal container
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    const store = getStoreMockById(id);
+    container.innerHTML = buildStoreModalHtml(store);
+
+    const modalEl = container.querySelector('#storeDetailsModal');
+    let bsModal;
+
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        if (modalEl) {
+            modalEl.removeEventListener('hidden.bs.modal', cleanup);
+        }
+        // remove DOM modal and any backdrops
+        if (container) container.innerHTML = '';
+        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    // show modal via bootstrap API if available
+    if (typeof bootstrap !== "undefined" && modalEl) {
+        bsModal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup);
+        bsModal.show();
+    } else if (modalEl) {
+        // fallback: make visible and create backdrop
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        // create backdrop if not present
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        // wire close buttons to cleanup
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', function () {
+                cleanup();
+            }, { once: true });
+        });
+    }
+
+    // wire save button
+    const saveBtn = container.querySelector('#storeDetailsSaveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            const form = container.querySelector('#storeDetailsForm');
+            const formData = {};
+            if (form) {
+                new FormData(form).forEach((v, k) => formData[k] = v);
+            }
+            // TODO: send formData to server (fetch/axios)
+            console.log('Store update', id, formData);
+            // close modal
+            if (bsModal) bsModal.hide();
+            else cleanup();
+            // optional: show a confirmation toast/alert
+            alert('Store updated (mock): ' + id);
+        }, { once: true });
+    }
+}
+
+/* View Users */
+// --- Mock user data per store (minimal) ---
+const __ggv_store_users_mock = {
+    1: [
+        { id: 8, branch: "GRINDERSGUILDGLOBAL", name: "System, Administrator Main", contact: "639999999999", created: "2024-07-06 20:59:20", hired: "2024-07-06 20:59:20", user: "superadmin_main", pass: "Abc@@@1", lastVisit: "2025-02-04 04:15:52", status: "Active" },
+        { id: 999, branch: "GRINDERSGUILDGLOBAL", name: "Torres, Kenneth G", contact: "639171231231", created: "2024-10-26 11:37:15", hired: "2024-10-26 11:37:15", user: "globaladmin", pass: "Abc@321", lastVisit: "2025-02-11 12:41:17", status: "Active" },
+        { id: 111, branch: "GRINDERSGUILDGLOBAL", name: "Finance, Finance X", contact: "", created: "2024-11-20 22:51:51", hired: "2024-11-20 22:51:51", user: "ggglobalfinance", pass: "123456", lastVisit: "2024-11-20 22:53:58", status: "Active" }
+    ],
+    2: [
+        { id: 222, branch: "GROCERYN", name: "Logistics, Logistics X", contact: "639171231231", created: "2025-01-09 16:31:19", hired: "2025-01-09 16:31:19", user: "gggloballogistics", pass: "Abc@123", lastVisit: "2025-01-09 16:31:19", status: "Active" }
+    ]
+};
+
+function getStoreUsersMockById(storeId) {
+    return __ggv_store_users_mock[Number(storeId)] || [];
+}
+
+function buildStoreUsersModalHtml(storeId, users) {
+    const rows = users.map(u => `
+        <tr>
+            <td>${u.id}</td>
+            <td>${u.branch}</td>
+            <td style="width:40%; white-space:normal; word-break:break-word;">${u.name}</td>
+            <td>${u.contact || ""}</td>
+            <td>${u.created || ""}</td>
+            <td>${u.hired || ""}</td>
+            <td>${u.user || ""}</td>
+            <td>${u.pass || ""}</td>
+            <td>${u.lastVisit || ""}</td>
+            <td>
+                <button
+                    class="btn btn-sm ${u.status === 'Active' ? 'btn-success' : 'btn-danger'} user-status-toggle rounded-pill px-3 py-1"
+                    data-user-id="${u.id}"
+                    data-state="${u.status === 'Active' ? 'active' : 'inactive'}"
+                    aria-pressed="${u.status === 'Active'}"
+                    title="Toggle user status"
+                >
+                    ${u.status}
+                </button>
+            </td>
+            <td>
+                <div class="d-flex gap-1">
+                    <!-- view (opens user detail) -->
+                    <button class="btn btn-info btn-sm btn-view-stock py-1" style="height:30px; padding:4px 8px; font-size:0.78rem;" data-user-id="${u.id}" data-store-id="${storeId}" title="View">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button class="btn btn-info btn-sm btn-set-default py-1" style="height:30px; padding:4px 10px; min-width:120px; font-size:0.72rem;" data-id="${u.id}" title="Set Default">set default</button>
+                    <button class="btn btn-info btn-sm btn-sms-admin py-1" style="height:30px; padding:4px 10px; min-width:120px; font-size:0.72rem;" data-id="${u.id}" title="Set SMS Admin">set sms admin</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    return `
+    <div class="modal fade" id="storeUsersModal" tabindex="-1" aria-labelledby="storeUsersModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:95%; width:95%;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="storeUsersModalLabel">View Store User - ${users.length ? users[0].branch : 'Store ' + storeId}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-0">
+            <div class="table-responsive">
+              <table class="table table-borderless mb-0">
+                <thead class="table-light small text-uppercase">
+                  <tr>
+                    <th>ID#</th>
+                    <th>BRANCH</th>
+                    <th style="width:40%;">NAME</th>
+                    <th>CONTACT#</th>
+                    <th>CREATED</th>
+                    <th>HIRED</th>
+                    <th>USER</th>
+                    <th>PASS</th>
+                    <th>LAST VISIT</th>
+                    <th>STATUS</th>
+                    <th style="width:260px;">ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows || `<tr><td colspan="11" class="text-center text-muted">No users found</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer d-flex flex-column gap-2">
+            <div class="w-100">
+              <button class="btn btn-primary w-100 btn-add-store-user" data-store-id="${storeId}"><i class="fa fa-user-plus me-2"></i> Add New User</button>
+            </div>
+            <div class="w-100">
+              <button type="button" class="btn btn-warning w-100" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function buildSetSmsAdminModalHtml(user, storeName) {
+    const uname = user?.name || `ID ${user?.id || ''}`;
+    return `
+    <div class="modal fade" id="setSmsAdminModal" tabindex="-1" aria-labelledby="setSmsAdminModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width:420px; width:92%; margin-top:5rem;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="setSmsAdminModalLabel">Set Default BRANCH SMS ADMIN</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="mb-3"><i class="fa fa-info-circle fs-1 text-muted"></i></div>
+            <p class="small text-muted">
+              This will set this user as the Store DEFAULT SMS ADMIN for online ECOM sales.
+              User will be notified everytime there is a new sale on ECOM DASHBOARD.
+              Continue setting <strong>${uname}</strong> as SMS ADMIN for <strong>${storeName || ''}</strong>?
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" id="confirmSetSmsAdminBtn">Set as Default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function showSetSmsAdminModal(userId) {
+    const entry = findUserEntry(userId);
+    if (!entry) {
+        alert('User not found.');
+        return;
+    }
+    const { storeId, user, usersArray } = entry;
+
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    // remove any previous modal with same id
+    container.querySelector('#setSmsAdminModal')?.remove();
+    container.insertAdjacentHTML('beforeend', buildSetSmsAdminModalHtml(user, user.branch || (getStoreMockById(storeId) || {}).storeName));
+
+    const modalEl = container.querySelector('#setSmsAdminModal');
+    let bsModal;
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        container.querySelector('#setSmsAdminModal')?.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== 'undefined' && modalEl) {
+        bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', cleanup, { once: true });
+        });
+    }
+
+    const confirmBtn = container.querySelector('#confirmSetSmsAdminBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function () {
+            // clear existing sms admin flags in this store then set the chosen user
+            usersArray.forEach(u => { u.isSmsAdmin = false; });
+            const found = usersArray.find(u => Number(u.id) === Number(userId));
+            if (found) found.isSmsAdmin = true;
+
+            // close modal
+            if (bsModal) bsModal.hide(); else cleanup();
+
+            // refresh the store users modal so table updates
+            setTimeout(() => { showStoreUsersModal(storeId); }, 50);
+        }, { once: true });
+    }
+}
+
+// delegate .btn-sms-admin clicks to open set-sms-admin modal
+(function patchSmsAdminHandler() {
+    if (window.__ggv_sms_admin_patched) return;
+    window.__ggv_sms_admin_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-sms-admin');
+        if (!btn) return;
+        ev.preventDefault();
+        const uid = btn.dataset.id || btn.getAttribute('data-id');
+        if (!uid) return;
+        showSetSmsAdminModal(uid);
+    }, false);
+})();
+
+function findUserEntry(userId) {
+    const id = Number(userId);
+    for (const sid in __ggv_store_users_mock) {
+        const arr = __ggv_store_users_mock[sid] || [];
+        const found = arr.find(u => Number(u.id) === id);
+        if (found) return { storeId: Number(sid), user: found, usersArray: arr };
+    }
+    return null;
+}
+
+function buildSetDefaultModalHtml(user, storeName) {
+    const uname = user?.name || `ID ${user?.id || ''}`;
+    return `
+    <div class="modal fade" id="setDefaultModal" tabindex="-1" aria-labelledby="setDefaultModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width:420px; width:92%; margin-top:5rem;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="setDefaultModalLabel">Set Default</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="text-center mb-3">
+              <i class="fa fa-info-circle fs-1 text-muted"></i>
+            </div>
+            <p class="small text-muted">
+              This will set this user as the Store DEFAULT user. Transaction on creating Sales under this account will record this default user as the creator.
+              Continue setting <strong>${uname}</strong> as default user for <strong>${storeName || ''}</strong>?
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" id="confirmSetDefaultBtn">Set as Default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function showSetDefaultModal(userId) {
+    const entry = findUserEntry(userId);
+    if (!entry) {
+        alert('User not found.');
+        return;
+    }
+    const { storeId, user, usersArray } = entry;
+
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    // remove any previous modal with same id
+    container.querySelector('#setDefaultModal')?.remove();
+    container.insertAdjacentHTML('beforeend', buildSetDefaultModalHtml(user, user.branch || (getStoreMockById(storeId) || {}).storeName));
+
+    const modalEl = container.querySelector('#setDefaultModal');
+    let bsModal;
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        container.querySelector('#setDefaultModal')?.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== 'undefined' && modalEl) {
+        bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', cleanup, { once: true });
+        });
+    }
+
+    const confirmBtn = container.querySelector('#confirmSetDefaultBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function () {
+            // clear existing defaults in this store then set the chosen user
+            usersArray.forEach(u => { u.isDefault = false; });
+            const found = usersArray.find(u => Number(u.id) === Number(userId));
+            if (found) found.isDefault = true;
+
+            // close modal
+            if (bsModal) bsModal.hide(); else cleanup();
+
+            // refresh the store users modal so table updates (keeps container id consistent)
+            setTimeout(() => { showStoreUsersModal(storeId); }, 50);
+        }, { once: true });
+    }
+}
+
+(function patchSetDefaultHandler() {
+    if (window.__ggv_set_default_patched) return;
+    window.__ggv_set_default_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-set-default');
+        if (!btn) return;
+        ev.preventDefault();
+        const uid = btn.dataset.id || btn.getAttribute('data-id');
+        if (!uid) return;
+        showSetDefaultModal(uid);
+    }, false);
+})();
+
+if (!window.__ggv_user_status_handlers_attached) {
+    window.__ggv_user_status_handlers_attached = true;
+
+    document.addEventListener('click', function (ev) {
+        const userBtn = ev.target.closest('.user-status-toggle');
+        if (!userBtn) return;
+
+        ev.preventDefault();
+        const uid = userBtn.dataset.userId;
+        const current = userBtn.dataset.state === 'active' ? 'active' : 'inactive';
+        const uidNum = Number(uid);
+
+        const persistStatus = (newStatus) => {
+            // update mock data array so changes persist across modal re-renders
+            for (const sid in __ggv_store_users_mock) {
+                const arr = __ggv_store_users_mock[sid] || [];
+                const found = arr.find(x => Number(x.id) === uidNum);
+                if (found) {
+                    // store status as 'Active' / 'Inactive' to match existing mocks
+                    found.status = newStatus === 'active' ? 'Active' : 'Inactive';
+                    break;
+                }
+            }
+        };
+
+        if (current === 'active') {
+            const ok = confirm('Are you sure you want to deactivate this user?');
+            if (!ok) return;
+            userBtn.dataset.state = 'inactive';
+            userBtn.classList.remove('btn-success');
+            userBtn.classList.add('btn-danger');
+            userBtn.textContent = 'Deactivate';
+            userBtn.setAttribute('aria-pressed', 'false');
+            persistStatus('inactive');
+            console.log('User', uid, 'deactivated (mock)');
+            return;
+        }
+
+        // inactive -> activate
+        const ok2 = confirm('Activate this user?');
+        if (!ok2) return;
+        userBtn.dataset.state = 'active';
+        userBtn.classList.remove('btn-danger');
+        userBtn.classList.add('btn-success');
+        userBtn.textContent = 'Active';
+        userBtn.setAttribute('aria-pressed', 'true');
+        persistStatus('active');
+        console.log('User', uid, 'activated (mock)');
+    }, false);
+}
+
+function buildAddUserModalHtml(storeId, storeName) {
+    return `
+    <div class="modal fade" id="addStoreUserModal" tabindex="-1" aria-labelledby="addStoreUserModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width:480px; width:90%; margin-top:4rem;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addStoreUserModalLabel">Add New Store User - ${storeName || ''}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addStoreUserForm" class="row g-3">
+              <div class="col-12">
+                <label class="form-label small">Assigned ID#</label>
+                <input type="text" class="form-control form-control-sm" name="assignedId" placeholder="Enter ID No">
+              </div>
+              <div class="col-4">
+                <label class="form-label small">Last</label>
+                <input type="text" class="form-control form-control-sm" name="last" placeholder="Enter Last Name" required>
+              </div>
+              <div class="col-4">
+                <label class="form-label small">First</label>
+                <input type="text" class="form-control form-control-sm" name="first" placeholder="Enter First Name" required>
+              </div>
+              <div class="col-4">
+                <label class="form-label small">Middle</label>
+                <input type="text" class="form-control form-control-sm" name="middle" placeholder="Enter Middle Name">
+              </div>
+              <div class="col-6">
+                <label class="form-label small">Contact No</label>
+                <input type="text" class="form-control form-control-sm" name="contact" placeholder="Contact Number">
+              </div>
+              <div class="col-6">
+                <label class="form-label small">Address</label>
+                <input type="text" class="form-control form-control-sm" name="address" placeholder="Address">
+              </div>
+              <div class="col-6">
+                <label class="form-label small">Position</label>
+                <select class="form-select form-select-sm" name="position">
+                  <option>OTHER</option>
+                  <option>ADMIN</option>
+                  <option>LOGISTICS</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small">User Name</label>
+                <input type="text" class="form-control form-control-sm" name="username" placeholder="Username">
+              </div>
+              <div class="col-6">
+                <label class="form-label small">Password</label>
+                <input type="password" class="form-control form-control-sm" name="password" placeholder="Password">
+              </div>
+              <div class="col-6">
+                <label class="form-label small">Confirm Password</label>
+                <input type="password" class="form-control form-control-sm" name="confirmPassword" placeholder="Confirm Password">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer d-flex gap-2">
+            <button type="button" class="btn btn-primary btn-sm" id="addStoreUserSaveBtn">Add User</button>
+            <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+(function replaceAddUserSaveHandler() {
+    // find save button (this runs right after add modal inserted in showStoreUsersModal)
+    const saveBtn = document.querySelector('#ggvStoreModalContainer #addStoreUserSaveBtn');
+    if (!saveBtn) return;
+    // ensure idempotent: if already wired, skip
+    if (saveBtn.__ggv_bound) return;
+    saveBtn.__ggv_bound = true;
+
+    saveBtn.addEventListener('click', function () {
+        const container = document.getElementById('ggvStoreModalContainer');
+        const form = container?.querySelector('#addStoreUserForm');
+        if (!form) return;
+        const fd = Object.fromEntries(new FormData(form).entries());
+
+        // Basic required fields
+        if (!fd.last || !fd.first) {
+            alert('Please enter first and last name.');
+            return;
+        }
+        if (!fd.username || !fd.username.trim()) {
+            alert('Please enter a username.');
+            return;
+        }
+        if ((fd.password || fd.confirmPassword) && fd.password !== fd.confirmPassword) {
+            alert('Password and Confirm Password do not match.');
+            return;
+        }
+
+        // determine store id (safeguard)
+        const sid = container.querySelector('#addStoreUserModal')?.getAttribute('data-store-id') || container.querySelector('.btn-add-store-user')?.dataset.storeId;
+        const arr = __ggv_store_users_mock[Number(sid)] || [];
+        const maxId = arr.reduce((m, x) => Math.max(m, Number(x.id || 0)), 0);
+        const newId = fd.assignedId && Number(fd.assignedId) ? Number(fd.assignedId) : (maxId + 1 || Date.now());
+        const nameParts = `${fd.last}${fd.first ? ', ' + fd.first : ''}${fd.middle ? ' ' + fd.middle : ''}`;
+
+        const newUser = {
+            id: newId,
+            branch: (arr[0] && arr[0].branch) || (getStoreMockById(sid) || {}).storeName || '',
+            name: nameParts,
+            contact: fd.contact || '',
+            created: new Date().toISOString().slice(0,19).replace('T',' '),
+            hired: new Date().toISOString().slice(0,19).replace('T',' '),
+            user: fd.username || '',
+            pass: fd.password || '',
+            lastVisit: '',
+            status: 'Active',
+            position: fd.position || 'OTHER',
+            address: fd.address || ''
+        };
+
+        if (!__ggv_store_users_mock[Number(sid)]) __ggv_store_users_mock[Number(sid)] = [];
+        __ggv_store_users_mock[Number(sid)].push(newUser);
+
+        // close add modal then re-render store users modal (recreate container content)
+        const addModalEl = container.querySelector('#addStoreUserModal');
+        if (addModalEl) {
+            try { const bs = bootstrap.Modal.getInstance(addModalEl); if (bs) bs.hide(); } catch (e) { addModalEl.remove(); }
+        }
+
+        // refresh users modal
+        container.innerHTML = '';
+        setTimeout(() => {
+            showStoreUsersModal(sid);
+        }, 50);
+    }, { once: true });
+})();
+
+function showStoreUsersModal(storeId) {
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    const users = getStoreUsersMockById(storeId);
+    container.innerHTML = buildStoreUsersModalHtml(storeId, users);
+
+    const modalEl = container.querySelector('#storeUsersModal');
+    let bsModal;
+    if (typeof bootstrap !== "undefined" && modalEl) {
+        bsModal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static' });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+    }
+
+    // wire add new user button to open add-user modal
+    const addBtn = container.querySelector('.btn-add-store-user');
+    if (addBtn) {
+        addBtn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            const sid = this.dataset.storeId;
+            // render add-user modal next to storeUsersModal in same container
+            const storeName = (getStoreMockById(sid) || {}).storeName || '';
+            // ensure any existing add modal removed
+            container.querySelector('#addStoreUserModal')?.remove();
+            container.insertAdjacentHTML('beforeend', buildAddUserModalHtml(sid, storeName));
+
+            const addModalEl = container.querySelector('#addStoreUserModal');
+            let addBs;
+            if (typeof bootstrap !== "undefined" && addModalEl) {
+                addBs = new bootstrap.Modal(addModalEl, { backdrop: 'static' });
+                addModalEl.addEventListener('hidden.bs.modal', function () {
+                    // cleanup modal DOM when closed
+                    addModalEl.remove();
+                }, { once: true });
+                addBs.show();
+            } else if (addModalEl) {
+                addModalEl.classList.add('show');
+                addModalEl.style.display = 'block';
+                if (!document.querySelector('.modal-backdrop')) {
+                    const bd = document.createElement('div');
+                    bd.className = 'modal-backdrop fade show';
+                    document.body.appendChild(bd);
+                    document.body.classList.add('modal-open');
+                }
+            }
+
+            // Add button handler: collect form and inject new user then re-open users modal
+            const saveBtn = container.querySelector('#addStoreUserSaveBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function () {
+                    const form = container.querySelector('#addStoreUserForm');
+                    if (!form) return;
+                    const fd = Object.fromEntries(new FormData(form).entries());
+                    // basic validation
+                    if (!fd.last || !fd.first) {
+                        alert('Please enter first and last name.');
+                        return;
+                    }
+                    // determine id
+                    const arr = __ggv_store_users_mock[Number(sid)] || [];
+                    const maxId = arr.reduce((m, x) => Math.max(m, Number(x.id || 0)), 0);
+                    const newId = fd.assignedId && Number(fd.assignedId) ? Number(fd.assignedId) : (maxId + 1 || Date.now());
+                    const nameParts = `${fd.last}${fd.first ? ', ' + fd.first : ''}${fd.middle ? ' ' + fd.middle : ''}`;
+                    const newUser = {
+                        id: newId,
+                        branch: (arr[0] && arr[0].branch) || (getStoreMockById(sid) || {}).storeName || '',
+                        name: nameParts,
+                        contact: fd.contact || '',
+                        created: new Date().toISOString().slice(0,19).replace('T',' '),
+                        hired: new Date().toISOString().slice(0,19).replace('T',' '),
+                        user: fd.username || '',
+                        pass: fd.password || '',
+                        lastVisit: '',
+                        status: 'Active',
+                        position: fd.position || 'OTHER',
+                        address: fd.address || ''
+                    };
+                    // ensure array exists
+                    if (!__ggv_store_users_mock[Number(sid)]) __ggv_store_users_mock[Number(sid)] = [];
+                    __ggv_store_users_mock[Number(sid)].push(newUser);
+
+                    // close add modal then re-render store users modal (recreate container content)
+                    if (addBs) addBs.hide();
+                    else container.querySelector('#addStoreUserModal')?.remove();
+
+                    // remove existing storeUsersModal from container then re-open to refresh table
+                    container.innerHTML = '';
+                    // small timeout to allow backdrop removal
+                    setTimeout(() => {
+                        showStoreUsersModal(sid);
+                    }, 50);
+                }, { once: true });
+            }
+
+        }, { once: true });
+    }
+}
+
+(function patchViewUsersHandler() {
+    if (window.__ggv_shop_users_modal_patched) return;
+    window.__ggv_shop_users_modal_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const viewUsers = ev.target.closest('.btn-view-users');
+        if (viewUsers) {
+            ev.preventDefault();
+            const id = viewUsers.dataset.id;
+            showStoreUsersModal(id);
+            ev.stopImmediatePropagation();
+            return;
+        }
+    }, true); // capture to run before bubble handlers that show alerts
+})();
+
+if (!window.__ggv_user_status_handlers_attached) {
+    window.__ggv_user_status_handlers_attached = true;
+
+    document.addEventListener('click', function (ev) {
+        const userBtn = ev.target.closest('.user-status-toggle');
+        if (!userBtn) return;
+
+        ev.preventDefault();
+        const uid = userBtn.dataset.userId;
+        const current = userBtn.dataset.state === 'active' ? 'active' : 'inactive';
+
+        if (current === 'active') {
+            const ok = confirm('Are you sure you want to deactivate this user?');
+            if (!ok) return;
+            userBtn.dataset.state = 'inactive';
+            userBtn.classList.remove('btn-success');
+            userBtn.classList.add('btn-danger');
+            userBtn.textContent = 'Deactivate';
+            userBtn.setAttribute('aria-pressed', 'false');
+            // TODO: call backend to update user status
+            console.log('User', uid, 'deactivated (mock)');
+            return;
+        }
+
+        // inactive -> activate
+        const ok2 = confirm('Activate this user?');
+        if (!ok2) return;
+        userBtn.dataset.state = 'active';
+        userBtn.classList.remove('btn-danger');
+        userBtn.classList.add('btn-success');
+        userBtn.textContent = 'Active';
+        userBtn.setAttribute('aria-pressed', 'true');
+        // TODO: call backend to update user status
+        console.log('User', uid, 'activated (mock)');
+    }, false);
+}
+
+function getUserMockById(userId) {
+    userId = Number(userId);
+    for (const sid in __ggv_store_users_mock) {
+        const found = (__ggv_store_users_mock[sid] || []).find(u => Number(u.id) === userId);
+        if (found) return found;
+    }
+    return null;
+}
+
+function buildUserDetailModalHtml(user) {
+    const u = user || {};
+    return `
+    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+      <!-- remove vertical centering and apply a top margin so modal header clears the fixed navbar -->
+      <div class="modal-dialog" style="max-width:480px; width:90%; margin:6rem auto 2rem;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="userDetailModalLabel">View Store User${u.branch ? ' - ' + u.branch : ''}${u.name ? ' - ' + u.name : ''}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="userDetailForm" class="row g-3">
+              <div class="col-12">
+                <label class="form-label small">Store</label>
+                <input type="text" class="form-control form-control-sm" name="store" value="${u.branch || ''}">
+              </div>
+
+              <div class="col-6">
+                <label class="form-label small">Assigned ID#</label>
+                <input type="text" class="form-control form-control-sm" name="assignedId" value="${u.id || ''}">
+              </div>
+
+              <div class="col-6">
+                <label class="form-label small">Status</label>
+                <div class="d-flex align-items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm ${u.status === 'Active' ? 'btn-success' : 'btn-danger'} user-status-toggle"
+                    data-user-id="${u.id || ''}"
+                    data-state="${u.status === 'Active' ? 'active' : 'inactive'}"
+                    aria-pressed="${u.status === 'Active'}"
+                    title="Toggle user status"
+                  >
+                    ${u.status || 'Inactive'}
+                  </button>
+                  <button type="button" class="btn btn-info btn-sm btn-sms-admin" data-id="${u.id || ''}">SET SMS ADMIN</button>
+                </div>
+              </div>
+
+              <div class="col-4">
+                <label class="form-label small">Last</label>
+                <input type="text" class="form-control form-control-sm" name="last" value="${(u.name || '').split(',')[0] || ''}">
+              </div>
+              <div class="col-4">
+                <label class="form-label small">First</label>
+                <input type="text" class="form-control form-control-sm" name="first" value="${(u.name || '').split(',')[1] ? u.name.split(',')[1].trim() : ''}">
+              </div>
+              <div class="col-4">
+                <label class="form-label small">Middle</label>
+                <input type="text" class="form-control form-control-sm" name="middle" value="${u.middle || ''}">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small">Contact No</label>
+                <input type="text" class="form-control form-control-sm" name="contact" value="${u.contact || ''}">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small">Address</label>
+                <input type="text" class="form-control form-control-sm" name="address" value="${u.address || u.city || ''}">
+              </div>
+
+              <div class="col-6">
+                <label class="form-label small">Position</label>
+                <select class="form-select form-select-sm" name="position">
+                  <option ${u.position === 'ADMIN' ? 'selected' : ''}>ADMIN</option>
+                  <option ${u.position === 'LOGISTICS' ? 'selected' : ''}>LOGISTICS</option>
+                  <option ${!u.position ? 'selected' : ''}>OTHER</option>
+                </select>
+              </div>
+
+              <div class="col-6">
+                <label class="form-label small">User Name</label>
+                <input type="text" class="form-control form-control-sm" name="username" value="${u.user || ''}">
+              </div>
+
+              <div class="col-6">
+                <label class="form-label small">Password</label>
+                <input type="text" class="form-control form-control-sm" name="password" value="${u.pass || ''}">
+              </div>
+
+              <div class="col-6">
+                <label class="form-label small">Last Login</label>
+                <input type="text" class="form-control form-control-sm" name="lastLogin" value="${u.lastVisit || ''}">
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-sm" id="userDetailSaveBtn"><i class="fa fa-save me-1"></i> Update</button>
+            <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i> Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function showUserDetailModal(userId) {
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    const user = getUserMockById(userId) || { id: userId };
+    container.innerHTML = buildUserDetailModalHtml(user);
+
+    const modalEl = container.querySelector('#userDetailModal');
+    let bsModal;
+
+    function cleanupUser() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        if (modalEl) {
+            modalEl.removeEventListener('hidden.bs.modal', cleanupUser);
+        }
+        if (container) container.innerHTML = '';
+        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== "undefined" && modalEl) {
+        bsModal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanupUser);
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', function () {
+                cleanupUser();
+            }, { once: true });
+        });
+    }
+
+    // save handler (mock)
+    const saveBtn = container.querySelector('#userDetailSaveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            const form = container.querySelector('#userDetailForm');
+            const payload = {};
+            if (form) new FormData(form).forEach((v, k) => payload[k] = v);
+            console.log('Save user (mock)', userId, payload);
+            if (bsModal) bsModal.hide();
+            else cleanupUser();
+            alert('User updated (mock): ' + userId);
+        }, { once: true });
+    }
+}
+
+(function patchViewStockHandler() {
+    // idempotent single capture-phase handler: prefer userId, fallback to storeId
+    if (window.__ggv_shop_modal_patched) return;
+    window.__ggv_shop_modal_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const viewStock = ev.target.closest('.btn-view-stock');
+        if (!viewStock) return;
+
+        ev.preventDefault();
+
+        // Prefer user id on the button (users table). If present, open user modal.
+        const userId = viewStock.dataset.userId || viewStock.dataset.userid || viewStock.getAttribute('data-user-id');
+        if (userId) {
+            if (typeof showUserDetailModal === 'function') {
+                showUserDetailModal(userId);
+            }
+            ev.stopImmediatePropagation();
+            return;
+        }
+
+        // Fallback to store id (main table)
+        const storeId = viewStock.dataset.id || viewStock.dataset.storeId || viewStock.getAttribute('data-id') || viewStock.getAttribute('data-store-id');
+        if (storeId) {
+            if (typeof showStoreDetailsModal === 'function') {
+                showStoreDetailsModal(storeId);
+            }
+            ev.stopImmediatePropagation();
+            return;
+        }
+
+        // otherwise let other handlers run
+    }, true); // capture phase so runs before bubble handlers
+})();
+
+/* Password change modal */
+
+function buildChangePasswordModalHtml(store) {
+    const s = store || {};
+    return `
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width:520px; width:92%; margin-top:4rem;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changePasswordModalLabel">Update Store Username / Password</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="changePasswordForm" class="row g-3">
+              <div class="col-12 col-md-12">
+                <label class="form-label small">Store</label>
+                <input type="text" class="form-control form-control-sm" name="storeName" value="${s.storeName || s.store || ''}" readonly>
+              </div>
+              <div class="col-12 col-md-12">
+                <label class="form-label small">Username</label>
+                <input type="text" class="form-control form-control-sm" name="username" value="${s.username || ''}">
+              </div>
+              <div class="col-12 col-md-12">
+                <label class="form-label small">Old Password</label>
+                <input type="password" class="form-control form-control-sm" name="oldPassword" placeholder="Old Password">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small">New Password</label>
+                <input type="password" class="form-control form-control-sm" name="newPassword" placeholder="New Password">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small">Retype Password</label>
+                <input type="password" class="form-control form-control-sm" name="confirmPassword" placeholder="Retype Password">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer d-flex flex-column gap-2">
+            <button type="button" class="btn btn-primary w-100" id="changePasswordSaveBtn"><i class="fa fa-save me-1"></i> Update Password</button>
+            <button type="button" class="btn btn-warning w-100" data-bs-dismiss="modal">✖ Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function showChangePasswordModal(storeId) {
+    const store = getStoreMockById(storeId);
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    // remove any existing modal with that id
+    container.querySelector('#changePasswordModal')?.remove();
+    container.insertAdjacentHTML('beforeend', buildChangePasswordModalHtml(store));
+
+    const modalEl = container.querySelector('#changePasswordModal');
+    let bsModal;
+
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        container.querySelector('#changePasswordModal')?.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== 'undefined' && modalEl) {
+        bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', cleanup, { once: true });
+        });
+    }
+
+    // Save handler: validate and persist to mock
+    const saveBtn = container.querySelector('#changePasswordSaveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            const form = container.querySelector('#changePasswordForm');
+            if (!form) return;
+            const fd = Object.fromEntries(new FormData(form).entries());
+            // basic validation
+            if (!fd.username || !fd.username.trim()) { alert('Please enter a username.'); return; }
+            if (fd.newPassword && fd.newPassword !== fd.confirmPassword) { alert('Password and Confirm Password do not match.'); return; }
+
+            // verify old password if store has a password
+            const mock = getStoreMockById(storeId);
+            if (mock.password && fd.oldPassword && mock.password !== fd.oldPassword) {
+                alert('Old password is incorrect.');
+                return;
+            }
+
+            // persist to mock
+            if (mock) {
+                mock.username = fd.username;
+                if (fd.newPassword) mock.password = fd.newPassword;
+            }
+
+            // hide and cleanup
+            try { if (bsModal) bsModal.hide(); } catch (e) { cleanup(); }
+            alert('Store credentials updated (mock).');
+
+            // optional: refresh store details modal if it is open
+            setTimeout(() => {
+                // if store details modal open, re-render it
+                if (document.getElementById('storeDetailsModal')) {
+                    showStoreDetailsModal(storeId);
+                }
+            }, 50);
+        }, { once: true });
+    }
+}
+
+(function patchChangePassHandler() {
+    if (window.__ggv_change_pass_patched) return;
+    window.__ggv_change_pass_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-change-pass');
+        if (!btn) return;
+        ev.preventDefault();
+        const id = btn.dataset.id || btn.getAttribute('data-id');
+        if (!id) return;
+        showChangePasswordModal(id);
+    }, false);
+})();
+
+/* 
+
+    Accounts
+
+*/
 function getAdminAccountsManagerContent() {
     return `
     <div class="container-fluid bg-white p-4" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
@@ -238,9 +1496,8 @@ function getAdminAccountsManagerContent() {
             ${[1,2,3,4,5].map(i => {
               const username = `GGUILD0${i}`;
               const password = i === 1 ? 'P@ss@123' : i === 2 ? 'Abc@123' : '';
-              const storeBtn = i <= 3 
-                ? `<button class="btn btn-success btn-sm">Store</button>` 
-                : `<button class="btn btn-primary btn-sm">Set as Store</button>`;
+              // sample contact for SMS button
+              const contact = '6391711' + (100 + i);
               return `
               <tr>
                 <td>${i}</td>
@@ -256,12 +1513,25 @@ function getAdminAccountsManagerContent() {
                 <td>${password}</td>
                 <td>0</td>
                 <td>
-                  <i class="bi bi-search text-primary me-2"></i>
-                  <i class="bi bi-lock text-primary me-2"></i>
-                  ${storeBtn}
-                  <i class="bi bi-person-fill text-primary ms-2"></i>
+                  <div class="btn-group btn-xs" role="group" aria-label="row-tools">
+                    <a href="javascript:void(0)" class="btn btn-success btn-modal-pop" data-target="modal-user-view" data-page="user.view.details" title="View Account Details" data-id="${i}">
+                      <i class="fa fa-search"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="btn btn-info btn-account-send-sms" title="Send credential VIA SMS" data-sms-type="credentials" data-contact="${contact}" data-complete-name="GUILD GRINDERS" data-user="${username}">
+                      <i class="fa fa-mobile"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="btn btn-success btn-modal-pop" data-target="modal-user-view-pass" data-page="user.view.pass" title="Username &amp; Password" data-id="${i}">
+                      <i class="fa fa-key"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="btn btn-success btn-modal-pop" data-target="modal-store" data-page="store.view" title="View Store Details" data-id="${i}">
+                      Store
+                    </a>
+                    <a href="https://secure.onegrindersguild.com/instalogin.php?loghash=314e5a53d4d2459241745fdd6eebf887" target="_blank" class="btn btn-success" title="Insta LOGIN">
+                      <i class="fa fa-user"></i>
+                    </a>
+                  </div>
                 </td>
-              </tr>`;
+              </tr>`; 
             }).join('')}
           </tbody>
         </table>
@@ -284,6 +1554,53 @@ function getAdminAccountsManagerContent() {
     </div>
     `;
 }
+
+(function patchModalPopHandler() {
+    if (window.__ggv_modal_pop_patched) return;
+    window.__ggv_modal_pop_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-modal-pop');
+        if (!btn) return;
+        ev.preventDefault();
+
+        const target = btn.dataset.target || btn.getAttribute('data-target') || '';
+        const page = btn.dataset.page || btn.getAttribute('data-page') || '';
+        const id = btn.dataset.id || btn.getAttribute('data-id');
+
+        // Open Store Details modal
+        if (target === 'modal-store' || page === 'store.view') {
+            if (!id) {
+                console.warn('modal-pop: missing data-id for store');
+                return;
+            }
+            if (typeof showStoreDetailsModal === 'function') {
+                showStoreDetailsModal(id);
+            }
+            return;
+        }
+
+        // Open User Details modal
+        if (target === 'modal-user-view' || page === 'user.view.details') {
+            if (!id) return;
+            if (typeof showUserDetailModal === 'function') {
+                showUserDetailModal(id);
+            }
+            return;
+        }
+
+        // Open User Password view (reuse change password modal or implement specific)
+        if (target === 'modal-user-view-pass' || page === 'user.view.pass') {
+            if (!id) return;
+            if (typeof showChangePasswordModal === 'function') {
+                showChangePasswordModal(id);
+            }
+            return;
+        }
+
+        // other targets can be added here
+    }, false);
+})();
 
 function getAdminAccountsCdContent() {
     return `
@@ -1660,7 +2977,6 @@ function getAdminActivationTrackerContent() {
   </div>
   `;
 }
-
 
 
 /* eWallet */
@@ -3428,891 +4744,6 @@ function getAdminLogsUserLoginContent() {
 }
 
 
-/* View Store Details */
-if (!window.__adminDashboardGlobalHandlers) {
-    window.__adminDashboardGlobalHandlers = true;
 
-    document.addEventListener('click', function (ev) {
-        // STATUS toggle
-        const statusBtn = ev.target.closest('.status-toggle');
-        if (statusBtn) {
-            ev.preventDefault();
-            const id = statusBtn.dataset.id;
-            const current = statusBtn.dataset.state === 'active' ? 'active' : 'inactive';
 
-            if (current === 'active') {
-                const ok = confirm('Are you sure you want to deactivate this store?');
-                if (!ok) return;
-                statusBtn.dataset.state = 'inactive';
-                statusBtn.classList.remove('btn-success');
-                statusBtn.classList.add('btn-danger');
-                statusBtn.textContent = 'Deactivate';
-                statusBtn.setAttribute('aria-pressed', 'false');
-                // TODO: send server update here (fetch/axios)
-                console.log('Store', id, 'deactivated');
-                return;
-            }
-
-            // currently inactive -> activate
-            const ok2 = confirm('Activate this store?');
-            if (!ok2) return;
-            statusBtn.dataset.state = 'active';
-            statusBtn.classList.remove('btn-danger');
-            statusBtn.classList.add('btn-success');
-            statusBtn.textContent = 'Active';
-            statusBtn.setAttribute('aria-pressed', 'true');
-            // TODO: send server update here
-            console.log('Store', id, 'activated');
-            return;
-        }
-
-        // TOOL buttons
-        const viewStock = ev.target.closest('.btn-view-stock');
-        if (viewStock) {
-            ev.preventDefault();
-            const id = viewStock.dataset.id;
-            alert('View Stocklist Details for ID: ' + id);
-            return;
-        }
-
-        const viewUsers = ev.target.closest('.btn-view-users');
-        if (viewUsers) {
-            ev.preventDefault();
-            const id = viewUsers.dataset.id;
-            alert('View Users for ID: ' + id);
-            return;
-        }
-
-        const changePass = ev.target.closest('.btn-change-pass');
-        if (changePass) {
-            ev.preventDefault();
-            const id = changePass.dataset.id;
-            alert('Change password for ID: ' + id);
-            return;
-        }
-    }, false);
-}
-
-const __ggv_store_mock = [
-    { id: 1, personalAccount: "GGUILD01", accountName: "GUILD GRINDERS", storeName: "GRINDERSGUILDGLOBAL", companyName: "GRINDERS GLOBAL", stockistType: "admin", contactNo: "63917111111", username: "GGGLOBAL", password: "321@ss@P", country: "Philippines", region: "REGION XI (DAVAO REGION)", province: "DAVAO DEL SUR", city: "CITY OF DIGOS (Capital)", barangay: "Aplaya" },
-    { id: 2, personalAccount: "GGUILD02", accountName: "GROCERYN CO", storeName: "GROCERYN", companyName: "GROCERYN INC", stockistType: "Country Hub", contactNo: "63917112222", username: "GROCERYN", password: "pass123", country: "Philippines", region: "", province: "", city: "", barangay: "" },
-    // ... add more mocks as needed ...
-];
-
-function getStoreMockById(id) {
-    return __ggv_store_mock.find(s => Number(s.id) === Number(id)) || {
-        id, personalAccount: "", accountName: "", storeName: "", companyName: "", stockistType: "", contactNo: "", username: "", password: "", country: "", region: "", province: "", city: "", barangay: ""
-    };
-}
-
-function buildStoreModalHtml(store) {
-    return `
-    <div class="modal fade" id="storeDetailsModal" tabindex="-1" aria-labelledby="storeDetailsModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="storeDetailsModalLabel">View Store Details</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="storeDetailsForm" class="row g-3">
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Personal Account</label>
-                <input type="text" class="form-control form-control-sm" name="personalAccount" value="${store.personalAccount || ""}">
-              </div>
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Account Name</label>
-                <input type="text" class="form-control form-control-sm" name="accountName" value="${store.accountName || ""}">
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Store Name</label>
-                <input type="text" class="form-control form-control-sm" name="storeName" value="${store.storeName || ""}">
-              </div>
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Company Name</label>
-                <input type="text" class="form-control form-control-sm" name="companyName" value="${store.companyName || ""}">
-              </div>
-
-              <div class="col-12 col-md-4">
-                <label class="form-label small">Stockist Type</label>
-                <select class="form-select form-select-sm" name="stockistType">
-                  <option ${store.stocklistType === "admin" ? "selected" : ""}>admin</option>
-                  <option ${store.stocklistType === "Country Hub" ? "selected" : ""}>Country Hub</option>
-                  <option ${store.stocklistType === "Store" ? "selected" : ""}>Store</option>
-                </select>
-              </div>
-
-              <div class="col-12 col-md-4">
-                <label class="form-label small">Contact No</label>
-                <input type="text" class="form-control form-control-sm" name="contactNo" value="${store.contactNo || ""}">
-              </div>
-
-              <div class="col-12 col-md-4">
-                <label class="form-label small">Username</label>
-                <input type="text" class="form-control form-control-sm" name="username" value="${store.username || ""}">
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Password</label>
-                <input type="text" class="form-control form-control-sm" name="password" value="${store.password || ""}">
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Country</label>
-                <input type="text" class="form-control form-control-sm" name="country" value="${store.country || ""}">
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Region</label>
-                <input type="text" class="form-control form-control-sm" name="region" value="${store.region || ""}">
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Province</label>
-                <input type="text" class="form-control form-control-sm" name="province" value="${store.province || ""}">
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label small">City</label>
-                <input type="text" class="form-control form-control-sm" name="city" value="${store.city || ""}">
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label small">Barangay</label>
-                <input type="text" class="form-control form-control-sm" name="barangay" value="${store.barangay || ""}">
-              </div>
-
-            </form>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary btn-sm" id="storeDetailsSaveBtn">Update</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function showStoreDetailsModal(id) {
-    // ensure single modal container
-    let container = document.getElementById('ggvStoreModalContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'ggvStoreModalContainer';
-        document.body.appendChild(container);
-    }
-
-    const store = getStoreMockById(id);
-    container.innerHTML = buildStoreModalHtml(store);
-
-    const modalEl = container.querySelector('#storeDetailsModal');
-    let bsModal;
-
-    function cleanup() {
-        try { if (bsModal) bsModal.dispose(); } catch (e) {}
-        if (modalEl) {
-            modalEl.removeEventListener('hidden.bs.modal', cleanup);
-        }
-        // remove DOM modal and any backdrops
-        if (container) container.innerHTML = '';
-        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
-        document.body.classList.remove('modal-open');
-    }
-
-    // show modal via bootstrap API if available
-    if (typeof bootstrap !== "undefined" && modalEl) {
-        bsModal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static' });
-        modalEl.addEventListener('hidden.bs.modal', cleanup);
-        bsModal.show();
-    } else if (modalEl) {
-        // fallback: make visible and create backdrop
-        modalEl.classList.add('show');
-        modalEl.style.display = 'block';
-        // create backdrop if not present
-        if (!document.querySelector('.modal-backdrop')) {
-            const bd = document.createElement('div');
-            bd.className = 'modal-backdrop fade show';
-            document.body.appendChild(bd);
-            document.body.classList.add('modal-open');
-        }
-        // wire close buttons to cleanup
-        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
-            btn.addEventListener('click', function () {
-                cleanup();
-            }, { once: true });
-        });
-    }
-
-    // wire save button
-    const saveBtn = container.querySelector('#storeDetailsSaveBtn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', function () {
-            const form = container.querySelector('#storeDetailsForm');
-            const formData = {};
-            if (form) {
-                new FormData(form).forEach((v, k) => formData[k] = v);
-            }
-            // TODO: send formData to server (fetch/axios)
-            console.log('Store update', id, formData);
-            // close modal
-            if (bsModal) bsModal.hide();
-            else cleanup();
-            // optional: show a confirmation toast/alert
-            alert('Store updated (mock): ' + id);
-        }, { once: true });
-    }
-}
-
-/* View Users */
-// --- Mock user data per store (minimal) ---
-const __ggv_store_users_mock = {
-    1: [
-        { id: 8, branch: "GRINDERSGUILDGLOBAL", name: "System, Administrator Main", contact: "639999999999", created: "2024-07-06 20:59:20", hired: "2024-07-06 20:59:20", user: "superadmin_main", pass: "Abc@@@1", lastVisit: "2025-02-04 04:15:52", status: "Active" },
-        { id: 999, branch: "GRINDERSGUILDGLOBAL", name: "Torres, Kenneth G", contact: "639171231231", created: "2024-10-26 11:37:15", hired: "2024-10-26 11:37:15", user: "globaladmin", pass: "Abc@321", lastVisit: "2025-02-11 12:41:17", status: "Active" },
-        { id: 111, branch: "GRINDERSGUILDGLOBAL", name: "Finance, Finance X", contact: "", created: "2024-11-20 22:51:51", hired: "2024-11-20 22:51:51", user: "ggglobalfinance", pass: "123456", lastVisit: "2024-11-20 22:53:58", status: "Active" }
-    ],
-    2: [
-        { id: 222, branch: "GROCERYN", name: "Logistics, Logistics X", contact: "639171231231", created: "2025-01-09 16:31:19", hired: "2025-01-09 16:31:19", user: "gggloballogistics", pass: "Abc@123", lastVisit: "2025-01-09 16:31:19", status: "Active" }
-    ]
-};
-
-function getStoreUsersMockById(storeId) {
-    return __ggv_store_users_mock[Number(storeId)] || [];
-}
-
-function buildStoreUsersModalHtml(storeId, users) {
-    const rows = users.map(u => `
-        <tr>
-            <td>${u.id}</td>
-            <td>${u.branch}</td>
-            <td style="width:40%; white-space:normal; word-break:break-word;">${u.name}</td>
-            <td>${u.contact || ""}</td>
-            <td>${u.created || ""}</td>
-            <td>${u.hired || ""}</td>
-            <td>${u.user || ""}</td>
-            <td>${u.pass || ""}</td>
-            <td>${u.lastVisit || ""}</td>
-            <td>
-                <button
-                    class="btn btn-sm ${u.status === 'Active' ? 'btn-success' : 'btn-danger'} user-status-toggle rounded-pill px-3 py-1"
-                    data-user-id="${u.id}"
-                    data-state="${u.status === 'Active' ? 'active' : 'inactive'}"
-                    aria-pressed="${u.status === 'Active'}"
-                    title="Toggle user status"
-                >
-                    ${u.status}
-                </button>
-            </td>
-            <td>
-                <div class="d-flex gap-1">
-                    <!-- view (opens user detail) -->
-                    <button class="btn btn-info btn-sm btn-view-stock py-1" style="height:30px; padding:4px 8px; font-size:0.78rem;" data-user-id="${u.id}" data-store-id="${storeId}" title="View">
-                        <i class="fa fa-search"></i>
-                    </button>
-                    <button class="btn btn-info btn-sm btn-set-default py-1" style="height:30px; padding:4px 10px; min-width:120px; font-size:0.72rem;" data-id="${u.id}" title="Set Default">set default</button>
-                    <button class="btn btn-info btn-sm btn-sms-admin py-1" style="height:30px; padding:4px 10px; min-width:120px; font-size:0.72rem;" data-id="${u.id}" title="Set SMS Admin">set sms admin</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-
-    return `
-    <div class="modal fade" id="storeUsersModal" tabindex="-1" aria-labelledby="storeUsersModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:95%; width:95%;">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="storeUsersModalLabel">View Store User - ${users.length ? users[0].branch : 'Store ' + storeId}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body p-0">
-            <div class="table-responsive">
-              <table class="table table-borderless mb-0">
-                <thead class="table-light small text-uppercase">
-                  <tr>
-                    <th>ID#</th>
-                    <th>BRANCH</th>
-                    <th style="width:40%;">NAME</th>
-                    <th>CONTACT#</th>
-                    <th>CREATED</th>
-                    <th>HIRED</th>
-                    <th>USER</th>
-                    <th>PASS</th>
-                    <th>LAST VISIT</th>
-                    <th>STATUS</th>
-                    <th style="width:260px;">ACTION</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rows || `<tr><td colspan="11" class="text-center text-muted">No users found</td></tr>`}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer d-flex flex-column gap-2">
-            <div class="w-100">
-              <button class="btn btn-primary w-100 btn-add-store-user" data-store-id="${storeId}"><i class="fa fa-user-plus me-2"></i> Add New User</button>
-            </div>
-            <div class="w-100">
-              <button type="button" class="btn btn-warning w-100" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    `;
-}
-
-if (!window.__ggv_user_status_handlers_attached) {
-    window.__ggv_user_status_handlers_attached = true;
-
-    document.addEventListener('click', function (ev) {
-        const userBtn = ev.target.closest('.user-status-toggle');
-        if (!userBtn) return;
-
-        ev.preventDefault();
-        const uid = userBtn.dataset.userId;
-        const current = userBtn.dataset.state === 'active' ? 'active' : 'inactive';
-        const uidNum = Number(uid);
-
-        const persistStatus = (newStatus) => {
-            // update mock data array so changes persist across modal re-renders
-            for (const sid in __ggv_store_users_mock) {
-                const arr = __ggv_store_users_mock[sid] || [];
-                const found = arr.find(x => Number(x.id) === uidNum);
-                if (found) {
-                    // store status as 'Active' / 'Inactive' to match existing mocks
-                    found.status = newStatus === 'active' ? 'Active' : 'Inactive';
-                    break;
-                }
-            }
-        };
-
-        if (current === 'active') {
-            const ok = confirm('Are you sure you want to deactivate this user?');
-            if (!ok) return;
-            userBtn.dataset.state = 'inactive';
-            userBtn.classList.remove('btn-success');
-            userBtn.classList.add('btn-danger');
-            userBtn.textContent = 'Deactivate';
-            userBtn.setAttribute('aria-pressed', 'false');
-            persistStatus('inactive');
-            console.log('User', uid, 'deactivated (mock)');
-            return;
-        }
-
-        // inactive -> activate
-        const ok2 = confirm('Activate this user?');
-        if (!ok2) return;
-        userBtn.dataset.state = 'active';
-        userBtn.classList.remove('btn-danger');
-        userBtn.classList.add('btn-success');
-        userBtn.textContent = 'Active';
-        userBtn.setAttribute('aria-pressed', 'true');
-        persistStatus('active');
-        console.log('User', uid, 'activated (mock)');
-    }, false);
-}
-
-function buildAddUserModalHtml(storeId, storeName) {
-    return `
-    <div class="modal fade" id="addStoreUserModal" tabindex="-1" aria-labelledby="addStoreUserModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" style="max-width:480px; width:90%; margin-top:4rem;">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addStoreUserModalLabel">Add New Store User - ${storeName || ''}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="addStoreUserForm" class="row g-3">
-              <div class="col-12">
-                <label class="form-label small">Assigned ID#</label>
-                <input type="text" class="form-control form-control-sm" name="assignedId" placeholder="Enter ID No">
-              </div>
-              <div class="col-4">
-                <label class="form-label small">Last</label>
-                <input type="text" class="form-control form-control-sm" name="last" placeholder="Enter Last Name" required>
-              </div>
-              <div class="col-4">
-                <label class="form-label small">First</label>
-                <input type="text" class="form-control form-control-sm" name="first" placeholder="Enter First Name" required>
-              </div>
-              <div class="col-4">
-                <label class="form-label small">Middle</label>
-                <input type="text" class="form-control form-control-sm" name="middle" placeholder="Enter Middle Name">
-              </div>
-              <div class="col-6">
-                <label class="form-label small">Contact No</label>
-                <input type="text" class="form-control form-control-sm" name="contact" placeholder="Contact Number">
-              </div>
-              <div class="col-6">
-                <label class="form-label small">Address</label>
-                <input type="text" class="form-control form-control-sm" name="address" placeholder="Address">
-              </div>
-              <div class="col-6">
-                <label class="form-label small">Position</label>
-                <select class="form-select form-select-sm" name="position">
-                  <option>OTHER</option>
-                  <option>ADMIN</option>
-                  <option>LOGISTICS</option>
-                </select>
-              </div>
-              <div class="col-6">
-                <label class="form-label small">User Name</label>
-                <input type="text" class="form-control form-control-sm" name="username" placeholder="Username">
-              </div>
-              <div class="col-6">
-                <label class="form-label small">Password</label>
-                <input type="password" class="form-control form-control-sm" name="password" placeholder="Password">
-              </div>
-              <div class="col-6">
-                <label class="form-label small">Confirm Password</label>
-                <input type="password" class="form-control form-control-sm" name="confirmPassword" placeholder="Confirm Password">
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer d-flex gap-2">
-            <button type="button" class="btn btn-primary btn-sm" id="addStoreUserSaveBtn">Add User</button>
-            <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    `;
-}
-
-(function replaceAddUserSaveHandler() {
-    // find save button (this runs right after add modal inserted in showStoreUsersModal)
-    const saveBtn = document.querySelector('#ggvStoreModalContainer #addStoreUserSaveBtn');
-    if (!saveBtn) return;
-    // ensure idempotent: if already wired, skip
-    if (saveBtn.__ggv_bound) return;
-    saveBtn.__ggv_bound = true;
-
-    saveBtn.addEventListener('click', function () {
-        const container = document.getElementById('ggvStoreModalContainer');
-        const form = container?.querySelector('#addStoreUserForm');
-        if (!form) return;
-        const fd = Object.fromEntries(new FormData(form).entries());
-
-        // Basic required fields
-        if (!fd.last || !fd.first) {
-            alert('Please enter first and last name.');
-            return;
-        }
-        if (!fd.username || !fd.username.trim()) {
-            alert('Please enter a username.');
-            return;
-        }
-        if ((fd.password || fd.confirmPassword) && fd.password !== fd.confirmPassword) {
-            alert('Password and Confirm Password do not match.');
-            return;
-        }
-
-        // determine store id (safeguard)
-        const sid = container.querySelector('#addStoreUserModal')?.getAttribute('data-store-id') || container.querySelector('.btn-add-store-user')?.dataset.storeId;
-        const arr = __ggv_store_users_mock[Number(sid)] || [];
-        const maxId = arr.reduce((m, x) => Math.max(m, Number(x.id || 0)), 0);
-        const newId = fd.assignedId && Number(fd.assignedId) ? Number(fd.assignedId) : (maxId + 1 || Date.now());
-        const nameParts = `${fd.last}${fd.first ? ', ' + fd.first : ''}${fd.middle ? ' ' + fd.middle : ''}`;
-
-        const newUser = {
-            id: newId,
-            branch: (arr[0] && arr[0].branch) || (getStoreMockById(sid) || {}).storeName || '',
-            name: nameParts,
-            contact: fd.contact || '',
-            created: new Date().toISOString().slice(0,19).replace('T',' '),
-            hired: new Date().toISOString().slice(0,19).replace('T',' '),
-            user: fd.username || '',
-            pass: fd.password || '',
-            lastVisit: '',
-            status: 'Active',
-            position: fd.position || 'OTHER',
-            address: fd.address || ''
-        };
-
-        if (!__ggv_store_users_mock[Number(sid)]) __ggv_store_users_mock[Number(sid)] = [];
-        __ggv_store_users_mock[Number(sid)].push(newUser);
-
-        // close add modal then re-render store users modal (recreate container content)
-        const addModalEl = container.querySelector('#addStoreUserModal');
-        if (addModalEl) {
-            try { const bs = bootstrap.Modal.getInstance(addModalEl); if (bs) bs.hide(); } catch (e) { addModalEl.remove(); }
-        }
-
-        // refresh users modal
-        container.innerHTML = '';
-        setTimeout(() => {
-            showStoreUsersModal(sid);
-        }, 50);
-    }, { once: true });
-})();
-
-function showStoreUsersModal(storeId) {
-    let container = document.getElementById('ggvStoreModalContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'ggvStoreModalContainer';
-        document.body.appendChild(container);
-    }
-
-    const users = getStoreUsersMockById(storeId);
-    container.innerHTML = buildStoreUsersModalHtml(storeId, users);
-
-    const modalEl = container.querySelector('#storeUsersModal');
-    let bsModal;
-    if (typeof bootstrap !== "undefined" && modalEl) {
-        bsModal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static' });
-        bsModal.show();
-    } else if (modalEl) {
-        modalEl.classList.add('show');
-        modalEl.style.display = 'block';
-        if (!document.querySelector('.modal-backdrop')) {
-            const bd = document.createElement('div');
-            bd.className = 'modal-backdrop fade show';
-            document.body.appendChild(bd);
-            document.body.classList.add('modal-open');
-        }
-    }
-
-    // wire add new user button to open add-user modal
-    const addBtn = container.querySelector('.btn-add-store-user');
-    if (addBtn) {
-        addBtn.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            const sid = this.dataset.storeId;
-            // render add-user modal next to storeUsersModal in same container
-            const storeName = (getStoreMockById(sid) || {}).storeName || '';
-            // ensure any existing add modal removed
-            container.querySelector('#addStoreUserModal')?.remove();
-            container.insertAdjacentHTML('beforeend', buildAddUserModalHtml(sid, storeName));
-
-            const addModalEl = container.querySelector('#addStoreUserModal');
-            let addBs;
-            if (typeof bootstrap !== "undefined" && addModalEl) {
-                addBs = new bootstrap.Modal(addModalEl, { backdrop: 'static' });
-                addModalEl.addEventListener('hidden.bs.modal', function () {
-                    // cleanup modal DOM when closed
-                    addModalEl.remove();
-                }, { once: true });
-                addBs.show();
-            } else if (addModalEl) {
-                addModalEl.classList.add('show');
-                addModalEl.style.display = 'block';
-                if (!document.querySelector('.modal-backdrop')) {
-                    const bd = document.createElement('div');
-                    bd.className = 'modal-backdrop fade show';
-                    document.body.appendChild(bd);
-                    document.body.classList.add('modal-open');
-                }
-            }
-
-            // Add button handler: collect form and inject new user then re-open users modal
-            const saveBtn = container.querySelector('#addStoreUserSaveBtn');
-            if (saveBtn) {
-                saveBtn.addEventListener('click', function () {
-                    const form = container.querySelector('#addStoreUserForm');
-                    if (!form) return;
-                    const fd = Object.fromEntries(new FormData(form).entries());
-                    // basic validation
-                    if (!fd.last || !fd.first) {
-                        alert('Please enter first and last name.');
-                        return;
-                    }
-                    // determine id
-                    const arr = __ggv_store_users_mock[Number(sid)] || [];
-                    const maxId = arr.reduce((m, x) => Math.max(m, Number(x.id || 0)), 0);
-                    const newId = fd.assignedId && Number(fd.assignedId) ? Number(fd.assignedId) : (maxId + 1 || Date.now());
-                    const nameParts = `${fd.last}${fd.first ? ', ' + fd.first : ''}${fd.middle ? ' ' + fd.middle : ''}`;
-                    const newUser = {
-                        id: newId,
-                        branch: (arr[0] && arr[0].branch) || (getStoreMockById(sid) || {}).storeName || '',
-                        name: nameParts,
-                        contact: fd.contact || '',
-                        created: new Date().toISOString().slice(0,19).replace('T',' '),
-                        hired: new Date().toISOString().slice(0,19).replace('T',' '),
-                        user: fd.username || '',
-                        pass: fd.password || '',
-                        lastVisit: '',
-                        status: 'Active',
-                        position: fd.position || 'OTHER',
-                        address: fd.address || ''
-                    };
-                    // ensure array exists
-                    if (!__ggv_store_users_mock[Number(sid)]) __ggv_store_users_mock[Number(sid)] = [];
-                    __ggv_store_users_mock[Number(sid)].push(newUser);
-
-                    // close add modal then re-render store users modal (recreate container content)
-                    if (addBs) addBs.hide();
-                    else container.querySelector('#addStoreUserModal')?.remove();
-
-                    // remove existing storeUsersModal from container then re-open to refresh table
-                    container.innerHTML = '';
-                    // small timeout to allow backdrop removal
-                    setTimeout(() => {
-                        showStoreUsersModal(sid);
-                    }, 50);
-                }, { once: true });
-            }
-
-        }, { once: true });
-    }
-}
-
-(function patchViewUsersHandler() {
-    if (window.__ggv_shop_users_modal_patched) return;
-    window.__ggv_shop_users_modal_patched = true;
-
-    document.addEventListener('click', function (ev) {
-        const viewUsers = ev.target.closest('.btn-view-users');
-        if (viewUsers) {
-            ev.preventDefault();
-            const id = viewUsers.dataset.id;
-            showStoreUsersModal(id);
-            ev.stopImmediatePropagation();
-            return;
-        }
-    }, true); // capture to run before bubble handlers that show alerts
-})();
-
-if (!window.__ggv_user_status_handlers_attached) {
-    window.__ggv_user_status_handlers_attached = true;
-
-    document.addEventListener('click', function (ev) {
-        const userBtn = ev.target.closest('.user-status-toggle');
-        if (!userBtn) return;
-
-        ev.preventDefault();
-        const uid = userBtn.dataset.userId;
-        const current = userBtn.dataset.state === 'active' ? 'active' : 'inactive';
-
-        if (current === 'active') {
-            const ok = confirm('Are you sure you want to deactivate this user?');
-            if (!ok) return;
-            userBtn.dataset.state = 'inactive';
-            userBtn.classList.remove('btn-success');
-            userBtn.classList.add('btn-danger');
-            userBtn.textContent = 'Deactivate';
-            userBtn.setAttribute('aria-pressed', 'false');
-            // TODO: call backend to update user status
-            console.log('User', uid, 'deactivated (mock)');
-            return;
-        }
-
-        // inactive -> activate
-        const ok2 = confirm('Activate this user?');
-        if (!ok2) return;
-        userBtn.dataset.state = 'active';
-        userBtn.classList.remove('btn-danger');
-        userBtn.classList.add('btn-success');
-        userBtn.textContent = 'Active';
-        userBtn.setAttribute('aria-pressed', 'true');
-        // TODO: call backend to update user status
-        console.log('User', uid, 'activated (mock)');
-    }, false);
-}
-
-function getUserMockById(userId) {
-    userId = Number(userId);
-    for (const sid in __ggv_store_users_mock) {
-        const found = (__ggv_store_users_mock[sid] || []).find(u => Number(u.id) === userId);
-        if (found) return found;
-    }
-    return null;
-}
-
-function buildUserDetailModalHtml(user) {
-    const u = user || {};
-    return `
-    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
-      <!-- remove vertical centering and apply a top margin so modal header clears the fixed navbar -->
-      <div class="modal-dialog" style="max-width:480px; width:90%; margin:6rem auto 2rem;">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="userDetailModalLabel">View Store User${u.branch ? ' - ' + u.branch : ''}${u.name ? ' - ' + u.name : ''}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="userDetailForm" class="row g-3">
-              <div class="col-12">
-                <label class="form-label small">Store</label>
-                <input type="text" class="form-control form-control-sm" name="store" value="${u.branch || ''}">
-              </div>
-
-              <div class="col-6">
-                <label class="form-label small">Assigned ID#</label>
-                <input type="text" class="form-control form-control-sm" name="assignedId" value="${u.id || ''}">
-              </div>
-
-              <div class="col-6">
-                <label class="form-label small">Status</label>
-                <div class="d-flex align-items-center gap-2">
-                  <button
-                    type="button"
-                    class="btn btn-sm ${u.status === 'Active' ? 'btn-success' : 'btn-danger'} user-status-toggle"
-                    data-user-id="${u.id || ''}"
-                    data-state="${u.status === 'Active' ? 'active' : 'inactive'}"
-                    aria-pressed="${u.status === 'Active'}"
-                    title="Toggle user status"
-                  >
-                    ${u.status || 'Inactive'}
-                  </button>
-                  <button type="button" class="btn btn-info btn-sm btn-sms-admin" data-id="${u.id || ''}">SET SMS ADMIN</button>
-                </div>
-              </div>
-
-              <div class="col-4">
-                <label class="form-label small">Last</label>
-                <input type="text" class="form-control form-control-sm" name="last" value="${(u.name || '').split(',')[0] || ''}">
-              </div>
-              <div class="col-4">
-                <label class="form-label small">First</label>
-                <input type="text" class="form-control form-control-sm" name="first" value="${(u.name || '').split(',')[1] ? u.name.split(',')[1].trim() : ''}">
-              </div>
-              <div class="col-4">
-                <label class="form-label small">Middle</label>
-                <input type="text" class="form-control form-control-sm" name="middle" value="${u.middle || ''}">
-              </div>
-
-              <div class="col-12">
-                <label class="form-label small">Contact No</label>
-                <input type="text" class="form-control form-control-sm" name="contact" value="${u.contact || ''}">
-              </div>
-
-              <div class="col-12">
-                <label class="form-label small">Address</label>
-                <input type="text" class="form-control form-control-sm" name="address" value="${u.address || u.city || ''}">
-              </div>
-
-              <div class="col-6">
-                <label class="form-label small">Position</label>
-                <select class="form-select form-select-sm" name="position">
-                  <option ${u.position === 'ADMIN' ? 'selected' : ''}>ADMIN</option>
-                  <option ${u.position === 'LOGISTICS' ? 'selected' : ''}>LOGISTICS</option>
-                  <option ${!u.position ? 'selected' : ''}>OTHER</option>
-                </select>
-              </div>
-
-              <div class="col-6">
-                <label class="form-label small">User Name</label>
-                <input type="text" class="form-control form-control-sm" name="username" value="${u.user || ''}">
-              </div>
-
-              <div class="col-6">
-                <label class="form-label small">Password</label>
-                <input type="text" class="form-control form-control-sm" name="password" value="${u.pass || ''}">
-              </div>
-
-              <div class="col-6">
-                <label class="form-label small">Last Login</label>
-                <input type="text" class="form-control form-control-sm" name="lastLogin" value="${u.lastVisit || ''}">
-              </div>
-            </form>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-sm" id="userDetailSaveBtn"><i class="fa fa-save me-1"></i> Update</button>
-            <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i> Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    `;
-}
-
-function showUserDetailModal(userId) {
-    let container = document.getElementById('ggvStoreModalContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'ggvStoreModalContainer';
-        document.body.appendChild(container);
-    }
-
-    const user = getUserMockById(userId) || { id: userId };
-    container.innerHTML = buildUserDetailModalHtml(user);
-
-    const modalEl = container.querySelector('#userDetailModal');
-    let bsModal;
-
-    function cleanupUser() {
-        try { if (bsModal) bsModal.dispose(); } catch (e) {}
-        if (modalEl) {
-            modalEl.removeEventListener('hidden.bs.modal', cleanupUser);
-        }
-        if (container) container.innerHTML = '';
-        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
-        document.body.classList.remove('modal-open');
-    }
-
-    if (typeof bootstrap !== "undefined" && modalEl) {
-        bsModal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static' });
-        modalEl.addEventListener('hidden.bs.modal', cleanupUser);
-        bsModal.show();
-    } else if (modalEl) {
-        modalEl.classList.add('show');
-        modalEl.style.display = 'block';
-        if (!document.querySelector('.modal-backdrop')) {
-            const bd = document.createElement('div');
-            bd.className = 'modal-backdrop fade show';
-            document.body.appendChild(bd);
-            document.body.classList.add('modal-open');
-        }
-        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
-            btn.addEventListener('click', function () {
-                cleanupUser();
-            }, { once: true });
-        });
-    }
-
-    // save handler (mock)
-    const saveBtn = container.querySelector('#userDetailSaveBtn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', function () {
-            const form = container.querySelector('#userDetailForm');
-            const payload = {};
-            if (form) new FormData(form).forEach((v, k) => payload[k] = v);
-            console.log('Save user (mock)', userId, payload);
-            if (bsModal) bsModal.hide();
-            else cleanupUser();
-            alert('User updated (mock): ' + userId);
-        }, { once: true });
-    }
-}
-
-(function patchViewStockHandler() {
-    // idempotent single capture-phase handler: prefer userId, fallback to storeId
-    if (window.__ggv_shop_modal_patched) return;
-    window.__ggv_shop_modal_patched = true;
-
-    document.addEventListener('click', function (ev) {
-        const viewStock = ev.target.closest('.btn-view-stock');
-        if (!viewStock) return;
-
-        ev.preventDefault();
-
-        // Prefer user id on the button (users table). If present, open user modal.
-        const userId = viewStock.dataset.userId || viewStock.dataset.userid || viewStock.getAttribute('data-user-id');
-        if (userId) {
-            if (typeof showUserDetailModal === 'function') {
-                showUserDetailModal(userId);
-            }
-            ev.stopImmediatePropagation();
-            return;
-        }
-
-        // Fallback to store id (main table)
-        const storeId = viewStock.dataset.id || viewStock.dataset.storeId || viewStock.getAttribute('data-id') || viewStock.getAttribute('data-store-id');
-        if (storeId) {
-            if (typeof showStoreDetailsModal === 'function') {
-                showStoreDetailsModal(storeId);
-            }
-            ev.stopImmediatePropagation();
-            return;
-        }
-
-        // otherwise let other handlers run
-    }, true); // capture phase so runs before bubble handlers
-})();
 
