@@ -244,7 +244,7 @@ function openModal(type) {
         loadPosModule('orders-pending')
     } else if (type == "personal-sales-summary") {
         loadPosModule('sales-summary')
-    } else if (type == "new-personal-sales") {
+    } else if (type == "new-personal-sales") { 
         createNewPersonalSales();
     }
 }
@@ -372,7 +372,7 @@ function getPosHomeContent() {
                                 </div>
                             </div>
                             <div class="d-flex gap-2 align-items-center">
-                                <button onClick="loadPosModule('sales-summary')" class="btn btn-light btn-sm border" title="Summary">
+                                <button onclick="loadPosModule('sales-summary')" class="btn btn-light btn-sm border" title="Summary">
                                     <i class="fas fa-list"></i>
                                 </button>
                                 <button onclick="openModal('new-personal-sales')" class="btn btn-success btn-sm">
@@ -758,7 +758,7 @@ function getOrdersVoidedContent() {
                         </div>
                     </div>
                     <div>
-                        <button class="btn btn-success btn-sm"><i class="fas fa-list me-1"></i> My Orders</button>
+                        <button onclick="openModal('summary')" class="btn btn-success btn-sm"><i class="fas fa-list me-1"></i> My Orders</button>
                     </div>
                 </div>
             </div>
@@ -818,6 +818,91 @@ function getOrdersVoidedContent() {
 }
 
 // --- PERSONAL SALES ---
+function getProductDescriptionBySKU(sku) {
+    for (const category of productData) {
+        const product = category.products.find(p => p.sku === sku);
+        if (product) return product.description;
+    }
+    return "-";
+}
+
+function viewPersonalSalesDetails(order) {
+
+    // Build Product Rows
+    let productRows = "";
+    if (order.products && order.products.length > 0) {
+        productRows = order.products.map(p => `
+            <tr>
+                <td>${p.sku}</td>
+                <td>₱${p.price.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+                <td>${p.quantity}</td>
+            </tr>
+        `).join("");
+    } else {
+        productRows = `<tr><td colspan="4" class="text-center text-muted">No products found</td></tr>`;
+    }
+
+    // Build Modal HTML
+    const modalHTML = `
+        <div id="searchOrderModal" class="modal-overlay-right">
+            <div class="modal-content-right">
+
+                <!-- HEADER -->
+                <div style="background-color: #007bff; color: white; padding: 12px; text-align: center; font-size: 1.3rem; font-weight: bold; border-radius: 6px 6px 0 0;">
+                    My Order Details
+                </div>
+
+                <div class="modal-header-right">
+                    <span>My Order Details</span>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeSearchOrderDetails()" aria-label="Close"></button>
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body-right">
+                    <div class="mb-2"><strong>TRANS#:</strong> ${order.transNo}</div>
+                    <div class="mb-2"><strong>Date Created:</strong> ${order.dateCreated}</div>
+                    <div class="mb-2"><strong>PO TO:</strong> ${order.poTo}</div>
+                    <div class="mb-3"><strong>Total Amount:</strong> ₱${order.totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+                    
+                    <!-- PRODUCT TABLE -->
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>PRICE</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${productRows}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="footer-buttons">
+                    <button class="btn-close-custom" onclick="closeSearchOrderDetails()">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove existing modal before appending
+    const existingModal = document.getElementById("searchOrderModal");
+    if (existingModal) existingModal.remove();
+
+    // Append new modal
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    // Animate modal open
+    const modal = document.getElementById("searchOrderModal");
+    const modalContent = modal.querySelector(".modal-content-right");
+    setTimeout(() => {
+        modal.classList.add("show");
+        modalContent.classList.add("show");
+    }, 10);
+}
+
 function getSalesSummaryContent() {
     // Calculate summary stats
     const totalSales = PersonalSalesMockData.reduce((sum, sale) => sum + sale.totalAmount, 0);
@@ -913,7 +998,7 @@ function getSalesPendingContent() {
                         <p class="mb-0 text-muted">Total Pending Sales: <strong>₱0.00</strong></p>
                     </div>
                     <div>
-                        <button class="btn btn-success btn-sm"><i class="fas fa-list me-1"></i> View All Orders</button>
+                        <button onclick="openModal('personal-sales-summary')" class="btn btn-success btn-sm"><i class="fas fa-list me-1"></i> View All Orders</button>
                     </div>
                 </div>
             </div>
@@ -977,7 +1062,7 @@ function getSalesVoidedContent() {
                         <p class="mb-0 text-muted">Total Voided Sales: <strong>₱2,280.00</strong></p>
                     </div>
                     <div>
-                        <button class="btn btn-success btn-sm"><i class="fas fa-list me-1"></i> View All Orders</button>
+                        <button onclick="openModal('personal-sales-summary')" class="btn btn-success btn-sm"><i class="fas fa-list me-1"></i> View All Orders</button>
                     </div>
                 </div>
             </div>
@@ -1183,7 +1268,7 @@ function getDailySalesContent() {
                             </div>
                             <div class="d-flex gap-2 flex-wrap">
                                 <button class="btn btn-success btn-sm"><i class="fas fa-store me-1"></i> Store Sales</button>
-                                <button class="btn btn-success btn-sm"><i class="fas fa-user me-1"></i> Personal Sales</button>
+                                <button onclick="openModal('summary')" class="btn btn-success btn-sm"><i class="fas fa-user me-1"></i> Personal Sales</button>
                             </div>
                         </div>
                     </div>
