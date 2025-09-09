@@ -1134,7 +1134,7 @@ function getMonthlySalesContent() {
                             </div>
                             <div class="d-flex gap-2 flex-wrap">
                                 <button class="btn btn-success btn-sm"><i class="fas fa-store me-1"></i> Store Sales</button>
-                                <button class="btn btn-success btn-sm"><i class="fas fa-user me-1"></i> Personal Sales</button>
+                                <button onclick="openModal('summary')" class="btn btn-success btn-sm"><i class="fas fa-user me-1"></i> Personal Sales</button>
                             </div>
                         </div>
                     </div>
