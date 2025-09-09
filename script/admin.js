@@ -355,7 +355,17 @@ function buildStoreModalHtml(store) {
             </form>
           </div>
 
-          <div class="modal-footer">
+          <div class="modal-footer d-flex gap-2">
+            <!-- Send Credentials button added -->
+            <button type="button"
+                    class="btn btn-info btn-sm btn-account-send-sms"
+                    data-sms-type="credentials"
+                    data-contact="${store.contactNo || ''}"
+                    data-complete-name="${(store.storeName || store.accountName || '').replace(/"/g,'&quot;')}"
+                    data-user="${store.username || ''}">
+              <i class="fa fa-mobile me-1"></i> Send Credentials
+            </button>
+
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary btn-sm" id="storeDetailsSaveBtn">Update</button>
           </div>
@@ -1344,6 +1354,16 @@ function buildChangePasswordModalHtml(store) {
             </form>
           </div>
           <div class="modal-footer d-flex flex-column gap-2">
+            <!-- Send Credentials button -->
+            <button type="button"
+                    class="btn btn-info w-100 btn-sm btn-account-send-sms"
+                    data-sms-type="credentials"
+                    data-contact="${s.contactNo || ''}"
+                    data-complete-name="${(s.storeName || s.accountName || '').replace(/"/g,'&quot;')}"
+                    data-user="${s.username || ''}">
+              <i class="fa fa-mobile me-1"></i> Send Credentials
+            </button>
+
             <button type="button" class="btn btn-primary w-100" id="changePasswordSaveBtn"><i class="fa fa-save me-1"></i> Update Password</button>
             <button type="button" class="btn btn-warning w-100" data-bs-dismiss="modal">✖ Close</button>
           </div>
@@ -1556,19 +1576,41 @@ function getAdminAccountsManagerContent() {
 }
 
 (function patchModalPopHandler() {
-    if (window.__ggv_modal_pop_patched) return;
-    window.__ggv_modal_pop_patched = true;
+    if (window.__ggv_modal_pop_patched_v2) return;
+    window.__ggv_modal_pop_patched_v2 = true;
 
     document.addEventListener('click', function (ev) {
         const btn = ev.target.closest('.btn-modal-pop');
         if (!btn) return;
         ev.preventDefault();
 
-        const target = btn.dataset.target || btn.getAttribute('data-target') || '';
-        const page = btn.dataset.page || btn.getAttribute('data-page') || '';
+        const target = (btn.dataset.target || btn.getAttribute('data-target') || '').trim();
+        const page = (btn.dataset.page || btn.getAttribute('data-page') || '').trim();
         const id = btn.dataset.id || btn.getAttribute('data-id');
 
-        // Open Store Details modal
+        // Primary: open Large User View (tabbed)
+        if (target === 'modal-user-view' || page === 'user.view.details') {
+            if (!id) {
+                console.warn('modal-pop: missing data-id for user view');
+                return;
+            }
+            showUserViewModal(id);
+            // stop further handlers from opening other modals (e.g. store modal)
+            ev.stopImmediatePropagation();
+            return;
+        }
+
+        // user password view -> reuse change-password modal
+        if (target === 'modal-user-view-pass' || page === 'user.view.pass') {
+            if (!id) return;
+            if (typeof showChangePasswordModal === 'function') {
+                showChangePasswordModal(id);
+            }
+            ev.stopImmediatePropagation();
+            return;
+        }
+
+        // store view kept but only for explicit modal-store target
         if (target === 'modal-store' || page === 'store.view') {
             if (!id) {
                 console.warn('modal-pop: missing data-id for store');
@@ -1577,30 +1619,262 @@ function getAdminAccountsManagerContent() {
             if (typeof showStoreDetailsModal === 'function') {
                 showStoreDetailsModal(id);
             }
+            ev.stopImmediatePropagation();
             return;
         }
 
-        // Open User Details modal
-        if (target === 'modal-user-view' || page === 'user.view.details') {
-            if (!id) return;
-            if (typeof showUserDetailModal === 'function') {
-                showUserDetailModal(id);
-            }
-            return;
-        }
+        // fallback: nothing
+    }, true); // use capture so we preempt other listeners
+})();
 
-        // Open User Password view (reuse change password modal or implement specific)
-        if (target === 'modal-user-view-pass' || page === 'user.view.pass') {
-            if (!id) return;
-            if (typeof showChangePasswordModal === 'function') {
-                showChangePasswordModal(id);
-            }
-            return;
-        }
+(function patchAccountSendSmsHandler() {
+    if (window.__ggv_account_send_sms_patched) return;
+    window.__ggv_account_send_sms_patched = true;
 
-        // other targets can be added here
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-account-send-sms');
+        if (!btn) return;
+        ev.preventDefault();
+
+        const contact = btn.dataset.contact || btn.getAttribute('data-contact') || '';
+        const fullname = btn.dataset.completeName || btn.getAttribute('data-complete-name') || '';
+        const user = btn.dataset.user || btn.getAttribute('data-user') || '';
+        const smsType = btn.dataset.smsType || btn.getAttribute('data-sms-type') || '';
+
+        // show modal and pass details
+        showSendSmsModal({ contact, fullname, user, smsType });
     }, false);
 })();
+
+function buildSendSmsModalHtml(contact, fullname, user) {
+    return `
+    <div class="modal fade" id="sendSmsModal" tabindex="-1" aria-labelledby="sendSmsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width:420px; width:92%; margin-top:5rem;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="sendSmsModalLabel">Send SMS?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="mb-3"><i class="fa fa-info-circle fs-1 text-muted"></i></div>
+            <p class="small text-muted">
+              This will send SMS to the registered number of <strong>${(fullname || user) || 'the account'}</strong>
+              <br><small class="text-primary">${contact || 'No contact provided'}</small>
+            </p>
+          </div>
+          <div class="modal-footer d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" id="confirmSendSmsBtn">Send!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function showSendSmsModal(opts) {
+    const contact = opts?.contact || '';
+    const fullname = opts?.fullname || opts?.completeName || '';
+    const user = opts?.user || '';
+
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    // remove existing modal if any
+    container.querySelector('#sendSmsModal')?.remove();
+    container.insertAdjacentHTML('beforeend', buildSendSmsModalHtml(contact, fullname, user));
+
+    const modalEl = container.querySelector('#sendSmsModal');
+    let bsModal;
+
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        container.querySelector('#sendSmsModal')?.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== 'undefined' && modalEl) {
+        bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', cleanup, { once: true });
+        });
+    }
+
+    const confirmBtn = container.querySelector('#confirmSendSmsBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function () {
+            // replace with real API call as needed
+            if (!contact) {
+                alert('No contact number available.');
+                return;
+            }
+            // mock send
+            console.log('Sending SMS (mock) to', contact, { fullname, user });
+            alert(`SMS sent to ${contact} (mock).`);
+
+            if (bsModal) bsModal.hide();
+            else cleanup();
+        }, { once: true });
+    }
+}
+
+function buildUserViewModalHtml(user) {
+    const u = user || {};
+    return `
+    <div class="modal fade" id="userViewModal" tabindex="-1" aria-labelledby="userViewModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document" style="max-width:98%; width:98%; margin:6.5rem auto 0; height:80vh;">
+        <div class="modal-content" style="display:flex; flex-direction:column; height:100%;">
+          <div class="modal-header">
+            <h5 class="modal-title" id="userViewModalLabel">Account Details - ${u.name || 'ID ' + (u.id || '')}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <!-- tabs -->
+          <div class="modal-body" style="overflow:auto; flex:1 1 auto;">
+            <ul class="nav nav-tabs mb-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="uv-tab-details" data-bs-toggle="tab" data-bs-target="#uv-details" type="button" role="tab">Details</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uv-tab-perms" data-bs-toggle="tab" data-bs-target="#uv-perms" type="button" role="tab">Permissions</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uv-tab-activity" data-bs-toggle="tab" data-bs-target="#uv-activity" type="button" role="tab">Activity</button>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="uv-details" role="tabpanel" aria-labelledby="uv-tab-details">
+                <div class="row g-3">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small">Assigned ID#</label>
+                    <input class="form-control form-control-sm" readonly value="${u.id || ''}">
+                  </div>
+                  <div class="col-12 col-md-8">
+                    <label class="form-label small">Name</label>
+                    <input class="form-control form-control-sm" value="${(u.name||'').replace(/"/g,'&quot;')}">
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label small">Username</label>
+                    <input class="form-control form-control-sm" value="${u.user || ''}">
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label small">Contact</label>
+                    <input class="form-control form-control-sm" value="${u.contact || ''}">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label small">Address</label>
+                    <input class="form-control form-control-sm" value="${u.address || ''}">
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="uv-perms" role="tabpanel" aria-labelledby="uv-tab-perms">
+                <div class="mb-2">
+                  <p class="small text-muted">Role / Permissions (mock)</p>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="perm-admin" ${u.position === 'ADMIN' ? 'checked' : ''}>
+                    <label class="form-check-label small" for="perm-admin">Admin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="perm-logistics" ${u.position === 'LOGISTICS' ? 'checked' : ''}>
+                    <label class="form-check-label small" for="perm-logistics">Logistics</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="uv-activity" role="tabpanel" aria-labelledby="uv-tab-activity">
+                <p class="small text-muted">Recent activity (mock)</p>
+                <table class="table table-sm table-striped">
+                  <thead><tr><th>Date</th><th>Action</th><th>Note</th></tr></thead>
+                  <tbody>
+                    <tr><td>2025-09-01</td><td>Login</td><td>IP: 127.0.0.1</td></tr>
+                    <tr><td>2025-08-20</td><td>Password change</td><td>—</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="flex-shrink:0;">
+            <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function showUserViewModal(userId) {
+    const user = getUserMockById(userId) || { id: userId };
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    // remove any existing view modal and insert the new one
+    container.querySelector('#userViewModal')?.remove();
+    container.insertAdjacentHTML('beforeend', buildUserViewModalHtml(user));
+
+    const modalEl = container.querySelector('#userViewModal');
+    let bsModal;
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        container.querySelector('#userViewModal')?.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(n=>n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== 'undefined' && modalEl) {
+        bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', cleanup, { once: true });
+        });
+    }
+
+    const saveBtn = container.querySelector('#userViewSaveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            // mock save - update name/contact in mock and close
+            const inputs = container.querySelectorAll('#userViewModal .modal-body input');
+            const payload = {};
+            inputs.forEach(inp => payload[inp.getAttribute('name')||inp.placeholder||inp.className] = inp.value);
+            console.log('Mock save user', userId, payload);
+            if (bsModal) bsModal.hide(); else cleanup();
+            alert('User updated (mock): ' + userId);
+        }, { once: true });
+    }
+}
+
 
 function getAdminAccountsCdContent() {
     return `
