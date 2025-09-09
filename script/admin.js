@@ -1749,66 +1749,215 @@ function buildUserViewModalHtml(user) {
           <div class="modal-body" style="overflow:auto; flex:1 1 auto;">
             <ul class="nav nav-tabs mb-3" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="uv-tab-details" data-bs-toggle="tab" data-bs-target="#uv-details" type="button" role="tab">Details</button>
+                <button class="nav-link active" id="uv-tab-personal" data-bs-toggle="tab" data-bs-target="#uv-personal" type="button" role="tab">Personal Details</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-perms" data-bs-toggle="tab" data-bs-target="#uv-perms" type="button" role="tab">Permissions</button>
+                <button class="nav-link" id="uv-tab-accounts" data-bs-toggle="tab" data-bs-target="#uv-accounts" type="button" role="tab">Accounts</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-activity" data-bs-toggle="tab" data-bs-target="#uv-activity" type="button" role="tab">Activity</button>
+                <button class="nav-link" id="uv-tab-sponsored" data-bs-toggle="tab" data-bs-target="#uv-sponsored" type="button" role="tab">Sponsored</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uv-tab-bdown" data-bs-toggle="tab" data-bs-target="#uv-bdown" type="button" role="tab">Binary Downlines</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uv-tab-bup" data-bs-toggle="tab" data-bs-target="#uv-bup" type="button" role="tab">Binary Uplines</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uv-tab-udown" data-bs-toggle="tab" data-bs-target="#uv-udown" type="button" role="tab">Unilevel Downlines</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uv-tab-uup" data-bs-toggle="tab" data-bs-target="#uv-uup" type="button" role="tab">Unilevel Uplines</button>
               </li>
             </ul>
 
             <div class="tab-content">
-              <div class="tab-pane fade show active" id="uv-details" role="tabpanel" aria-labelledby="uv-tab-details">
+              <!-- Personal: left form + right stacked colored action buttons -->
+              <div class="tab-pane fade show active" id="uv-personal" role="tabpanel" aria-labelledby="uv-tab-personal">
                 <div class="row g-3">
-                  <div class="col-12 col-md-4">
-                    <label class="form-label small">Assigned ID#</label>
-                    <input class="form-control form-control-sm" readonly value="${u.id || ''}">
+                  <div class="col-12 col-lg-8">
+                    <div class="row g-3">
+                      <!-- changed: split first row into 4 cols so Username and Password sit side-by-side -->
+                      <div class="col-12 col-md-3">
+                        <label class="form-label small text-muted">USERID:</label>
+                        <input class="form-control form-control-sm" name="userid" readonly value="${u.id || ''}">
+                      </div>
+                      <div class="col-12 col-md-3">
+                        <label class="form-label small text-muted">ID#:</label>
+                        <input class="form-control form-control-sm" name="idno" readonly value="${u.idno || ''}">
+                      </div>
+                      <div class="col-12 col-md-3">
+                        <label class="form-label small text-muted">Username:</label>
+                        <input class="form-control form-control-sm" name="username" readonly value="${u.user || ''}">
+                      </div>
+                      <div class="col-12 col-md-3">
+                        <label class="form-label small text-muted">Password:</label>
+                        <input type="text" class="form-control form-control-sm" name="password" readonly value="${u.pass || u.password || ''}">
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label small text-muted">Registered:</label>
+                        <input class="form-control form-control-sm" name="registered" readonly value="${u.created || u.registered || ''}">
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label small text-muted">Account Type:</label>
+                        <input class="form-control form-control-sm" name="accountType" readonly value="${u.accountType || u.package || ''}">
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label small text-muted">Last:</label>
+                        <input class="form-control form-control-sm" name="last" value="${(u.name||'').split(',')[0] || ''}">
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label small text-muted">First / Middle:</label>
+                        <div class="d-flex gap-2">
+                          <input class="form-control form-control-sm" name="first" value="${(u.name||'').split(',')[1] ? u.name.split(',')[1].trim() : ''}">
+                          <input class="form-control form-control-sm" name="middle" value="${u.middle || ''}">
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-4">
+                        <label class="form-label small text-muted">Gender:</label>
+                        <select class="form-select form-select-sm" name="gender">
+                          <option ${u.gender === 'Male' ? 'selected' : ''}>Male</option>
+                          <option ${u.gender === 'Female' ? 'selected' : ''}>Female</option>
+                          <option ${!u.gender ? 'selected' : ''}>Other</option>
+                        </select>
+                      </div>
+                      <div class="col-12 col-md-8">
+                        <label class="form-label small text-muted">Contact # <small class="text-success">VERIFIED</small></label>
+                        <input class="form-control form-control-sm" name="contact" value="${u.contact || ''}">
+                      </div>
+
+                      <div class="col-12">
+                        <label class="form-label small text-muted">Complete Address</label>
+                        <input class="form-control form-control-sm" name="address" value="${u.address || ''}">
+                      </div>
+
+                      <div class="col-12 col-md-4">
+                        <label class="form-label small text-muted">Country</label>
+                        <input class="form-control form-control-sm" name="country" value="${u.country || 'Philippines'}">
+                      </div>
+                      <div class="col-12 col-md-4">
+                        <label class="form-label small text-muted">Barangay</label>
+                        <input class="form-control form-control-sm" name="barangay" value="${u.barangay || ''}">
+                      </div>
+                      <div class="col-12 col-md-4">
+                        <label class="form-label small text-muted">Region / Province / City</label>
+                        <input class="form-control form-control-sm" name="region" value="${u.region || ''}">
+                      </div>
+                    </div>
                   </div>
-                  <div class="col-12 col-md-8">
-                    <label class="form-label small">Name</label>
-                    <input class="form-control form-control-sm" value="${(u.name||'').replace(/"/g,'&quot;')}">
-                  </div>
-                  <div class="col-12 col-md-6">
-                    <label class="form-label small">Username</label>
-                    <input class="form-control form-control-sm" value="${u.user || ''}">
-                  </div>
-                  <div class="col-12 col-md-6">
-                    <label class="form-label small">Contact</label>
-                    <input class="form-control form-control-sm" value="${u.contact || ''}">
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label small">Address</label>
-                    <input class="form-control form-control-sm" value="${u.address || ''}">
+
+                  <div class="col-12 col-lg-4">
+                    <div class="d-grid gap-2">
+                      <button type="button" class="btn btn-success btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Account Active">
+                        <i class="fa fa-check-circle me-2"></i> Account Active
+                      </button>
+
+                      <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Matching Report">
+                        <i class="fa fa-sitemap me-2"></i> Matching Report
+                      </button>
+
+                      <button type="button" class="btn btn-primary btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Personal Sales Report">
+                        <i class="fa fa-shopping-cart me-2"></i> Personal Sales Report
+                      </button>
+
+                      <button type="button" class="btn btn-primary btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Group Sales Report">
+                        <i class="fa fa-users me-2"></i> Group Sales Report
+                      </button>
+
+                      <button type="button" class="btn btn-danger btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Delete Withdrawal PIN">
+                        <i class="fa fa-trash me-2"></i> Delete Withdrawal PIN
+                      </button>
+
+                      <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Resend Welcome Message">
+                        <i class="fa fa-envelope-open-o me-2"></i> Resend Welcome Message
+                      </button>
+
+                      <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Send Credentials">
+                        <i class="fa fa-mobile me-2"></i> Send Credentials
+                      </button>
+
+                      <div class="mt-2">
+                        <button type="button" class="btn btn-warning btn-lg w-100 text-white" style="padding:14px 18px;" data-bs-dismiss="modal" title="Update Account">
+                          <i class="fa fa-save me-2"></i> Update Account
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="tab-pane fade" id="uv-perms" role="tabpanel" aria-labelledby="uv-tab-perms">
-                <div class="mb-2">
-                  <p class="small text-muted">Role / Permissions (mock)</p>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="perm-admin" ${u.position === 'ADMIN' ? 'checked' : ''}>
-                    <label class="form-check-label small" for="perm-admin">Admin</label>
+              <!-- Accounts -->
+              <div class="tab-pane fade" id="uv-accounts" role="tabpanel" aria-labelledby="uv-tab-accounts">
+                <p class="small text-muted mb-2">Linked accounts / credentials (mock)</p>
+                <div class="table-responsive">
+                  <table class="table table-sm table-striped">
+                    <thead><tr><th>Store</th><th>Username</th><th>Password</th><th>Contact</th></tr></thead>
+                    <tbody>
+                      <tr><td>${u.branch || 'GRINDERSGUILDGLOBAL'}</td><td>${u.user || 'ggglobal'}</td><td>••••••••</td><td>${u.contact || ''}</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- other tabs unchanged -->
+              <div class="tab-pane fade" id="uv-sponsored" role="tabpanel" aria-labelledby="uv-tab-sponsored">
+                <p class="small text-muted mb-2">Sponsored users (mock)</p>
+                <ul class="list-group list-group-flush small">
+                  <li class="list-group-item">SponsoredUser1 (2025-08-01)</li>
+                  <li class="list-group-item">SponsoredUser2 (2025-07-15)</li>
+                  <li class="list-group-item">SponsoredUser3 (2025-06-20)</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane fade" id="uv-bdown" role="tabpanel" aria-labelledby="uv-tab-bdown">
+                <p class="small text-muted mb-2">Binary downlines (mock)</p>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover">
+                    <thead><tr><th>Position</th><th>ID</th><th>Name</th><th>Joined</th></tr></thead>
+                    <tbody>
+                      <tr><td>Left</td><td>502</td><td>Downline A</td><td>2025-01-10</td></tr>
+                      <tr><td>Right</td><td>503</td><td>Downline B</td><td>2025-02-22</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="uv-bup" role="tabpanel" aria-labelledby="uv-tab-bup">
+                <p class="small text-muted mb-2">Binary uplines (mock)</p>
+                <ol class="small">
+                  <li>Upline X (ID: 400)</li>
+                  <li>Upline Y (ID: 350)</li>
+                </ol>
+              </div>
+
+              <div class="tab-pane fade" id="uv-udown" role="tabpanel" aria-labelledby="uv-tab-udown">
+                <p class="small text-muted mb-2">Unilevel downlines (mock)</p>
+                <div class="row">
+                  <div class="col-12 col-md-6">
+                    <ul class="list-group list-group-flush small">
+                      <li class="list-group-item">Downline UL 1</li>
+                      <li class="list-group-item">Downline UL 2</li>
+                      <li class="list-group-item">Downline UL 3</li>
+                    </ul>
                   </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="perm-logistics" ${u.position === 'LOGISTICS' ? 'checked' : ''}>
-                    <label class="form-check-label small" for="perm-logistics">Logistics</label>
+                  <div class="col-12 col-md-6">
+                    <small class="text-muted">Summary</small>
+                    <p class="mb-0">Total Directs: 3</p>
                   </div>
                 </div>
               </div>
 
-              <div class="tab-pane fade" id="uv-activity" role="tabpanel" aria-labelledby="uv-tab-activity">
-                <p class="small text-muted">Recent activity (mock)</p>
-                <table class="table table-sm table-striped">
-                  <thead><tr><th>Date</th><th>Action</th><th>Note</th></tr></thead>
-                  <tbody>
-                    <tr><td>2025-09-01</td><td>Login</td><td>IP: 127.0.0.1</td></tr>
-                    <tr><td>2025-08-20</td><td>Password change</td><td>—</td></tr>
-                  </tbody>
-                </table>
+              <div class="tab-pane fade" id="uv-uup" role="tabpanel" aria-labelledby="uv-tab-uup">
+                <p class="small text-muted mb-2">Unilevel uplines (mock)</p>
+                <ol class="small">
+                  <li>Unilevel Upline A (ID: 200)</li>
+                  <li>Unilevel Upline B (ID: 150)</li>
+                </ol>
               </div>
+
             </div>
           </div>
 
