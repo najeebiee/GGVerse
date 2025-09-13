@@ -757,63 +757,83 @@ function getGenealogyTreeContent() {
         </h2>
       </div>
 
-      <!-- Tree Structure -->
-      <div class="d-flex flex-column align-items-center gap-4">
-        <!-- Top Node -->
-        <div class="border rounded p-3 text-center shadow-sm bg-light" style="min-width: 280px;">
-          <h5 class="mb-1">Admin, IT</h5>
-          <small class="text-muted">[JMDLONSOD01]</small>
-          <div class="mt-2">
-            <span class="badge bg-warning text-dark">PS PLATINUM</span>
-            <span class="badge bg-success">ACTIVE</span>
-          </div>
-          <div class="mt-2 small text-muted">
-            L: LEFT -1 RIGHT -1<br>
-            0.00: BL = BR 0.00
-          </div>
-        </div>
-
-        <!-- Second Level -->
-        <div class="d-flex flex-wrap justify-content-center gap-4">
-          <div class="border rounded p-3 text-center shadow-sm bg-light" style="min-width: 240px;">
-            <h6 class="mb-1">Dlonsod, Jesher Charles Capina</h6>
-            <small class="text-muted">[jndlonsod]</small>
-            <div class="mt-2">
-              <span class="badge bg-secondary">PD SILVER</span>
-              <span class="badge bg-success">ACTIVE</span>
-            </div>
-            <div class="mt-2 small text-muted">
-              0: LEFT = RIGHT :0<br>
-              0.00: BL = BR 0.00
-            </div>
-          </div>
-          <div class="border rounded p-3 text-center shadow-sm bg-light" style="min-width: 240px;">
-            <h6 class="mb-1">Admin, IT</h6>
-            <small class="text-muted">[lradmin]</small>
-            <div class="mt-2">
-              <span class="badge bg-secondary">PD SILVER</span>
-              <span class="badge bg-success">ACTIVE</span>
-            </div>
-            <div class="mt-2 small text-muted">
-              0: LEFT = RIGHT :0<br>
-              0.00: BL = BR 0.00
-            </div>
-          </div>
-        </div>
-
-        <!-- Third Level: Register Slots -->
-        <div class="d-flex flex-wrap justify-content-center gap-4 mt-4">
-          ${Array(4)
-            .fill("")
-            .map(
-              () => `
-            <div class="border rounded p-3 text-center shadow-sm bg-white" style="min-width: 180px;">
-              <i class="fas fa-user-plus fa-2x text-primary mb-2"></i>
-              <div class="fw-bold text-muted">REGISTER HERE</div>
-            </div>
-          `
-            )
-            .join("")}
+      <!-- Tree Container -->
+      <div class="genealogy-container">
+        <div class="tree">
+          <ul>
+            <li>
+              <div class="node-card" onclick="openGenealogyLoginModal('JMDLONSOD01')">
+                <h5 class="mb-1">Admin, IT</h5>
+                <small class="text-muted">[JMDLONSOD01]</small>
+                <div class="mt-2">
+                  <span class="badge bg-warning text-dark">PS PLATINUM</span>
+                  <span class="badge bg-success">ACTIVE</span>
+                </div>
+                <div class="mt-2 small text-muted">
+                  L: LEFT -1 RIGHT -1<br>
+                  0.00: BL = BR 0.00
+                </div>
+              </div>
+              <ul>
+                <li>
+                  <div class="node-card" onclick="openGenealogyLoginModal('jndlonsod')">
+                    <h6 class="mb-1">Dlonsod, Jesher Charles Capina</h6>
+                    <small class="text-muted">[jndlonsod]</small>
+                    <div class="mt-2">
+                      <span class="badge bg-secondary">PD SILVER</span>
+                      <span class="badge bg-success">ACTIVE</span>
+                    </div>
+                    <div class="mt-2 small text-muted">
+                      0: LEFT = RIGHT :0<br>
+                      0.00: BL = BR 0.00
+                    </div>
+                  </div>
+                  <ul>
+                    <li>
+                      <div class="node-card register-slot" onclick="openGenealogyRegisterModal('jndlonsod', 'Left')">
+                        <i class="fas fa-user-plus fa-2x text-primary mb-2"></i>
+                        <div class="fw-bold text-muted">REGISTER HERE</div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="node-card register-slot" onclick="openGenealogyRegisterModal('jndlonsod', 'Right')">
+                        <i class="fas fa-user-plus fa-2x text-primary mb-2"></i>
+                        <div class="fw-bold text-muted">REGISTER HERE</div>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <div class="node-card" onclick="openGenealogyLoginModal('lradmin')">
+                    <h6 class="mb-1">Admin, IT</h6>
+                    <small class="text-muted">[lradmin]</small>
+                    <div class="mt-2">
+                      <span class="badge bg-secondary">PD SILVER</span>
+                      <span class="badge bg-success">ACTIVE</span>
+                    </div>
+                    <div class="mt-2 small text-muted">
+                      0: LEFT = RIGHT :0<br>
+                      0.00: BL = BR 0.00
+                    </div>
+                  </div>
+                   <ul>
+                    <li>
+                      <div class="node-card register-slot" onclick="openGenealogyRegisterModal('lradmin', 'Left')">
+                        <i class="fas fa-user-plus fa-2x text-primary mb-2"></i>
+                        <div class="fw-bold text-muted">REGISTER HERE</div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="node-card register-slot" onclick="openGenealogyRegisterModal('lradmin', 'Right')">
+                        <i class="fas fa-user-plus fa-2x text-primary mb-2"></i>
+                        <div class="fw-bold text-muted">REGISTER HERE</div>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1364,13 +1384,17 @@ function getClaimProductsContent() {
 
 function getDirectSponsorsContent() {
   return `
+    <div class="p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="fas fa-user-friends me-2"></i>Direct Sponsors</h2>
         </div>
         
-        <div class="card">
-            <div class="card-header">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5>Your Direct Sponsors</h5>
+                <button class="btn btn-sm btn-primary" onclick="openSwitchAccountModal()">
+                    <i class="fas fa-exchange-alt me-1"></i>Change Account
+                </button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -1381,6 +1405,7 @@ function getDirectSponsorsContent() {
                                 <th>Name</th>
                                 <th>Join Date</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1389,19 +1414,30 @@ function getDirectSponsorsContent() {
                                 <td>John Martinez</td>
                                 <td>2024-01-15</td>
                                 <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')">
+                                        <i class="fas fa-sitemap me-1"></i>View in Tree
+                                    </button>
+                                </td>
                             </tr>
                             <tr>
                                 <td>SPONSOR002</td>
                                 <td>Maria Santos</td>
                                 <td>2024-02-20</td>
                                 <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')">
+                                        <i class="fas fa-sitemap me-1"></i>View in Tree
+                                    </button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    `;
+    </div>
+  `;
 }
 
 function getBinaryListContent() {
@@ -3504,4 +3540,116 @@ function openNewWithdrawalOptionModal() {
     const withdrawalModalEl = document.getElementById('newWithdrawalModal');
     const withdrawalModal = new bootstrap.Modal(withdrawalModalEl);
     withdrawalModal.show();
+}
+
+
+/**
+ * Creates and returns the HTML for the genealogy login modal.
+ * @param {string} username - The username of the account to log into.
+ */
+function getGenealogyLoginModalHtml(username) {
+  return `
+    <div class="modal fade" id="genealogyLoginModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Login to this Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="login-username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="login-username" value="${username}" disabled readonly>
+              </div>
+              <div class="mb-3">
+                <label for="login-password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="login-password" placeholder="Enter password">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="alert('Login attempt for ${username}')">Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Handles the creation and display of the genealogy login modal.
+ * @param {string} username - The username to display in the modal.
+ */
+function openGenealogyLoginModal(username) {
+    const modalId = 'genealogyLoginModal';
+    // Remove any existing modal to ensure it's fresh
+    const existingModal = document.getElementById(modalId);
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', getGenealogyLoginModalHtml(username));
+    
+    const modalEl = document.getElementById(modalId);
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+
+/**
+ * Creates and returns the HTML for the genealogy registration modal.
+ * @param {string} sponsor - The sponsor's username.
+ * @param {string} position - The position ('Left' or 'Right').
+ */
+function getGenealogyRegisterModalHtml(sponsor, position) {
+  return `
+    <div class="modal fade" id="genealogyRegisterModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Register New Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted">You are registering a new account under <strong class="text-primary">${sponsor}</strong> on the <strong class="text-primary">${position}</strong> side.</p>
+            <form>
+              <div class="mb-3">
+                <label for="register-username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="register-username" placeholder="Choose a username">
+              </div>
+              <div class="mb-3">
+                <label for="register-password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="register-password" placeholder="Create a password">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="alert('Proceeding to registration...')">Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Handles the creation and display of the genealogy registration modal.
+ * @param {string} sponsor - The sponsor's username.
+ * @param {string} position - The position for the new registration.
+ */
+function openGenealogyRegisterModal(sponsor, position) {
+    const modalId = 'genealogyRegisterModal';
+    // Remove any existing modal
+    const existingModal = document.getElementById(modalId);
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    document.body.insertAdjacentHTML('beforeend', getGenealogyRegisterModalHtml(sponsor, position));
+    
+    const modalEl = document.getElementById(modalId);
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
 }
