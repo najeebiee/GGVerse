@@ -971,9 +971,16 @@ function getEwalletSummaryContent() {
       <div class="col-md-4">
         <div class="card">
           <div class="card-body text-white" style="background-color: #6f42c1;">
-            <h6 class="card-title mb-1">Available Wallet</h6>
-            <p class="card-text fs-5 fw-bold">PHP 1,630,726.98</p>
-            <small class="text-white-50">Last updated: Sep 4, 2025</small>
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="card-title mb-1">Available Wallet</h6>
+                <p class="card-text fs-5 fw-bold">PHP 1,630,726.98</p>
+                <small class="text-white-50">Last updated: Sep 4, 2025</small>
+              </div>
+              <button onclick="loadUserPage('encash-wallet')" class="btn btn-light btn-sm" style="white-space: nowrap;">
+                <i class="fas fa-wallet me-1"></i> Encash
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1177,16 +1184,16 @@ function getUnilevelListContent() {
 
 // Helper function for formatting date and time
 function formatDateTime(date) {
-  const options = { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit',
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit',
-    hour12: false
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
   };
-  return new Date(date).toLocaleString('en-US', options);
+  return new Date(date).toLocaleString("en-US", options);
 }
 
 function getEpointsSummaryContent() {
@@ -1218,7 +1225,7 @@ function getEpointsSummaryContent() {
                 <i class="fas fa-exchange-alt fa-lg text-white" aria-hidden="true"></i>
               </div>
               <div class="mt-2">
-                <button class="btn btn-sm btn-light">Claim Products</button>
+                <button onclick="loadUserPage('claim-pruduct')" class="btn btn-sm btn-light">Claim Products</button>
               </div>
             </div>
           </div>
@@ -1509,7 +1516,7 @@ function getEncashWalletContent() {
                                 <!-- Payout Option Section -->
                                 <div class="mb-4">
                                     <label class="form-label text-muted mb-2">Payout Option:</label>
-                                    <button type="button" class="btn btn-primary w-100 py-3" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border: none; border-radius: 8px;">
+                                    <button type="button" class="btn btn-primary w-100 py-3" onclick="loadUserPage('withdrawal-settings')" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border: none; border-radius: 8px;">
                                         <i class="fas fa-plus-circle me-2"></i>
                                         Add Payout Option
                                     </button>
@@ -1918,20 +1925,26 @@ function getTransactionsContent() {
 
 function getDirectReferralContent() {
   return `
+    <div class="p-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Direct Referral</h2>
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadUserPage('dashboard')"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</button>
+        </div>
+        
         <!-- Summary Cards -->
         <div class="row g-4 mb-4">
             <div class="col-md-6">
                 <div class="card text-white" style="background: linear-gradient(135deg, #6f42c1, #8e44ad);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
+                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                                 <i class="fas fa-user text-white"></i>
                             </div>
                         </div>
                         <div>
                             <h6 class="mb-1 text-uppercase">ACCOUNT</h6>
-                            <h4 class="mb-0">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
+                            <h4 class="mb-0" style="cursor: pointer;" onclick="openSwitchAccountModal()">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
                         </div>
                     </div>
                 </div>
@@ -1940,8 +1953,7 @@ function getDirectReferralContent() {
                 <div class="card text-white" style="background: linear-gradient(135deg, #17a2b8, #20c997);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
+                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                                 <i class="fas fa-user text-white"></i>
                             </div>
                         </div>
@@ -1954,105 +1966,63 @@ function getDirectReferralContent() {
             </div>
         </div>
 
-        <!-- Direct Referral Details -->
+        <!-- Direct Referral Details Table -->
         <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Direct Referral Details</h6>
-            </div>
+            <div class="card-header"><h6 class="mb-0">Direct Referral Details</h6></div>
             <div class="card-header d-flex justify-content-between align-items-center border-top-0 pt-0">
                 <div class="d-flex align-items-center">
                     <span class="me-2">Show</span>
-                    <select class="form-select form-select-sm me-2" style="width: 80px;">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                    </select>
+                    <select class="form-select form-select-sm me-2" style="width: 80px;"><option>10</option><option>25</option><option>50</option></select>
                     <span class="me-3">entries</span>
                 </div>
-                <div class="input-group" style="width: 200px;">
-                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
-                </div>
+                <div class="input-group" style="width: 200px;"><input type="text" class="form-control form-control-sm" placeholder="Search..."></div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>DATE <i class="fas fa-sort"></i></th>
-                                <th>TYPE <i class="fas fa-sort"></i></th>
-                                <th>SOURCE <i class="fas fa-sort"></i></th>
-                                <th>AMOUNT <i class="fas fa-sort"></i></th>
-                            </tr>
-                        </thead>
+                        <thead class="table-light"><tr><th>DATE <i class="fas fa-sort"></i></th><th>TYPE <i class="fas fa-sort"></i></th><th>SOURCE <i class="fas fa-sort"></i></th><th>AMOUNT <i class="fas fa-sort"></i></th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td>2025-06-24 19:56:12</td>
-                                <td>
-                                    <span class="badge bg-success">SILVER</span>
-                                </td>
-                                <td>jmdlonsod</td>
-                                <td>450.00</td>
-                            </tr>
-                            <tr>
-                                <td>2025-07-11 18:50:37</td>
-                                <td>
-                                    <span class="badge bg-success">SILVER</span>
-                                </td>
-                                <td>ITadmin</td>
-                                <td>450.00</td>
-                            </tr>
+                            <tr><td>2025-06-24 19:56:12</td><td><span class="badge bg-success">SILVER</span></td><td>jmdlonsod</td><td>450.00</td></tr>
+                            <tr><td>2025-07-11 18:50:37</td><td><span class="badge bg-success">SILVER</span></td><td>ITadmin</td><td>450.00</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-between align-items-center">
                 <small class="text-muted">Showing 1 to 2 of 2 entries</small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
-                        </li>
-                        <li class="page-item active">
-                            <a class="page-link" href="#">1</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
+                <nav><ul class="pagination pagination-sm mb-0"><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li></ul></nav>
             </div>
         </div>
-    `;
+    </div>
+  `;
 }
 
 function getSalesMatchBonusContent() {
   return `
-        <!-- Summary Cards -->
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Sales Match Bonus</h2>
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadUserPage('dashboard')"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</button>
+        </div>
         <div class="row g-4 mb-4">
             <div class="col-md-6">
                 <div class="card text-white" style="background: linear-gradient(135deg, #6f42c1, #8e44ad);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
-                                <i class="fas fa-user text-white"></i>
-                            </div>
+                           <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-user text-white"></i></div>
                         </div>
                         <div>
                             <h6 class="mb-1 text-uppercase">ACCOUNT</h6>
-                            <h4 class="mb-0">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
+                            <h4 class="mb-0" style="cursor: pointer;" onclick="openSwitchAccountModal()">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+             <div class="col-md-6">
                 <div class="card text-white" style="background: linear-gradient(135deg, #17a2b8, #20c997);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
-                                <i class="fas fa-users text-white"></i>
-                            </div>
+                           <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-users text-white"></i></div>
                         </div>
                         <div>
                             <h6 class="mb-1 text-uppercase">TOTAL MATCHING BONUS</h6>
@@ -2062,112 +2032,46 @@ function getSalesMatchBonusContent() {
                 </div>
             </div>
         </div>
-
-        <!-- Sales Match Details -->
         <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Sales Match Details</h6>
-            </div>
+            <div class="card-header"><h6 class="mb-0">Sales Match Details</h6></div>
             <div class="card-header d-flex justify-content-between align-items-center border-top-0 pt-0">
-                <div class="d-flex align-items-center">
-                    <span class="me-2">Show</span>
-                    <select class="form-select form-select-sm me-2" style="width: 80px;">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                    </select>
-                    <span class="me-3">entries</span>
-                </div>
-                <div class="input-group" style="width: 200px;">
-                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
-                </div>
+                <div class="d-flex align-items-center"><span class="me-2">Show</span><select class="form-select form-select-sm me-2" style="width: 80px;"><option>10</option><option>25</option><option>50</option></select><span class="me-3">entries</span></div>
+                <div class="input-group" style="width: 200px;"><input type="text" class="form-control form-control-sm" placeholder="Search..."></div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>DATETIME <i class="fas fa-sort"></i></th>
-                                <th>SOURCE <i class="fas fa-sort"></i></th>
-                                <th>DBL <i class="fas fa-sort"></i></th>
-                                <th>DBR <i class="fas fa-sort"></i></th>
-                                <th>PAIRS <i class="fas fa-sort"></i></th>
-                                <th>EBL <i class="fas fa-sort"></i></th>
-                                <th>EBR <i class="fas fa-sort"></i></th>
-                                <th>PAID <i class="fas fa-sort"></i></th>
-                                <th>AMOUNT <i class="fas fa-sort"></i></th>
-                                <th>STATUS <i class="fas fa-sort"></i></th>
-                            </tr>
-                        </thead>
+                        <thead class="table-light"><tr><th>DATETIME <i class="fas fa-sort"></i></th><th>SOURCE <i class="fas fa-sort"></i></th><th>DBL <i class="fas fa-sort"></i></th><th>DBR <i class="fas fa-sort"></i></th><th>PAIRS <i class="fas fa-sort"></i></th><th>EBL <i class="fas fa-sort"></i></th><th>EBR <i class="fas fa-sort"></i></th><th>PAID <i class="fas fa-sort"></i></th><th>AMOUNT <i class="fas fa-sort"></i></th><th>STATUS <i class="fas fa-sort"></i></th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td>25-06-24 19:56:12</td>
-                                <td>jmdlonsod</td>
-                                <td>10.00</td>
-                                <td>0.00</td>
-                                <td>0.00</td>
-                                <td>10.00</td>
-                                <td>0.00</td>
-                                <td>0.00</td>
-                                <td>0.00</td>
-                                <td>
-                                    <span class="badge bg-warning text-dark">NO COMMISSION</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>25-07-11 18:50:37</td>
-                                <td>ITadmin</td>
-                                <td>0.00</td>
-                                <td>10.00</td>
-                                <td>1.00</td>
-                                <td>0.00</td>
-                                <td>0.00</td>
-                                <td>1.00</td>
-                                <td>360.00</td>
-                                <td>
-                                    <span class="badge bg-success">CREDITED</span>
-                                </td>
-                            </tr>
+                            <tr><td>25-06-24 19:56:12</td><td>jmdlonsod</td><td>10.00</td><td>0.00</td><td>0.00</td><td>10.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td><span class="badge bg-warning text-dark">NO COMMISSION</span></td></tr>
+                            <tr><td>25-07-11 18:50:37</td><td>ITadmin</td><td>0.00</td><td>10.00</td><td>1.00</td><td>0.00</td><td>0.00</td><td>1.00</td><td>360.00</td><td><span class="badge bg-success">CREDITED</span></td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing 1 to 2 of 2 entries</small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
-                        </li>
-                        <li class="page-item active">
-                            <a class="page-link" href="#">1</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center"><small class="text-muted">Showing 1 to 2 of 2 entries</small><nav><ul class="pagination pagination-sm mb-0"><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li></ul></nav></div>
         </div>
-    `;
+    </div>
+  `;
 }
 
 function getLeadershipBonusContent() {
   return `
-        <!-- Summary Cards -->
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Leadership Bonus</h2>
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadUserPage('dashboard')"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</button>
+        </div>
         <div class="row g-4 mb-4">
-            <div class="col-md-6">
+             <div class="col-md-6">
                 <div class="card text-white" style="background: linear-gradient(135deg, #6f42c1, #8e44ad);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
-                                <i class="fas fa-user text-white"></i>
-                            </div>
+                           <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-user text-white"></i></div>
                         </div>
                         <div>
                             <h6 class="mb-1 text-uppercase">ACCOUNT</h6>
-                            <h4 class="mb-0">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
+                            <h4 class="mb-0" style="cursor: pointer;" onclick="openSwitchAccountModal()">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
                         </div>
                     </div>
                 </div>
@@ -2176,10 +2080,7 @@ function getLeadershipBonusContent() {
                 <div class="card text-white" style="background: linear-gradient(135deg, #17a2b8, #20c997);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
-                                <i class="fas fa-trophy text-white"></i>
-                            </div>
+                           <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-trophy text-white"></i></div>
                         </div>
                         <div>
                             <h6 class="mb-1 text-uppercase">TOTAL LEADERSHIP BONUS</h6>
@@ -2189,80 +2090,43 @@ function getLeadershipBonusContent() {
                 </div>
             </div>
         </div>
-
-        <!-- Leadership Bonus Details -->
         <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Leadership Bonus Details</h6>
-            </div>
+            <div class="card-header"><h6 class="mb-0">Leadership Bonus Details</h6></div>
             <div class="card-header d-flex justify-content-between align-items-center border-top-0 pt-0">
-                <div class="d-flex align-items-center">
-                    <span class="me-2">Show</span>
-                    <select class="form-select form-select-sm me-2" style="width: 80px;">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                    </select>
-                    <span class="me-3">entries</span>
-                </div>
-                <div class="input-group" style="width: 200px;">
-                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
-                </div>
+                <div class="d-flex align-items-center"><span class="me-2">Show</span><select class="form-select form-select-sm me-2" style="width: 80px;"><option>10</option><option>25</option><option>50</option></select><span class="me-3">entries</span></div>
+                <div class="input-group" style="width: 200px;"><input type="text" class="form-control form-control-sm" placeholder="Search..."></div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>DATETIME <i class="fas fa-sort"></i></th>
-                                <th>SOURCE <i class="fas fa-sort"></i></th>
-                                <th>AMOUNT <i class="fas fa-sort"></i></th>
-                                <th>STATUS <i class="fas fa-sort"></i></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">
-                                    No data available in table
-                                </td>
-                            </tr>
-                        </tbody>
+                        <thead class="table-light"><tr><th>DATETIME <i class="fas fa-sort"></i></th><th>SOURCE <i class="fas fa-sort"></i></th><th>AMOUNT <i class="fas fa-sort"></i></th><th>STATUS <i class="fas fa-sort"></i></th></tr></thead>
+                        <tbody><tr><td colspan="4" class="text-center text-muted py-4">No data available in table</td></tr></tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing 0 to 0 of 0 entries</small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center"><small class="text-muted">Showing 0 to 0 of 0 entries</small><nav><ul class="pagination pagination-sm mb-0"><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li></ul></nav></div>
         </div>
-    `;
+    </div>
+  `;
 }
 
 function getPersonalRebatesContent() {
   return `
-        <!-- Summary Cards -->
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Personal Rebates</h2>
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadUserPage('dashboard')"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</button>
+        </div>
         <div class="row g-4 mb-4">
-            <div class="col-md-6">
+             <div class="col-md-6">
                 <div class="card text-white" style="background: linear-gradient(135deg, #6f42c1, #8e44ad);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
-                                <i class="fas fa-user text-white"></i>
-                            </div>
+                           <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-user text-white"></i></div>
                         </div>
                         <div>
                             <h6 class="mb-1 text-uppercase">ACCOUNT</h6>
-                            <h4 class="mb-0">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
+                            <h4 class="mb-0" style="cursor: pointer;" onclick="openSwitchAccountModal()">JMDLONSO001 <i class="fas fa-exchange-alt"></i></h4>
                         </div>
                     </div>
                 </div>
@@ -2271,10 +2135,7 @@ function getPersonalRebatesContent() {
                 <div class="card text-white" style="background: linear-gradient(135deg, #17a2b8, #20c997);">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
-                                <i class="fas fa-user text-white"></i>
-                            </div>
+                           <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-user text-white"></i></div>
                         </div>
                         <div>
                             <h6 class="mb-1 text-uppercase">TOTAL PERSONAL REBATES</h6>
@@ -2284,102 +2145,29 @@ function getPersonalRebatesContent() {
                 </div>
             </div>
         </div>
-
-        <!-- Personal Rebates Details -->
         <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Personal Rebates Details</h6>
-            </div>
+            <div class="card-header"><h6 class="mb-0">Personal Rebates Details</h6></div>
             <div class="card-header d-flex justify-content-between align-items-center border-top-0 pt-0">
-                <div class="d-flex align-items-center">
-                    <span class="me-2">Show</span>
-                    <select class="form-select form-select-sm me-2" style="width: 80px;">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                    </select>
-                    <span class="me-3">entries</span>
-                </div>
-                <div class="input-group" style="width: 200px;">
-                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
-                </div>
+                <div class="d-flex align-items-center"><span class="me-2">Show</span><select class="form-select form-select-sm me-2" style="width: 80px;"><option>10</option><option>25</option><option>50</option></select><span class="me-3">entries</span></div>
+                <div class="input-group" style="width: 200px;"><input type="text" class="form-control form-control-sm" placeholder="Search..."></div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>CTRL# <i class="fas fa-sort"></i></th>
-                                <th>TRANS# <i class="fas fa-sort"></i></th>
-                                <th>DATE <i class="fas fa-sort"></i></th>
-                                <th>DETAILS <i class="fas fa-sort"></i></th>
-                                <th>CASHBACK <i class="fas fa-sort"></i></th>
-                                <th>STATUS <i class="fas fa-sort"></i></th>
-                            </tr>
-                        </thead>
+                        <thead class="table-light"><tr><th>CTRL# <i class="fas fa-sort"></i></th><th>TRANS# <i class="fas fa-sort"></i></th><th>DATE <i class="fas fa-sort"></i></th><th>DETAILS <i class="fas fa-sort"></i></th><th>CASHBACK <i class="fas fa-sort"></i></th><th>STATUS <i class="fas fa-sort"></i></th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td>105</td>
-                                <td>646</td>
-                                <td>2025-06-06 13:09:09</td>
-                                <td>SOGUARD*2</td>
-                                <td>90.00</td>
-                                <td>
-                                    <span class="badge bg-primary">credited</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>423</td>
-                                <td>2112</td>
-                                <td>2025-07-31 20:36:08</td>
-                                <td>SOGUARD*1</td>
-                                <td>45.00</td>
-                                <td>
-                                    <span class="badge bg-primary">credited</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>424</td>
-                                <td>2113</td>
-                                <td>2025-07-31 20:45:23</td>
-                                <td>SOGUARD*5</td>
-                                <td>225.00</td>
-                                <td>
-                                    <span class="badge bg-primary">credited</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>427</td>
-                                <td>2116</td>
-                                <td>2025-07-31 21:00:13</td>
-                                <td>Synbiotic+ MM*6</td>
-                                <td>270.00</td>
-                                <td>
-                                    <span class="badge bg-primary">credited</span>
-                                </td>
-                            </tr>
+                            <tr><td>105</td><td>646</td><td>2025-06-06 13:09:09</td><td>SOGUARD*2</td><td>90.00</td><td><span class="badge bg-primary">credited</span></td></tr>
+                            <tr><td>423</td><td>2112</td><td>2025-07-31 20:36:08</td><td>SOGUARD*1</td><td>45.00</td><td><span class="badge bg-primary">credited</span></td></tr>
+                            <tr><td>424</td><td>2113</td><td>2025-07-31 20:45:23</td><td>SOGUARD*5</td><td>225.00</td><td><span class="badge bg-primary">credited</span></td></tr>
+                            <tr><td>427</td><td>2116</td><td>2025-07-31 21:00:13</td><td>Synbiotic+ MM*6</td><td>270.00</td><td><span class="badge bg-primary">credited</span></td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing 1 to 4 of 4 entries</small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
-                        </li>
-                        <li class="page-item active">
-                            <a class="page-link" href="#">1</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center"><small class="text-muted">Showing 1 to 4 of 4 entries</small><nav><ul class="pagination pagination-sm mb-0"><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li></ul></nav></div>
         </div>
-    `;
+    </div>
+  `;
 }
 
 function getUnilevelBonusContent() {
@@ -2839,7 +2627,6 @@ function getTransactionsContent() {
 }
 
 // Account Setting Section Content Functions
-
 function getWithdrawalSettingsContent() {
   return `
         <div class="row g-4">
@@ -2848,7 +2635,7 @@ function getWithdrawalSettingsContent() {
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0">Payout Options</h6>
-                        <button class="btn btn-info btn-sm">New Withdrawal Option</button>
+                        <button class="btn btn-info btn-sm" onclick="openNewWithdrawalOptionModal()">New Withdrawal Option</button>
                     </div>
                     <div class="card-header d-flex justify-content-between align-items-center border-top-0 pt-0">
                         <div class="d-flex align-items-center">
@@ -2956,7 +2743,7 @@ function getAccountSummaryContent() {
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="card text-white position-relative" style="background: linear-gradient(135deg, #f7b801, #ffa726); min-height: 120px; cursor: pointer" onclick="loadUserPage('encash-wallet')">
+                        <div class="card text-white position-relative" style="background: linear-gradient(135deg, #f7b801, #ffa726); min-height: 120px;">
                             <div class="card-body d-flex flex-column justify-content-between">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <h6 class="card-title text-white-50 mb-2">AVAILABLE WALLET</h6>
@@ -2964,7 +2751,7 @@ function getAccountSummaryContent() {
                                 </div>
                                 <div class="d-flex justify-content-between align-items-end">
                                     <h2 class="mb-0 fw-bold">PHP1,854.00</h2>
-                                    <i class="fas fa-arrow-right text-light-bg"></i>
+                                    <i class="fas fa-arrow-right text-light-bg" style="cursor: pointer" onclick="loadUserPage('encash-wallet')"></i>
                                 </div>
                             </div>
                         </div>
@@ -2974,7 +2761,7 @@ function getAccountSummaryContent() {
                 <!-- Second Row: Sales & Leadership -->
                 <div class="row g-3 mb-4">
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="card" style="background: #f8f9fa; border: 1px solid #dee2e6; cursor: pointer" onclick="loadUserPage('sales-match')">
+                        <div class="card" style="background: #f8f9fa; border: 1px solid #dee2e6;">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h6 class="card-title text-muted mb-0">TOTAL SALES MATCH</h6>
@@ -2983,7 +2770,7 @@ function getAccountSummaryContent() {
                                 <h3 class="mb-1 fw-bold text-dark">PHP324.00</h3>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">POINTS RAISED</small>
-                                    <i class="fas fa-arrow-right text-warning"></i>
+                                    <i class="fas fa-arrow-right text-warning" style="cursor: pointer" onclick="loadUserPage('sales-match')"></i>
                                 </div>
                             </div>
                         </div>
@@ -3199,68 +2986,75 @@ function getAccountSummaryContent() {
 
 function getUserDashboardContent() {
   return `
-        <div class="container-fluid">
+        <div class="container-fluid px-3 px-md-4 py-4">
+            <!-- Dashboard Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold text-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </h2>
+            </div>
+
             <!-- Stats Cards Grid -->
             <div class="row g-3 mb-4">
                 <!-- Current Account -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card text-white border-0 shadow-sm" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 12px;">
-                        <div class="card-body py-3">
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 d-flex">
+                    <div class="card text-white border-0 shadow-sm flex-fill" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 12px; cursor: pointer;" onclick="openSwitchAccountModal()">
+                        <div class="card-body py-3 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-white-75 mb-0 fw-normal" style="opacity: 0.8; font-size: 0.75rem;">CURRENT ACCOUNT</h6>
-                                <i class="fas fa-user text-white" style="opacity: 0.7;"></i>
+                                <i class="fas fa-exchange-alt text-white" style="opacity: 0.7;"></i>
                             </div>
-                            <h4 class="mb-0 fw-bold text-white">JMDLONSO001</h4>
+                            <h4 class="mb-0 fw-bold text-white mt-auto">JMDLONSO001</h4>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Total Earnings -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card text-white border-0 shadow-sm" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 12px;">
-                        <div class="card-body py-3">
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 d-flex">
+                    <div class="card text-white border-0 shadow-sm flex-fill" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 12px;">
+                        <div class="card-body py-3 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-white-75 mb-0 fw-normal" style="opacity: 0.8; font-size: 0.75rem;">TOTAL EARNINGS</h6>
                                 <i class="fas fa-chart-line text-white" style="opacity: 0.7;"></i>
                             </div>
-                            <h4 class="mb-0 fw-bold text-white">PHP1,854.00</h4>
+                            <h4 class="mb-0 fw-bold text-white mt-auto">PHP1,854.00</h4>
                         </div>
                     </div>
                 </div>
                 
                 <!-- ePoints Balance -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card text-white border-0 shadow-sm" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 12px;">
-                        <div class="card-body py-3">
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 d-flex">
+                    <div class="card text-white border-0 shadow-sm flex-fill" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 12px;">
+                        <div class="card-body py-3 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-white-75 mb-0 fw-normal" style="opacity: 0.8; font-size: 0.75rem;">EPOINTS BALANCE</h6>
                                 <i class="fas fa-coins text-white" style="opacity: 0.7;"></i>
                             </div>
-                            <h4 class="mb-0 fw-bold text-white">PHP36.00</h4>
+                            <h4 class="mb-0 fw-bold text-white mt-auto">PHP36.00</h4>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Total Sales Match -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px; cursor: pointer" onclick="loadUserPage('sales-match')">
-                        <div class="card-body py-3">
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 d-flex">
+                    <div class="card border-0 shadow-sm flex-fill" style="background: #f8f9fa; border-radius: 12px;">
+                        <div class="card-body py-3 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">TOTAL SALES MATCH</h6>
                                 <i class="fas fa-trophy text-warning"></i>
                             </div>
-                            <div class="d-flex justify-content-between align-items-end">
+                            <div class="d-flex justify-content-between align-items-end mt-auto">
                                 <h4 class="mb-0 fw-bold text-dark">PHP324.00</h4>
-                                <i class="fas fa-arrow-right text-muted"></i>
+                                <i class="fas fa-arrow-right text-muted" style="cursor: pointer" onclick="loadUserPage('sales-match')"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Grinders Guild Card -->
-                <div class="col-lg-4 col-md-8 col-12">
-                    <div class="card text-white border-0 shadow-sm" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 12px; min-height: 120px;">
-                        <div class="card-body p-4 position-relative">
+                <div class="col-lg-4 col-md-8 col-12 d-flex">
+                    <div class="card text-white border-0 shadow-sm flex-fill" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 12px;">
+                        <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex align-items-center mb-2">
                                 <div class="bg-white bg-opacity-20 rounded p-1 me-2">
                                     <i class="fas fa-dumbbell text-white"></i>
@@ -3278,7 +3072,7 @@ function getUserDashboardContent() {
             <div class="row g-3 mb-4">
                 <!-- Total Leadership -->
                 <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px; cursor: pointer" onclick="loadUserPage('leadership-bonus')">
+                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
                         <div class="card-body py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">TOTAL LEADERSHIP</h6>
@@ -3286,7 +3080,7 @@ function getUserDashboardContent() {
                             </div>
                             <div class="d-flex justify-content-between align-items-end">
                                 <h4 class="mb-0 fw-bold text-dark">PHP0.00</h4>
-                                <i class="fas fa-arrow-right text-muted"></i>
+                                <i class="fas fa-arrow-right text-muted" style="cursor: pointer" onclick="loadUserPage('leadership-bonus')"></i>
                             </div>
                         </div>
                     </div>
@@ -3294,7 +3088,7 @@ function getUserDashboardContent() {
                 
                 <!-- Total Direct Referral -->
                 <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px; cursor: pointer" onclick="loadUserPage('referral-bonus')">
+                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
                         <div class="card-body py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">TOTAL DIRECT REFERRAL</h6>
@@ -3302,7 +3096,7 @@ function getUserDashboardContent() {
                             </div>
                             <div class="d-flex justify-content-between align-items-end">
                             <h4 class="mb-0 fw-bold text-dark">PHP900.00</h4>
-                            <i class="fas fa-arrow-right text-muted"></i>
+                            <i class="fas fa-arrow-right text-muted" style="cursor: pointer" onclick="loadUserPage('direct-referral')"></i>
                             </div>
                         </div>
                     </div>
@@ -3310,7 +3104,7 @@ function getUserDashboardContent() {
                 
                 <!-- Total Unilevel+PSR -->
                 <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px; cursor: pointer" onclick="loadUserPage('unilevel-bonus')">
+                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
                         <div class="card-body py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">TOTAL UNILEVEL+PSR</h6>
@@ -3318,7 +3112,7 @@ function getUserDashboardContent() {
                             </div>
                             <div class="d-flex justify-content-between align-items-end">
                             <h4 class="mb-0 fw-bold text-dark">PHP630.00</h4>
-                            <i class="fas fa-arrow-right text-muted"></i>
+                            <i class="fas fa-arrow-right text-muted" style="cursor: pointer" onclick="loadUserPage('unilevel-bonus')"></i>
                             </div>
                         </div>
                     </div>
@@ -3326,7 +3120,7 @@ function getUserDashboardContent() {
                 
                 <!-- Other Earnings -->
                 <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px; cursor: pointer" onclick="loadUserPage('other-earnings')">
+                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
                         <div class="card-body py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">OTHER EARNINGS</h6>
@@ -3334,23 +3128,22 @@ function getUserDashboardContent() {
                             </div>
                             <div class="d-flex justify-content-between align-items-end">
                             <h4 class="mb-0 fw-bold text-dark">PHP0.00</h4>
-                            <i class="fas fa-arrow-right text-muted"></i>
+                            <i class="fas fa-arrow-right text-muted" style="cursor: pointer" onclick="loadUserPage('')"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- My Network Status -->
-                <div class="col-lg-4 col-md-8 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
-                        <div class="card-body p-4">
+                <div class="col-lg-4 col-md-8 col-12 d-flex">
+                    <div class="card border-0 shadow-sm flex-fill" style="background: #f8f9fa; border-radius: 12px;">
+                        <div class="card-body p-4 d-flex flex-column">
                             <h6 class="text-muted mb-3 fw-normal" style="font-size: 0.75rem;">MY NETWORK STATUS</h6>
                             <div class="d-flex align-items-center justify-content-center mb-3">
                                 <div class="position-relative" style="width: 100px; height: 100px;">
                                     <svg width="100" height="100" viewBox="0 0 42 42" style="transform: rotate(-90deg);">
                                         <circle cx="21" cy="21" r="15.5" fill="transparent" stroke="#e9ecef" stroke-width="3"/>
-                                        <circle cx="21" cy="21" r="15.5" fill="transparent" stroke="#10B981" stroke-width="3" 
-                                                stroke-dasharray="73" stroke-dashoffset="19" stroke-linecap="round"/>
+                                        <circle cx="21" cy="21" r="15.5" fill="transparent" stroke="#10B981" stroke-width="3" stroke-dasharray="73" stroke-dashoffset="19" stroke-linecap="round"/>
                                     </svg>
                                     <div class="position-absolute top-50 start-50 translate-middle text-center">
                                         <h3 class="mb-0 fw-bold text-success">75%</h3>
@@ -3557,4 +3350,158 @@ function getEpointsClaimProductsContent() {
       </form>
     </div>
   `;
+}
+
+// Modal options
+
+/**
+ * Handles the creation and display of the account switch modal.
+ * This function ensures the modal is only created once and is properly shown using the Bootstrap API.
+ */
+function openSwitchAccountModal() {
+    // If modal element doesn't exist in the DOM, add it.
+    if (!document.getElementById('accountSwitchModal')) {
+        document.body.insertAdjacentHTML('beforeend', getSwitchAccountModalHtml());
+    }
+    
+    // Get the modal element and create a new Bootstrap modal instance to show it.
+    const accountModalEl = document.getElementById('accountSwitchModal');
+    const accountModal = new bootstrap.Modal(accountModalEl);
+    accountModal.show();
+}
+
+/**
+ * Creates and returns the HTML for the account switch modal.
+ * This is a global modal, defined once.
+ */
+function getSwitchAccountModalHtml() {
+  return `
+    <div class="modal fade" id="accountSwitchModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-exchange-alt me-2"></i>Switch Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-6 d-flex align-items-center">
+                    <span class="me-2">Show</span>
+                    <select class="form-select form-select-sm w-auto"><option>10</option><option>25</option><option>50</option><option>100</option></select>
+                    <span class="ms-2">entries</span>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group"><span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span><input type="text" class="form-control border-0 bg-light" placeholder="Search accounts..."></div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">Date Joined</th><th class="border-0">Username</th><th class="border-0">eWallet</th><th class="border-0">ePoints</th><th class="border-0 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025-07-31</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center p-2 me-2" style="width: 32px; height: 32px;"><i class="fas fa-user"></i></div>
+                                    <div><h6 class="mb-0">JMDLONSO001</h6><small class="text-muted">Primary Account</small></div>
+                                </div>
+                            </td>
+                            <td>PHP 1,854.00</td>
+                            <td>36 Points</td>
+                            <td class="text-end"><button class="btn btn-primary btn-sm" onclick="alert('Switched to JMDLONSO001')" data-bs-dismiss="modal"><i class="fas fa-sign-in-alt me-2"></i>Switch</button></td>
+                        </tr>
+                        <tr>
+                            <td>2025-06-15</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center p-2 me-2" style="width: 32px; height: 32px;"><i class="fas fa-user"></i></div>
+                                    <div><h6 class="mb-0">JMDLONSO002</h6><small class="text-muted">Secondary Account</small></div>
+                                </div>
+                            </td>
+                            <td>PHP 750.00</td>
+                            <td>15 Points</td>
+                            <td class="text-end"><button class="btn btn-primary btn-sm" onclick="alert('Switched to JMDLONSO002')" data-bs-dismiss="modal"><i class="fas fa-sign-in-alt me-2"></i>Switch</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <p class="text-muted mb-0">Showing 1 to 2 of 2 entries</p>
+                <nav><ul class="pagination pagination-sm mb-0"><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li></ul></nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+
+function getNewWithdrawalOptionModalHtml() {
+  return `
+    <div class="modal fade" id="newWithdrawalModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New Withdrawal Option</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="facility" class="form-label">Facility</label>
+                <select class="form-select" id="facility">
+                  <option selected disabled>-- Please select facility --</option>
+                  <option value="bank">Bank</option>
+                  <option value="gcash">GCash</option>
+                  <option value="paymaya">PayMaya</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="accountType" class="form-label">Account Type</label>
+                <select class="form-select" id="accountType">
+                  <option selected disabled>-- Please select account type --</option>
+                  <option value="savings">Savings</option>
+                  <option value="checking">Checking</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="accountName" class="form-label">Account Name</label>
+                <input type="text" class="form-control" id="accountName" placeholder="Enter account name">
+              </div>
+              <div class="mb-3">
+                <label for="accountNumber" class="form-label">Account Number</label>
+                <input type="text" class="form-control" id="accountNumber" placeholder="Enter account number">
+              </div>
+              <div class="mb-3">
+                <label for="contactNumber" class="form-label">Contact Number</label>
+                <input type="text" class="form-control" id="contactNumber" placeholder="Enter contact number">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="alert('Save clicked!')">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Handles the creation and display of the "New Withdrawal Option" modal.
+ */
+function openNewWithdrawalOptionModal() {
+    if (!document.getElementById('newWithdrawalModal')) {
+        document.body.insertAdjacentHTML('beforeend', getNewWithdrawalOptionModalHtml());
+    }
+    
+    const withdrawalModalEl = document.getElementById('newWithdrawalModal');
+    const withdrawalModal = new bootstrap.Modal(withdrawalModalEl);
+    withdrawalModal.show();
 }
