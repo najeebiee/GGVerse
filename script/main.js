@@ -505,7 +505,6 @@ function showUserPage() {
     }
 }
 
-
 function displayProducts(productsToShow) {
     const productsGrid = document.getElementById("products-grid");
     if (!productsGrid) return;
