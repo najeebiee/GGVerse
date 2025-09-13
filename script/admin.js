@@ -4077,13 +4077,11 @@ function getAdminStoreAddContent() {
 function getAdminStoreManagerContent() {
   return `
   <div class="container-fluid bg-light p-4" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
-    <!-- 🧩 Title -->
     <h4 class="fw-bold text-dark mb-3">Store Manager</h4>
 
-    <!-- 🔍 Controls -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
       <div>
-        <label class="form-label mb-0">Show 
+        <label class="form-label mb-0">Show
           <select class="form-select form-select-sm d-inline w-auto">
             <option selected>10</option>
             <option>25</option>
@@ -4094,7 +4092,6 @@ function getAdminStoreManagerContent() {
       <input type="text" class="form-control form-control-sm w-100 w-md-25 rounded" placeholder="Search:" />
     </div>
 
-    <!-- 📋 Table -->
     <div class="table-responsive shadow-sm">
       <table class="table table-bordered table-striped bg-white">
         <thead class="table-light text-dark fw-bold">
@@ -4110,16 +4107,16 @@ function getAdminStoreManagerContent() {
         </thead>
         <tbody>
           ${[
-            {id: 1, name: "GRINDSKEDGLOBAL", user: "GRIND GRINDSKED", reg: "25-06-2020 09:06:04", type: "admin"},
-            {id: 1000, name: "GRINDSKED", user: "GRIND GRINDSKED", reg: "25-06-2020 09:06:04", type: "Country Hub"},
-            {id: 1014, name: "DIANA BAMACA", user: "DIANA BAMACA", reg: "25-06-2020 09:06:04", type: "Branch"},
-            {id: 1015, name: "Vigan-Arangcasi Bantay City - Joanne Agatep", user: "joanna agatep", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA"},
-            {id: 1016, name: "Vigan-Cabaroan Bantay City - Jaeilyn Doronal", user: "jaeilyn doronal", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA"},
-            {id: 1017, name: "Vigan-Cabaroan Bantay City - Princess Uy", user: "princess Uy", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA"},
-            {id: 1025, name: "Vigan-Poblacion Norte City - Ma. Janicy Simaco", user: "MA. JANICY SIMACO", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA"},
-            {id: 1026, name: "Vigan-Poblacion Norte City - Nickoel Valico", user: "Nickoel Valico", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA"},
-            {id: 1027, name: "Vigan-Mira Hills City - Jaeilyn Caragao", user: "Jaeilyn Caragao", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA"},
-            {id: 1028, name: "Vigan-Mira Hills City - Vangie Sordan", user: "Vangie Sordan", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA"}
+            {id: 1, name: "GRINDSKEDGLOBAL", user: "GRIND GRINDSKED", reg: "25-06-2020 09:06:04", type: "admin", status: "Active"},
+            {id: 1000, name: "GRINDSKED", user: "GRIND GRINDSKED", reg: "25-06-2020 09:06:04", type: "Country Hub", status: "Active"},
+            {id: 1014, name: "DIANA BAMACA", user: "DIANA BAMACA", reg: "25-06-2020 09:06:04", type: "Branch", status: "Inactive"},
+            {id: 1015, name: "Vigan-Arangcasi Bantay City - Joanne Agatep", user: "joanna agatep", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA", status: "Active"},
+            {id: 1016, name: "Vigan-Cabaroan Bantay City - Jaeilyn Doronal", user: "jaeilyn doronal", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA", status: "Active"},
+            {id: 1017, name: "Vigan-Cabaroan Bantay City - Princess Uy", user: "princess Uy", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA", status: "Active"},
+            {id: 1025, name: "Vigan-Poblacion Norte City - Ma. Janicy Simaco", user: "MA. JANICY SIMACO", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA", status: "Inactive"},
+            {id: 1026, name: "Vigan-Poblacion Norte City - Nickoel Valico", user: "Nickoel Valico", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA", status: "Active"},
+            {id: 1027, name: "Vigan-Mira Hills City - Jaeilyn Caragao", user: "Jaeilyn Caragao", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA", status: "Active"},
+            {id: 1028, name: "Vigan-Mira Hills City - Vangie Sordan", user: "Vangie Sordan", reg: "25-06-2020 09:06:04", type: "BUSINESS AREA", status: "Active"}
           ].map(entry => `
             <tr>
               <td>${entry.id}</td>
@@ -4127,12 +4124,28 @@ function getAdminStoreManagerContent() {
               <td>${entry.user}</td>
               <td>${entry.reg}</td>
               <td>${entry.type}</td>
-              <td><span class="badge bg-success">Active</span></td>
               <td>
-                <i class="bi bi-eye text-primary me-2" title="View"></i>
-                <i class="bi bi-pencil text-primary me-2" title="Edit"></i>
-                <i class="bi bi-trash text-primary me-2" title="Delete"></i>
-                <i class="bi bi-person text-primary" title="Manage Users"></i>
+                <button
+                    class="btn btn-sm ${entry.status === 'Active' ? 'btn-success' : 'btn-danger'} status-toggle"
+                    data-id="${entry.id}"
+                    data-state="${entry.status === 'Active' ? 'active' : 'inactive'}"
+                    aria-pressed="${entry.status === 'Active'}"
+                >
+                    ${entry.status === 'Active' ? 'Active' : 'Deactivate'}
+                </button>
+              </td>
+              <td>
+                <div class="btn-group" role="group" aria-label="row-tools">
+                    <button class="btn btn-info btn-sm btn-view-stock" data-id="${entry.id}" title="View Stocklist Details">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button class="btn btn-info btn-sm btn-view-users" data-id="${entry.id}" title="View Users">
+                        <i class="fa fa-users"></i>
+                    </button>
+                    <button class="btn btn-info btn-sm btn-change-pass" data-id="${entry.id}" title="Change Password">
+                        <i class="fa fa-key"></i>
+                    </button>
+                </div>
               </td>
             </tr>
           `).join('')}
@@ -4140,7 +4153,6 @@ function getAdminStoreManagerContent() {
       </table>
     </div>
 
-    <!-- 📈 Footer -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mt-3">
       <small class="text-muted">Showing 1 to 10 of 60 entries</small>
       <nav>
@@ -4164,9 +4176,7 @@ function getAdminStoreManagerContent() {
 function getAdminStoreUserManagerContent() {
   return `
   <div class="container-fluid bg-white shadow-sm p-4 rounded" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
-    <!-- 🧩 Controls -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-      <!-- Export Buttons -->
       <div class="d-flex flex-wrap gap-2">
         <button class="btn btn-light btn-sm fw-bold rounded">Copy</button>
         <button class="btn btn-light btn-sm fw-bold rounded">CSV</button>
@@ -4176,10 +4186,9 @@ function getAdminStoreUserManagerContent() {
       </div>
     </div>
 
-    <!-- 🔍 Entries + Search Row -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
       <div>
-        <label class="form-label mb-0">Show 
+        <label class="form-label mb-0">Show
           <select class="form-select form-select-sm d-inline w-auto">
             <option selected>5</option>
             <option>10</option>
@@ -4190,7 +4199,6 @@ function getAdminStoreUserManagerContent() {
       <input type="text" class="form-control form-control-sm w-100 w-md-25 rounded" placeholder="Search:" />
     </div>
 
-    <!-- 📋 Table -->
     <div class="table-responsive">
       <table class="table table-bordered table-striped">
         <thead class="table-light text-dark fw-bold">
@@ -4207,6 +4215,7 @@ function getAdminStoreUserManagerContent() {
         <tbody>
           ${[
             {
+              id: 1, // Added ID for data retrieval
               reg: "2023-07-10 10:25:25",
               pos: "System, Administrator Main",
               name: "superadmin_main",
@@ -4215,6 +4224,7 @@ function getAdminStoreUserManagerContent() {
               store: "GPOSDEBSLOC1DUB, GPOSDEBSLOC1DUB"
             },
             {
+              id: 2, // Added ID for data retrieval
               reg: "2023-07-10 10:25:25",
               pos: "Logistics",
               name: "Tomas, Kenneth G",
@@ -4222,7 +4232,8 @@ function getAdminStoreUserManagerContent() {
               pass: "Abc@123",
               store: "GPOSDEBSLOC1DUB, GPOSDEBSLOC1DUB"
             },
-            {
+             {
+              id: 3, // Added ID for data retrieval
               reg: "2005-09-19 22:05:28",
               pos: "FINANCE",
               name: "Tomas, Kenneth G",
@@ -4230,30 +4241,7 @@ function getAdminStoreUserManagerContent() {
               pass: "Abc@123",
               store: "GPOSDEBSLOC1DUB, GPOSDEBSLOC1DUB"
             },
-            {
-              reg: "2005-09-19 22:05:28",
-              pos: "FINANCE",
-              name: "Tomas, Kenneth G",
-              user: "gposktofinance1",
-              pass: "Abc@123",
-              store: "GPOSDEBSLOC1DUB, GPOSDEBSLOC1DUB"
-            },
-            {
-              reg: "2023-07-10 10:25:25",
-              pos: "Logistics, Logistics 1",
-              name: "Tomas, Kenneth G",
-              user: "countryadmin",
-              pass: "Abc@123",
-              store: "GPOSDEBSLOC1DUB, GPOSDEBSLOC1DUB"
-            },
-            {
-              reg: "2023-07-10 10:25:25",
-              pos: "Logistics",
-              name: "Tomas, Kenneth G",
-              user: "countryadmin",
-              pass: "Abc@123",
-              store: "GPOSDEBPH"
-            }
+
           ].map(entry => `
             <tr>
               <td>${entry.reg}</td>
@@ -4263,8 +4251,17 @@ function getAdminStoreUserManagerContent() {
               <td>${entry.pass}</td>
               <td>${entry.store}</td>
               <td>
-                <i class="bi bi-pencil text-primary me-2" title="Edit"></i>
-                <i class="bi bi-trash text-primary" title="Delete"></i>
+                <div class="btn-group" role="group" aria-label="Action Buttons">
+                  <button class="btn btn-info btn-sm btn-view-stock py-1"
+                    data-user-id="${entry.id}"
+                    title="View Details">
+                    <i class="fa fa-search"></i>
+                  </button>
+
+                  <a href="https://secure.onegrindersguild.com/instalogin.php?loghash=314e5a53d4d2459241745fdd6eebf887" target="_blank" class="btn btn-success btn-sm py-1" title="Insta LOGIN">
+                    <i class="fa fa-user"></i>
+                  </a>
+                </div>
               </td>
             </tr>
           `).join('')}
@@ -4272,16 +4269,15 @@ function getAdminStoreUserManagerContent() {
       </table>
     </div>
 
-    <!-- 📈 Footer -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mt-3">
-      <small class="text-muted">Showing 1 to 6 of 6 entries</small>
-      <nav>
-        <ul class="pagination pagination-sm mb-0">
-          <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
-          <li class="page-item active"><a class="page-link" href="#">1</a></li>
-          <li class="page-item disabled"><span class="page-link">»</span></li>
-        </ul>
-      </nav>
+        <small class="text-muted">Showing 1 to 3 of 3 entries</small>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item disabled"><span class="page-link">»</span></li>
+            </ul>
+        </nav>
     </div>
   </div>
   `;
@@ -4376,9 +4372,33 @@ function getAdminSalesManagerContent() {
 function getAdminSalesMonthlyContent() {
   return `
   <div class="container-fluid bg-white shadow-sm p-4 rounded" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
-    <!-- 🔷 Top Metrics Section -->
-    <div class="row text-white mb-4 g-3">
-      <!-- ...existing code... -->
+    
+    <!-- 🔷 Top Metrics Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Configure Report</div>
+          <div class="fw-bold fs-5">2025</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Total Sales</div>
+          <div class="fw-bold fs-5">66,087,440.00</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Total Store Sales</div>
+          <div class="fw-bold fs-5">54,053,160.00</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Total Personal Sales</div>
+          <div class="fw-bold fs-5">12,034,280.00</div>
+        </div>
+      </div>
     </div>
 
     <!-- 📋 Monthly Sales Summary Table -->
@@ -4435,7 +4455,11 @@ function getAdminSalesMonthlyContent() {
               <td>${entry.store}</td>
               <td>${entry.personal}</td>
               <td>${entry.total}</td>
-              <td><button class="btn btn-sm btn-primary"><i class="fas fa-eye me-1"></i>View Details</button></td>
+              <td>
+                <button class="btn btn-sm btn-primary" onclick="loadAdminModule('daily-sales')">
+                  <i class="fas fa-eye me-1"></i>View Details
+                </button>
+              </td>
             </tr>
           `).join('')}
         </tbody>
@@ -4461,9 +4485,33 @@ function getAdminSalesMonthlyContent() {
 function getAdminSalesDailyContent() {
   return `
   <div class="container-fluid bg-white shadow-sm p-4 rounded" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
-    <!-- 🔷 Top Metrics Section -->
-    <div class="row text-white mb-4 g-3">
-      <!-- ...existing code... -->
+    
+    <!-- 🔷 Top Metrics Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Configure Report</div>
+          <div class="fw-bold fs-5">September 2025</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Total Sales</div>
+          <div class="fw-bold fs-5">3,845,850.00</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Total Store Sales</div>
+          <div class="fw-bold fs-5">2,914,230.00</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+          <div class="small">Total Personal Sales</div>
+          <div class="fw-bold fs-5">931,620.00</div>
+        </div>
+      </div>
     </div>
 
     <!-- 📋 Daily Sales Summary Table -->
@@ -4517,27 +4565,257 @@ function getAdminSalesDailyContent() {
               <td>${entry.store}</td>
               <td>${entry.personal}</td>
               <td>${entry.total}</td>
-              <td><button class="btn btn-sm btn-primary"><i class="fas fa-eye me-1"></i>View Details</button></td>
+              <td class="d-flex gap-1">
+                <button class="btn btn-sm btn-info btn-view-daily-detail" 
+                  data-entry='${JSON.stringify(entry)}' 
+                  title="View">
+                  <i class="fas fa-search"></i>
+                </button>
+                <button class="btn btn-sm btn-warning" title="Print"><i class="fas fa-print"></i></button>
+              </td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
 
-    <!-- 📈 Footer -->
+    <!-- 📈 Footer with Proper Pagination -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mt-3">
-      <small class="text-muted">Showing 1 to 3 of 3 entries</small>
+      <small class="text-muted">Showing 1 to 3 of 30 entries</small>
       <nav>
         <ul class="pagination pagination-sm mb-0">
           <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
           <li class="page-item active"><a class="page-link" href="#">1</a></li>
-          <li class="page-item disabled"><span class="page-link">»</span></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><span class="page-link">...</span></li>
+          <li class="page-item"><a class="page-link" href="#">10</a></li>
+          <li class="page-item"><a class="page-link" href="#">»</a></li>
         </ul>
       </nav>
     </div>
   </div>
   `;
 }
+
+function buildDailySalesDetailModalHtml(entry) {
+  const e = entry || {};
+
+  // Example dataset (expand as needed)
+  const detailsData = [
+    { date: "2025-09-01 11:48:34", store: "DAVAO BRANCH [Branch]", sales: "S5771", type: "STORE", user: "MS - Brgy 37, San Jose, Tacloban City - AILEEN MOD", details: "SILVER*2", amount: "6,900.00" },
+    { date: "2025-09-01 11:51:10", store: "DAVAO BRANCH [Branch]", sales: "S5772", type: "STORE", user: "Depot - Davao Del Sur", details: "SILVER*3", amount: "10,500.00" },
+    { date: "2025-09-01 13:05:46", store: "DAVAO BRANCH [Branch]", sales: "S5773", type: "STORE", user: "MS - Brgy Luvimin Kidapawan City - Ronel Jay Paroj", details: "SILVER*2, GOLD*7", amount: "79,350.00" },
+    { date: "2025-09-01 14:02:21", store: "DAVAO BRANCH [Branch]", sales: "PS2969", type: "PERSONAL", user: "Licera, Rosel [SUCCESSFUL101]", details: "SILVER*1", amount: "3,500.00" },
+    { date: "2025-09-01 14:37:58", store: "DAVAO BRANCH [Branch]", sales: "PS2970", type: "PERSONAL", user: "Gapasin, Annie [anne01]", details: "SILVER*1", amount: "3,500.00" },
+    { date: "2025-09-01 15:24:32", store: "DAVAO BRANCH [Branch]", sales: "S5774", type: "STORE", user: "Depot - Davao Del Norte", details: "PLATINUM*1", amount: "35,000.00" },
+    { date: "2025-09-01 15:42:13", store: "DAVAO BRANCH [Branch]", sales: "PS2975", type: "PERSONAL", user: "Llido, Hilario [Abundance57]", details: "Synbiotic+ MM*1", amount: "2,280.00" },
+    { date: "2025-09-01 15:51:55", store: "DAVAO BRANCH [Branch]", sales: "PS2976", type: "PERSONAL", user: "Burlas, Pablito [Pablito1962]", details: "Synbiotic+ MM*1, SCGUARD*1", amount: "4,560.00" },
+    { date: "2025-09-01 16:04:35", store: "GRINDERPH [Country Hub]", sales: "PS2977", type: "PERSONAL", user: "Quimson, Romar [Romar01]", details: "SCGUARD*1", amount: "2,280.00" },
+    { date: "2025-09-01 16:14:45", store: "DAVAO BRANCH [Branch]", sales: "S5775", type: "STORE", user: "MS - Brgy Mulig Toril - Welhemina Juano", details: "Synbiotic+ MM*1", amount: "2,090.00" },
+    { date: "2025-09-01 16:25:10", store: "DAVAO BRANCH [Branch]", sales: "PS2978", type: "PERSONAL", user: "Dela Cruz, Maricel [maricel_dc]", details: "SILVER*1, GOLD*2", amount: "9,800.00" },
+    { date: "2025-09-01 16:40:22", store: "DAVAO BRANCH [Branch]", sales: "S5776", type: "STORE", user: "MS - Brgy San Roque, Panabo City - Jona Mae", details: "PLATINUM*1, Synbiotic+ MM*2", amount: "39,180.00" },
+    { date: "2025-09-01 17:05:33", store: "GRINDERPH [Country Hub]", sales: "PS2979", type: "PERSONAL", user: "Torres, Alvin [alvintorres]", details: "SCGUARD*2", amount: "4,560.00" },
+    { date: "2025-09-01 17:18:47", store: "DAVAO BRANCH [Branch]", sales: "PS2980", type: "PERSONAL", user: "Reyes, Carla [carla_r]", details: "Synbiotic+ MM*1, SILVER*1", amount: "5,590.00" },
+    { date: "2025-09-01 17:30:12", store: "DAVAO BRANCH [Branch]", sales: "S5777", type: "STORE", user: "Depot - Compostela Valley", details: "GOLD*5", amount: "17,500.00" }
+
+
+  ];
+
+  // Pagination setup
+  const pageSize = 10;
+  const totalPages = Math.ceil(detailsData.length / pageSize);
+  const firstPageRows = detailsData.slice(0, pageSize);
+
+  return `
+  <div class="modal fade" id="dailySalesDetailModal" tabindex="-1" aria-labelledby="dailySalesDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        
+        <!-- Header -->
+        <div class="modal-header">
+          <h5 class="modal-title">Daily Sales - ${e.date || "N/A"}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+          <div class="container-fluid">
+
+            <!-- 🔷 Summary Cards -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6 col-lg-3">
+                <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+                  <div class="small">Coverage</div>
+                  <div class="fw-bold fs-5">${e.date || ''}</div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+                  <div class="small">Total Sales</div>
+                  <div class="fw-bold fs-5">${e.total || '0.00'}</div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+                  <div class="small">Total Store Sales</div>
+                  <div class="fw-bold fs-5">${e.store || '0.00'}</div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <div class="p-3 text-white rounded" style="background-color:#03A9F4;">
+                  <div class="small">Total Personal Sales</div>
+                  <div class="fw-bold fs-5">${e.personal || '0.00'}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 🔹 Table Controls -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
+              <div>
+                <label class="form-label mb-0">Show 
+                  <select class="form-select form-select-sm d-inline w-auto">
+                    <option selected>5</option>
+                    <option>10</option>
+                    <option>25</option>
+                  </select> entries
+                </label>
+              </div>
+              <input type="text" class="form-control form-control-sm w-100 w-md-25 rounded" placeholder="Search:" />
+            </div>
+
+            <!-- 🔹 Details Table -->
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead class="table-light text-dark fw-bold">
+                  <tr>
+                    <th>DATE</th>
+                    <th>STORE</th>
+                    <th>SALES#</th>
+                    <th>TYPE</th>
+                    <th>USER</th>
+                    <th>DETAILS</th>
+                    <th>AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-sales-tbody">
+                  ${firstPageRows.map(d => `
+                    <tr>
+                      <td>${d.date}</td>
+                      <td>${d.store}</td>
+                      <td>${d.sales}</td>
+                      <td>${d.type}</td>
+                      <td>${d.user}</td>
+                      <td>${d.details}</td>
+                      <td>${d.amount}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 🔹 Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <small>Showing 1 to ${firstPageRows.length} of ${detailsData.length} entries</small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0" id="daily-sales-pagination">
+                  <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                  ${Array.from({length: totalPages}, (_, i) => `
+                    <li class="page-item ${i === 0 ? 'active' : ''}">
+                      <a class="page-link" href="#" data-page="${i+1}">${i+1}</a>
+                    </li>
+                  `).join('')}
+                  <li class="page-item ${totalPages === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#">»</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" onclick="window.print()">
+            <i class="fa fa-print me-1"></i> Print
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+            <i class="fa fa-times me-1"></i> Close
+          </button>
+        </div>
+
+        <style>
+          /* Print button green style */
+          .btn-success.btn-sm i {
+            font-size: 0.85rem;
+          }
+
+          /* Print modal contents only */
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            #salesDetailModal,
+            #salesDetailModal * {
+              visibility: visible;
+            }
+            #salesDetailModal {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+            .modal-footer {
+              display: none; /* hide buttons when printing */
+            }
+          }
+        </style>
+
+        <script>
+          function printModalContent(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            window.print();
+          }
+        </script>
+
+
+      </div>
+    </div>
+  </div>`;
+}
+
+(function patchViewDailyDetailHandler() {
+    if (window.__ggv_daily_detail_modal_patched) return;
+    window.__ggv_daily_detail_modal_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-view-daily-detail');
+        if (!btn) return;
+
+        ev.preventDefault();
+
+        let entry = {};
+        try {
+            entry = JSON.parse(btn.dataset.entry || '{}');
+        } catch (e) {
+            console.warn("Invalid entry JSON:", e);
+        }
+
+        // Remove existing modal if open
+        const existingModal = document.getElementById('dailySalesDetailModal');
+        if (existingModal) existingModal.remove();
+
+        // Build & show modal
+        if (typeof buildDailySalesDetailModalHtml === 'function') {
+            document.body.insertAdjacentHTML('beforeend', buildDailySalesDetailModalHtml(entry));
+            new bootstrap.Modal(document.getElementById('dailySalesDetailModal')).show();
+        }
+
+        ev.stopImmediatePropagation();
+    }, true);
+})();
 
 
 /* Item */
@@ -4604,103 +4882,106 @@ function getAdminItemAddContent() {
 }
 
 function getAdminItemTableContent() {
-    return `
-        <div class="card shadow-sm">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <div>
-                    <label class="me-2">Show</label>
-                    <select class="form-select form-select-sm d-inline-block" style="width: 80px;">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                    </select>
-                    <span class="ms-2">entries</span>
-                </div>
-                <input type="text" class="form-control form-control-sm" placeholder="Search..." style="width: 200px;">
-            </div>
+  const items = [
+    {
+      id: 1, code: 'SILVER', desc: 'PAID SILVER SGGUARD*1.00', cat: 'Entry Package', unit: 'PACK',
+      srp: '3500.00', dp: '3500.00', drp: '0.00', center: '3500.00', mobile: '3450.00',
+      info: 'DR:500.00<br>MATCHING:10.00<br>UNBV:0.00<br>MLMBV:0.00<br>CBV:0.00<br>IDR:0.00',
+      components: 'WITH COMPONENTS'
+    },
+    {
+      id: 2, code: 'GOLD', desc: 'PAID GOLD SGGUARD*3.00', cat: 'Entry Package', unit: 'PACK',
+      srp: '10500.00', dp: '10500.00', drp: '0.00', center: '10500.00', mobile: '10350.00',
+      info: 'DR:1500.00<br>MATCHING:30.00<br>UNBV:0.00<br>MLMBV:0.00<br>CBV:0.00<br>IDR:0.00',
+      components: 'WITH COMPONENTS'
+    },
+    {
+      id: 3, code: 'PLATINUM', desc: 'PAID PLATINUM SGGUARD*10.00', cat: 'Entry Package', unit: 'PACK',
+      srp: '35000.00', dp: '35000.00', drp: '0.00', center: '35000.00', mobile: '34500.00',
+      info: 'DR:5000.00<br>MATCHING:100.00<br>UNBV:0.00<br>MLMBV:0.00<br>CBV:0.00<br>IDR:0.00',
+      components: 'WITH COMPONENTS'
+    },
+    {
+      id: 4, code: 'CDSILVER', desc: 'CD SILVER', cat: 'Entry Package', unit: 'PACK',
+      srp: '0.00', dp: '0.00', drp: '0.00', center: '0.00', mobile: '0.00',
+      info: 'DR:0.00<br>MATCHING:0.00<br>UNBV:0.00<br>MLMBV:0.00<br>CBV:0.00<br>IDR:0.00',
+      components: 'WITH COMPONENTS'
+    }
+  ];
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>ITEM #</th>
-                            <th>CODE</th>
-                            <th>DESC</th>
-                            <th>CAT</th>
-                            <th>UNIT</th>
-                            <th>S.P</th>
-                            <th>MRP</th>
-                            <th>DP</th>
-                            <th>CENTER</th>
-                            <th>MOBILE</th>
-                            <th>ITEM INFO</th>
-                            <th>COMPONENTS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${[
-                            {
-                                id: 1, code: 'SILVER', desc: 'PKG SILVER SGB/SAPPHIRE/100', cat: 'Entry Package', unit: 'PACK',
-                                sp: '25000.00', mrp: '25000.00', dp: '25000.00', center: 'DS0000001', mobile: '09123456789',
-                                info: 'DR500.00, MATCHING100.00, UNBV0.00, MLMBBV0.00, CBV0.00, IDR0.00', components: 'WITH COMPONENTS'
-                            },
-                            {
-                                id: 2, code: 'GOLD', desc: 'PKG GOLD SGB/SAPPHIRE/100', cat: 'Entry Package', unit: 'PACK',
-                                sp: '35000.00', mrp: '35000.00', dp: '35000.00', center: 'DS0000001', mobile: '09123456789',
-                                info: 'DR500.00, MATCHING100.00, UNBV0.00, MLMBBV0.00, CBV0.00, IDR0.00', components: 'WITH COMPONENTS'
-                            },
-                            {
-                                id: 3, code: 'PLATINUM', desc: 'PKG PLATINUM SGB/SAPPHIRE/100', cat: 'Entry Package', unit: 'PACK',
-                                sp: '45000.00', mrp: '45000.00', dp: '45000.00', center: 'DS0000001', mobile: '09123456789',
-                                info: 'DR500.00, MATCHING100.00, UNBV0.00, MLMBBV0.00, CBV0.00, IDR0.00', components: 'WITH COMPONENTS'
-                            },
-                            {
-                                id: 4, code: 'CSGR', desc: 'CS SILVER', cat: 'Entry Package', unit: 'PACK',
-                                sp: '25000.00', mrp: '25000.00', dp: '25000.00', center: 'DS0000001', mobile: '09123456789',
-                                info: 'DR500.00, MATCHING100.00, UNBV0.00, MLMBBV0.00, CBV0.00, IDR0.00', components: 'NO COMPONENTS'
-                            },
-                            {
-                                id: 5, code: 'CSGOLD', desc: 'CS GOLD', cat: 'Entry Package', unit: 'PACK',
-                                sp: '35000.00', mrp: '35000.00', dp: '35000.00', center: 'DS0000001', mobile: '09123456789',
-                                info: 'DR500.00, MATCHING100.00, UNBV0.00, MLMBBV0.00, CBV0.00, IDR0.00', components: 'NO COMPONENTS'
-                            }
-                        ].map(item => `
-                            <tr>
-                                <td>${item.id}</td>
-                                <td>${item.code}</td>
-                                <td>${item.desc}</td>
-                                <td>${item.cat}</td>
-                                <td>${item.unit}</td>
-                                <td>${item.sp}</td>
-                                <td>${item.mrp}</td>
-                                <td>${item.dp}</td>
-                                <td>${item.center}</td>
-                                <td>${item.mobile}</td>
-                                <td>${item.info}</td>
-                                <td>
-                                    <span class="badge ${item.components === 'WITH COMPONENTS' ? 'bg-success' : 'bg-danger'}">
-                                        ${item.components}
-                                    </span>
-                                    <button class="btn btn-sm btn-outline-primary ms-2"><i class="fas fa-search"></i></button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="card-footer d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing 1 to 5 of 14 entries</small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">»</a></li>
-                    </ul>
-                </nav>
-            </div>
+  return `
+    <div class="card shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <div>
+          <label class="me-2">Show</label>
+          <select class="form-select form-select-sm d-inline-block" style="width: 80px;">
+            <option selected>10</option>
+            <option>25</option>
+            <option>50</option>
+          </select>
+          <span class="ms-2">entries</span>
         </div>
-    `;
+        <input type="text" class="form-control form-control-sm" placeholder="Search..." style="width: 200px;">
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered table-hover align-middle mb-0" style="font-size: 0.85rem;">
+          <thead class="table-light">
+            <tr>
+              <th>ITEM#</th>
+              <th>CODE</th>
+              <th>DESC</th>
+              <th>CAT</th>
+              <th>UNIT</th>
+              <th>SRP</th>
+              <th>DP</th>
+              <th>DRP</th>
+              <th>CENTER</th>
+              <th>MOBILE</th>
+              <th>ITEM INFO</th>
+              <th>COMPONENTS</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(item => `
+              <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.desc}</td>
+                <td>${item.cat}</td>
+                <td>${item.unit}</td>
+                <td>${item.srp}</td>
+                <td>${item.dp}</td>
+                <td>${item.drp}</td>
+                <td>${item.center}</td>
+                <td>${item.mobile}</td>
+                <td>${item.info}</td>
+                <td>
+                  <span class="badge ${item.components === 'WITH COMPONENTS' ? 'bg-success' : 'bg-danger'}">
+                    ${item.components}
+                  </span>
+                  <button class="btn btn-sm btn-info ms-2" title="View"><i class="fas fa-search"></i></button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted">Showing 1 to ${items.length} of ${items.length} entries</small>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">»</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  `;
 }
 
 function getAdminItemManageContent() {
