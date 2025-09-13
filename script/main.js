@@ -436,8 +436,6 @@ function loadUserPage(pageName) {
 }
 
 
-
-
 // canonical loadAdminModule - place this once at the end of ggverse.js
 function loadAdminModule(moduleId, event) {
   if (event) { event.preventDefault(); event.stopPropagation(); }
@@ -786,7 +784,7 @@ document.addEventListener("DOMContentLoaded", function () {
     loadPageContent("home");
 
     products = [...mockData.products];
-    orders = [...mockData.orders];
+    orders = [...mock.orders];
 });
 
 let currentActivePage = "account-summary"; // Global state for active page
@@ -1000,8 +998,6 @@ function checkScreenSize() {
         }
     }
 
-    // Trigger responsive layout adjustments
-    adjustCardLayout();
 }
 
 // Unified Sidebar Toggle - Works same on all devices
@@ -1785,4 +1781,3 @@ try {
 } catch (e) {
     console.warn("initializeSynchronization failed:", e);
 }
-

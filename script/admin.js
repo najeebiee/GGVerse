@@ -197,6 +197,123 @@ function getAdminDashboardContent() {
     `;
 }
 
+(function patchStatusToggleConfirmHandler() {
+    if (window.__ggv_status_toggle_confirm_patched) return;
+    window.__ggv_status_toggle_confirm_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.status-toggle, .user-status-toggle');
+        if (!btn) return;
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+
+        const isUserToggle = btn.classList.contains('user-status-toggle');
+        const idAttr = isUserToggle ? (btn.dataset.userId || btn.getAttribute('data-user-id')) : (btn.dataset.id || btn.getAttribute('data-id'));
+        const currentState = (btn.dataset.state || btn.getAttribute('data-state') || '').toLowerCase();
+        const isActive = currentState === 'active';
+
+        const modalId = isUserToggle ? 'confirmUserStatusModal' : 'confirmStoreStatusModal';
+        const confirmBtnId = modalId + 'Btn';
+
+        const title = isActive ? 'Deactivate Account?' : 'Activate Account?';
+        const message = isActive
+            ? 'Are you sure you want to deactivate this account?'
+            : 'Are you sure you want to activate this account?';
+        const confirmText = isActive ? (isUserToggle ? 'Deactivate User' : 'Deactivate') : (isUserToggle ? 'Activate User' : 'Activate');
+
+        // ensure container present
+        let container = document.getElementById('ggvStoreModalContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'ggvStoreModalContainer';
+            document.body.appendChild(container);
+        }
+
+        // remove existing same modal and insert new
+        container.querySelector('#' + modalId)?.remove();
+        container.insertAdjacentHTML('beforeend', buildConfirmModalHtml(modalId, title, message, confirmText, confirmBtnId));
+
+        const modalEl = container.querySelector('#' + modalId);
+        let bsModal;
+        function cleanup() {
+            try { if (bsModal) bsModal.dispose(); } catch (e) {}
+            container.querySelector('#' + modalId)?.remove();
+            document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+            document.body.classList.remove('modal-open');
+        }
+
+        if (typeof bootstrap !== 'undefined' && modalEl) {
+            bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+            modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+            bsModal.show();
+        } else if (modalEl) {
+            modalEl.classList.add('show');
+            modalEl.style.display = 'block';
+            if (!document.querySelector('.modal-backdrop')) {
+                const bd = document.createElement('div');
+                bd.className = 'modal-backdrop fade show';
+                document.body.appendChild(bd);
+                document.body.classList.add('modal-open');
+            }
+            modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(b => b.addEventListener('click', cleanup, { once: true }));
+        }
+
+        const confirmBtn = container.querySelector('#' + confirmBtnId);
+        if (!confirmBtn) return;
+        confirmBtn.addEventListener('click', function handler() {
+            try {
+                // Toggle button appearance/state
+                if (isActive) {
+                    btn.dataset.state = 'inactive';
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-danger');
+                    btn.setAttribute('aria-pressed', 'false');
+                    btn.textContent = isUserToggle ? 'Deactivate' : 'Deactivate';
+                } else {
+                    btn.dataset.state = 'active';
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-success');
+                    btn.setAttribute('aria-pressed', 'true');
+                    btn.textContent = isUserToggle ? 'Active' : 'Active';
+                }
+
+                // try to persist to mock data if present
+                if (isUserToggle) {
+                    const uid = Number(idAttr);
+                    for (const sid in __ggv_store_users_mock) {
+                        const arr = __ggv_store_users_mock[sid] || [];
+                        const found = arr.find(u => Number(u.id) === uid);
+                        if (found) {
+                            found.status = (isActive ? 'Inactive' : 'Active');
+                            break;
+                        }
+                    }
+                } else {
+                    const sid = Number(idAttr);
+                    // update __ggv_store_mock if exists
+                    if (typeof __ggv_store_mock !== 'undefined') {
+                        const found = (__ggv_store_mock || []).find(s => Number(s.id) === sid);
+                        if (found) {
+                            found.status = (isActive ? 'Inactive' : 'Active');
+                        }
+                    }
+                }
+
+                // optional small console and user feedback
+                console.log(`${isUserToggle ? 'User' : 'Store'} ${idAttr} ${isActive ? 'deactivated' : 'activated'} (mock)`);
+            } catch (e) {
+                console.error(e);
+            }
+
+            // close modal
+            if (bsModal) bsModal.hide(); else cleanup();
+
+            alert(`${isActive ? 'Deactivated' : 'Activated'} (mock).`);
+        }, { once: true });
+
+    }, true); // capture to preempt existing handlers
+})();
+
 /* View Store Details */
 if (!window.__adminDashboardGlobalHandlers) {
     window.__adminDashboardGlobalHandlers = true;
@@ -1735,240 +1852,1722 @@ function showSendSmsModal(opts) {
 }
 
 function buildUserViewModalHtml(user) {
-    const u = user || {};
-    return `
+  return `
     <div class="modal fade" id="userViewModal" tabindex="-1" aria-labelledby="userViewModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document" style="max-width:98%; width:98%; margin:6.5rem auto 0; height:80vh;">
-        <div class="modal-content" style="display:flex; flex-direction:column; height:100%;">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="userViewModalLabel">Account Details - ${u.name || 'ID ' + (u.id || '')}</h5>
+            <h5 class="modal-title">Account Details - ${user.name || 'ID ' + user.id}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-
-          <!-- tabs -->
-          <div class="modal-body" style="overflow:auto; flex:1 1 auto;">
-            <ul class="nav nav-tabs mb-3" role="tablist">
+          <div class="modal-body">
+            <ul class="nav nav-tabs" id="uv-tab" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="uv-tab-personal" data-bs-toggle="tab" data-bs-target="#uv-personal" type="button" role="tab">Personal Details</button>
+                <button class="nav-link active" id="uv-tab-personal" data-bs-toggle="tab" data-bs-target="#uv-personal" type="button" role="tab" aria-controls="uv-personal" aria-selected="true">Personal Details</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-accounts" data-bs-toggle="tab" data-bs-target="#uv-accounts" type="button" role="tab">Accounts</button>
+                <button class="nav-link" id="uv-tab-accounts" data-bs-toggle="tab" data-bs-target="#uv-accounts" type="button" role="tab" aria-controls="uv-accounts" aria-selected="false">Accounts</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-sponsored" data-bs-toggle="tab" data-bs-target="#uv-sponsored" type="button" role="tab">Sponsored</button>
+                <button class="nav-link" id="uv-tab-sponsored" data-bs-toggle="tab" data-bs-target="#uv-sponsored" type="button" role="tab" aria-controls="uv-sponsored" aria-selected="false">Sponsored</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-bdown" data-bs-toggle="tab" data-bs-target="#uv-bdown" type="button" role="tab">Binary Downlines</button>
+                <button class="nav-link" id="uv-tab-binary-downlines" data-bs-toggle="tab" data-bs-target="#uv-binary-downlines" type="button" role="tab" aria-controls="uv-binary-downlines" aria-selected="false">Binary Downlines</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-bup" data-bs-toggle="tab" data-bs-target="#uv-bup" type="button" role="tab">Binary Uplines</button>
+                <button class="nav-link" id="uv-tab-binary-uplines" data-bs-toggle="tab" data-bs-target="#uv-binary-uplines" type="button" role="tab" aria-controls="uv-binary-uplines" aria-selected="false">Binary Uplines</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-udown" data-bs-toggle="tab" data-bs-target="#uv-udown" type="button" role="tab">Unilevel Downlines</button>
+                <button class="nav-link" id="uv-tab-unilevel-downlines" data-bs-toggle="tab" data-bs-target="#uv-unilevel-downlines" type="button" role="tab" aria-controls="uv-unilevel-downlines" aria-selected="false">Unilevel Downlines</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="uv-tab-uup" data-bs-toggle="tab" data-bs-target="#uv-uup" type="button" role="tab">Unilevel Uplines</button>
+                <button class="nav-link" id="uv-tab-unilevel-uplines" data-bs-toggle="tab" data-bs-target="#uv-unilevel-uplines" type="button" role="tab" aria-controls="uv-unilevel-uplines" aria-selected="false">Unilevel Uplines</button>
               </li>
             </ul>
 
-            <div class="tab-content">
-              <!-- Personal: left form + right stacked colored action buttons -->
-              <div class="tab-pane fade show active" id="uv-personal" role="tabpanel" aria-labelledby="uv-tab-personal">
-                <div class="row g-3">
-                  <div class="col-12 col-lg-8">
-                    <div class="row g-3">
-                      <!-- changed: split first row into 4 cols so Username and Password sit side-by-side -->
-                      <div class="col-12 col-md-3">
-                        <label class="form-label small text-muted">USERID:</label>
-                        <input class="form-control form-control-sm" name="userid" readonly value="${u.id || ''}">
-                      </div>
-                      <div class="col-12 col-md-3">
-                        <label class="form-label small text-muted">ID#:</label>
-                        <input class="form-control form-control-sm" name="idno" readonly value="${u.idno || ''}">
-                      </div>
-                      <div class="col-12 col-md-3">
-                        <label class="form-label small text-muted">Username:</label>
-                        <input class="form-control form-control-sm" name="username" readonly value="${u.user || ''}">
-                      </div>
-                      <div class="col-12 col-md-3">
-                        <label class="form-label small text-muted">Password:</label>
-                        <input type="text" class="form-control form-control-sm" name="password" readonly value="${u.pass || u.password || ''}">
-                      </div>
-
-                      <div class="col-12 col-md-6">
-                        <label class="form-label small text-muted">Registered:</label>
-                        <input class="form-control form-control-sm" name="registered" readonly value="${u.created || u.registered || ''}">
-                      </div>
-                      <div class="col-12 col-md-6">
-                        <label class="form-label small text-muted">Account Type:</label>
-                        <input class="form-control form-control-sm" name="accountType" readonly value="${u.accountType || u.package || ''}">
-                      </div>
-
-                      <div class="col-12 col-md-6">
-                        <label class="form-label small text-muted">Last:</label>
-                        <input class="form-control form-control-sm" name="last" value="${(u.name||'').split(',')[0] || ''}">
-                      </div>
-                      <div class="col-12 col-md-6">
-                        <label class="form-label small text-muted">First / Middle:</label>
-                        <div class="d-flex gap-2">
-                          <input class="form-control form-control-sm" name="first" value="${(u.name||'').split(',')[1] ? u.name.split(',')[1].trim() : ''}">
-                          <input class="form-control form-control-sm" name="middle" value="${u.middle || ''}">
-                        </div>
-                      </div>
-
-                      <div class="col-12 col-md-4">
-                        <label class="form-label small text-muted">Gender:</label>
-                        <select class="form-select form-select-sm" name="gender">
-                          <option ${u.gender === 'Male' ? 'selected' : ''}>Male</option>
-                          <option ${u.gender === 'Female' ? 'selected' : ''}>Female</option>
-                          <option ${!u.gender ? 'selected' : ''}>Other</option>
-                        </select>
-                      </div>
-                      <div class="col-12 col-md-8">
-                        <label class="form-label small text-muted">Contact # <small class="text-success">VERIFIED</small></label>
-                        <input class="form-control form-control-sm" name="contact" value="${u.contact || ''}">
-                      </div>
-
-                      <div class="col-12">
-                        <label class="form-label small text-muted">Complete Address</label>
-                        <input class="form-control form-control-sm" name="address" value="${u.address || ''}">
-                      </div>
-
-                      <div class="col-12 col-md-4">
-                        <label class="form-label small text-muted">Country</label>
-                        <input class="form-control form-control-sm" name="country" value="${u.country || 'Philippines'}">
-                      </div>
-                      <div class="col-12 col-md-4">
-                        <label class="form-label small text-muted">Barangay</label>
-                        <input class="form-control form-control-sm" name="barangay" value="${u.barangay || ''}">
-                      </div>
-                      <div class="col-12 col-md-4">
-                        <label class="form-label small text-muted">Region / Province / City</label>
-                        <input class="form-control form-control-sm" name="region" value="${u.region || ''}">
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-12 col-lg-4">
-                    <div class="d-grid gap-2">
-                      <button type="button" class="btn btn-success btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Account Active">
-                        <i class="fa fa-check-circle me-2"></i> Account Active
-                      </button>
-
-                      <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Matching Report">
-                        <i class="fa fa-sitemap me-2"></i> Matching Report
-                      </button>
-
-                      <button type="button" class="btn btn-primary btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Personal Sales Report">
-                        <i class="fa fa-shopping-cart me-2"></i> Personal Sales Report
-                      </button>
-
-                      <button type="button" class="btn btn-primary btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Group Sales Report">
-                        <i class="fa fa-users me-2"></i> Group Sales Report
-                      </button>
-
-                      <button type="button" class="btn btn-danger btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Delete Withdrawal PIN">
-                        <i class="fa fa-trash me-2"></i> Delete Withdrawal PIN
-                      </button>
-
-                      <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Resend Welcome Message">
-                        <i class="fa fa-envelope-open-o me-2"></i> Resend Welcome Message
-                      </button>
-
-                      <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start" style="padding:12px 16px;" title="Send Credentials">
-                        <i class="fa fa-mobile me-2"></i> Send Credentials
-                      </button>
-
-                      <div class="mt-2">
-                        <button type="button" class="btn btn-warning btn-lg w-100 text-white" style="padding:14px 18px;" data-bs-dismiss="modal" title="Update Account">
-                          <i class="fa fa-save me-2"></i> Update Account
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Accounts -->
-              <div class="tab-pane fade" id="uv-accounts" role="tabpanel" aria-labelledby="uv-tab-accounts">
-                <p class="small text-muted mb-2">Linked accounts / credentials (mock)</p>
-                <div class="table-responsive">
-                  <table class="table table-sm table-striped">
-                    <thead><tr><th>Store</th><th>Username</th><th>Password</th><th>Contact</th></tr></thead>
-                    <tbody>
-                      <tr><td>${u.branch || 'GRINDERSGUILDGLOBAL'}</td><td>${u.user || 'ggglobal'}</td><td>••••••••</td><td>${u.contact || ''}</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- other tabs unchanged -->
-              <div class="tab-pane fade" id="uv-sponsored" role="tabpanel" aria-labelledby="uv-tab-sponsored">
-                <p class="small text-muted mb-2">Sponsored users (mock)</p>
-                <ul class="list-group list-group-flush small">
-                  <li class="list-group-item">SponsoredUser1 (2025-08-01)</li>
-                  <li class="list-group-item">SponsoredUser2 (2025-07-15)</li>
-                  <li class="list-group-item">SponsoredUser3 (2025-06-20)</li>
-                </ul>
-              </div>
-
-              <div class="tab-pane fade" id="uv-bdown" role="tabpanel" aria-labelledby="uv-tab-bdown">
-                <p class="small text-muted mb-2">Binary downlines (mock)</p>
-                <div class="table-responsive">
-                  <table class="table table-sm table-hover">
-                    <thead><tr><th>Position</th><th>ID</th><th>Name</th><th>Joined</th></tr></thead>
-                    <tbody>
-                      <tr><td>Left</td><td>502</td><td>Downline A</td><td>2025-01-10</td></tr>
-                      <tr><td>Right</td><td>503</td><td>Downline B</td><td>2025-02-22</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="tab-pane fade" id="uv-bup" role="tabpanel" aria-labelledby="uv-tab-bup">
-                <p class="small text-muted mb-2">Binary uplines (mock)</p>
-                <ol class="small">
-                  <li>Upline X (ID: 400)</li>
-                  <li>Upline Y (ID: 350)</li>
-                </ol>
-              </div>
-
-              <div class="tab-pane fade" id="uv-udown" role="tabpanel" aria-labelledby="uv-tab-udown">
-                <p class="small text-muted mb-2">Unilevel downlines (mock)</p>
-                <div class="row">
-                  <div class="col-12 col-md-6">
-                    <ul class="list-group list-group-flush small">
-                      <li class="list-group-item">Downline UL 1</li>
-                      <li class="list-group-item">Downline UL 2</li>
-                      <li class="list-group-item">Downline UL 3</li>
-                    </ul>
-                  </div>
-                  <div class="col-12 col-md-6">
-                    <small class="text-muted">Summary</small>
-                    <p class="mb-0">Total Directs: 3</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tab-pane fade" id="uv-uup" role="tabpanel" aria-labelledby="uv-tab-uup">
-                <p class="small text-muted mb-2">Unilevel uplines (mock)</p>
-                <ol class="small">
-                  <li>Unilevel Upline A (ID: 200)</li>
-                  <li>Unilevel Upline B (ID: 150)</li>
-                </ol>
-              </div>
-
+            <div class="tab-content mt-3" id="uv-tabContent">
+              ${buildUserPersonalDetailsTab(user)}
+              ${buildUserAccountsTab(user)}
+              ${buildUserSponsoredTab(user)}
+              ${buildUserBinaryDownlinesTab(user)}
+              ${buildUserBinaryUplinesTab(user)}
+              ${buildUserUnilevelDownlinesTab(user)}
+              ${buildUserUnilevelUplinesTab(user)}
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
-          <div class="modal-footer" style="flex-shrink:0;">
-            <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Close</button>
+function showUserViewModal(userId) {
+  const user = getUserMockById(userId) || { id: userId };
+  let container = document.getElementById('ggvStoreModalContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ggvStoreModalContainer';
+    document.body.appendChild(container);
+  }
+
+  container.querySelector('#userViewModal')?.remove();
+  container.insertAdjacentHTML('beforeend', buildUserViewModalHtml(user));
+
+  const modalEl = container.querySelector('#userViewModal');
+  if (typeof bootstrap !== 'undefined' && modalEl) {
+    const bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    bsModal.show();
+  }
+}
+
+function buildConfirmModalHtml(id, title, message, confirmText, confirmId) {
+  return `
+  <div class="modal fade" id="${id}" tabindex="-1" aria-labelledby="${id}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px; width:92%; margin-top:5rem;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="${id}Label">${title}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-3"><i class="fa fa-info-circle fs-1 text-muted"></i></div>
+          <p class="small text-muted">${message}</p>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger btn-sm" id="${confirmId}">${confirmText}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+(function patchAccountActiveToggleHandler() {
+    if (window.__ggv_account_active_toggle_patched) return;
+    window.__ggv_account_active_toggle_patched = true;
+
+    // Delegate clicks for the account active button inside user view modal
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-account-active');
+        if (!btn) return;
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+
+        const userId = btn.dataset.userId || btn.getAttribute('data-user-id') || '';
+        const state = (btn.dataset.state || 'active').toLowerCase();
+
+        const modalId = 'confirmDeactivateModal';
+        const confirmBtnId = 'confirmDeactivateBtn';
+        const userLabel = userId ? (`ID ${userId}`) : 'this account';
+
+        // Build appropriate title/message depending on current state
+        const isActive = state === 'active';
+        const title = isActive ? 'Deactivate Account?' : 'Activate Account?';
+        const message = isActive
+          ? `Are you sure you want to deactivate this account?`
+          : `Are you sure you want to activate this account?`;
+
+        // ensure container exists
+        let container = document.getElementById('ggvStoreModalContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'ggvStoreModalContainer';
+            document.body.appendChild(container);
+        }
+
+        // remove any existing confirm modal and insert a fresh one
+        container.querySelector('#' + modalId)?.remove();
+        container.insertAdjacentHTML('beforeend', buildConfirmModalHtml(modalId, title, message, isActive ? 'Deactivate Account!' : 'Activate Account', confirmBtnId));
+
+        const modalEl = container.querySelector('#' + modalId);
+        let bsModal;
+        function cleanup() {
+            try { if (bsModal) bsModal.dispose(); } catch (e) {}
+            container.querySelector('#' + modalId)?.remove();
+            document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+            document.body.classList.remove('modal-open');
+        }
+
+        if (typeof bootstrap !== 'undefined' && modalEl) {
+            bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+            modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+            bsModal.show();
+        } else if (modalEl) {
+            modalEl.classList.add('show');
+            modalEl.style.display = 'block';
+            if (!document.querySelector('.modal-backdrop')) {
+                const bd = document.createElement('div');
+                bd.className = 'modal-backdrop fade show';
+                document.body.appendChild(bd);
+                document.body.classList.add('modal-open');
+            }
+            modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(b => b.addEventListener('click', cleanup, { once: true }));
+        }
+
+        // wire confirm button
+        const confirmBtn = container.querySelector('#' + confirmBtnId);
+        if (!confirmBtn) return;
+        confirmBtn.addEventListener('click', function handler() {
+            // Toggle visual state of the clicked button
+            try {
+                // update state and classes/text
+                if (isActive) {
+                    btn.dataset.state = 'inactive';
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-danger');
+                    btn.setAttribute('aria-pressed', 'false');
+                    btn.innerHTML = '<i class="fa fa-times-circle me-2"></i> Deactivate';
+                    console.log('Account', userId, 'deactivated (mock)');
+                } else {
+                    btn.dataset.state = 'active';
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-success');
+                    btn.setAttribute('aria-pressed', 'true');
+                    btn.innerHTML = '<i class="fa fa-check-circle me-2"></i> Account Active';
+                    console.log('Account', userId, 'activated (mock)');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+
+            // close modal
+            if (bsModal) bsModal.hide(); else cleanup();
+
+            // optional toast/alert
+            alert(`${isActive ? 'Account deactivated' : 'Account activated'} (mock).`);
+        }, { once: true });
+    }, true); // capture phase to preempt other handlers
+})();
+
+/* --------------- Tabs For Build User View Modal --------------- */
+// Personal Details Tab (left form + right buttons) 
+function buildUserPersonalDetailsTab(user) {
+  const u = user || {};
+  return `
+    <div class="tab-pane fade show active" id="uv-personal" role="tabpanel" aria-labelledby="uv-tab-personal">
+      <div class="row g-3">
+        <div class="col-12 col-lg-8">
+          <div class="row g-3">
+            <div class="col-12 col-md-3">
+              <label class="form-label small text-muted">USERID:</label>
+              <input class="form-control form-control-sm" name="userid" readonly value="${u.id || ''}">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label small text-muted">ID#:</label>
+              <input class="form-control form-control-sm" name="idno" readonly value="${u.idno || ''}">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label small text-muted">Username:</label>
+              <input class="form-control form-control-sm" name="username" readonly value="${u.user || ''}">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label small text-muted">Password:</label>
+              <input type="text" class="form-control form-control-sm" name="password" readonly value="${u.pass || u.password || ''}">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label small text-muted">Registered:</label>
+              <input class="form-control form-control-sm" name="registered" readonly value="${u.created || u.registered || ''}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small text-muted">Account Type:</label>
+              <input class="form-control form-control-sm" name="accountType" readonly value="${u.accountType || u.package || ''}">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label small text-muted">Last:</label>
+              <input class="form-control form-control-sm" name="last" value="${(u.name||'').split(',')[0] || ''}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small text-muted">First / Middle:</label>
+              <div class="d-flex gap-2">
+                <input class="form-control form-control-sm" name="first" value="${(u.name||'').split(',')[1] ? u.name.split(',')[1].trim() : ''}">
+                <input class="form-control form-control-sm" name="middle" value="${u.middle || ''}">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Gender:</label>
+              <select class="form-select form-select-sm" name="gender">
+                <option ${u.gender === 'Male' ? 'selected' : ''}>Male</option>
+                <option ${u.gender === 'Female' ? 'selected' : ''}>Female</option>
+                <option ${!u.gender ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-8">
+              <label class="form-label small text-muted">Contact # <small class="text-success">VERIFIED</small></label>
+              <input class="form-control form-control-sm" name="contact" value="${u.contact || ''}">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small text-muted">Complete Address</label>
+              <input class="form-control form-control-sm" name="address" value="${u.address || ''}">
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Country</label>
+              <input class="form-control form-control-sm" name="country" value="${u.country || 'Philippines'}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Barangay</label>
+              <input class="form-control form-control-sm" name="barangay" value="${u.barangay || ''}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Region / Province / City</label>
+              <input class="form-control form-control-sm" name="region" value="${u.region || ''}">
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <div class="d-grid gap-2">
+            <button type="button"
+                    class="btn btn-success btn-sm text-white d-flex align-items-center justify-content-start btn-account-active"
+                    data-user-id="${u.id || ''}"
+                    data-state="active"
+                    style="padding:12px 16px;"
+                    title="Account Active">
+              <i class="fa fa-check-circle me-2"></i> Account Active
+            </button>
+
+            <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start btn-matching-report" data-user-id="${u.id || ''}" style="padding:12px 16px;" title="Matching Report">
+              <i class="fa fa-sitemap me-2"></i> Matching Report
+            </button>
+
+            <button type="button" class="btn btn-primary btn-sm text-white d-flex align-items-center justify-content-start btn-personal-sales-report" data-user-id="999" style="padding:12px 16px;" title="Personal Sales Report">
+              <i class="fa fa-shopping-cart me-2"></i> Personal Sales Report
+            </button>
+
+            <button type="button" class="btn btn-primary btn-sm text-white d-flex align-items-center justify-content-start btn-group-sales-report" data-user-id="GGUILD01" style="padding:12px 16px;" title="Group Sales Report">
+              <i class="fa fa-users me-2"></i> Group Sales Report
+            </button>
+
+            <button type="button" class="btn btn-danger btn-sm text-white d-flex align-items-center justify-content-start btn-delete-pin" data-user-id="999" style="padding:12px 16px;" title="Delete Withdrawal PIN">
+              <i class="fa fa-trash me-2"></i> Delete Withdrawal PIN
+            </button>
+
+
+            <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start btn-resend-welcome" data-user-id="999" style="padding:12px 16px;" title="Resend Welcome Message">
+              <i class="fa fa-envelope-open-o me-2"></i> Resend Welcome Message
+            </button>
+
+
+            <button type="button" class="btn btn-info btn-sm text-white d-flex align-items-center justify-content-start btn-send-credentials" data-user-id="999" style="padding:12px 16px;" title="Send Credentials">
+              <i class="fa fa-mobile me-2"></i> Send Credentials
+            </button>
+
+
+            <button type="button" class="btn btn-warning btn-lg w-100 text-white btn-update-account" data-user-id="999" style="padding:14px 18px;" title="Update Account">
+              <i class="fa fa-save me-2"></i> Update Account
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+// Accounts Tab (table of accounts)
+function buildUserAccountsTab(user) {
+  // --- Data Handling and Fallbacks ---
+  // If `user.accounts` is missing or not in the correct format,
+  // we provide a default structure to prevent errors.
+  const defaultAccountsInfo = {
+    data: [
+      { username: 'GGUILD01', registered: '2025-01-31 00:00:00', type: 'PLATINUM', status: 'ACTIVE' },
+      { username: 'GGUILD02', registered: '2025-01-31 00:00:00', type: 'PLATINUM', status: 'ACTIVE' },
+      { username: 'GGUILD03', registered: '2025-01-31 00:00:00', type: 'PLATINUM', status: 'ACTIVE' },
+      { username: 'GGUILD04', registered: '2025-01-31 00:00:00', type: 'PLATINUM', status: 'ACTIVE' },
+      { username: 'GGUILD05', registered: '2025-01-31 00:00:00', type: 'PLATINUM', status: 'ACTIVE' }
+    ],
+    totalEntries: 63, // Example total
+    showingFrom: 1,
+    showingTo: 5
+  };
+
+  // Use the provided user accounts info, or fall back to the default mock data.
+  const accountsInfo = user?.accounts && user.accounts.data ? user.accounts : defaultAccountsInfo;
+
+  // Destructure the properties for cleaner access.
+  const { data: accounts, totalEntries, showingFrom, showingTo } = accountsInfo;
+
+  // --- Dynamic HTML Generation ---
+
+  // Generate table rows from the account data.
+  const rows = accounts.map(acc => `
+    <tr>
+      <td>${acc.username}</td>
+      <td>${acc.registered}</td>
+      <td>${acc.type}</td>
+      <td><span class="badge bg-success">${acc.status}</span></td>
+    </tr>
+  `).join('');
+
+  // Generate the pagination summary text dynamically.
+  // This now correctly uses the data from the `accountsInfo` object.
+  const paginationInfo = `Showing ${showingFrom} to ${showingTo} of ${totalEntries} entries`;
+
+  // --- Final HTML Template ---
+  // I've also corrected the HTML for the pagination links to be valid Bootstrap 5.
+  return `
+    <div class="tab-pane fade" id="uv-accounts" role="tabpanel" aria-labelledby="uv-tab-accounts">
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+          <button class="btn btn-sm btn-outline-secondary">Copy</button>
+          <button class="btn btn-sm btn-outline-secondary">CSV</button>
+          <button class="btn btn-sm btn-outline-secondary">Excel</button>
+          <button class="btn btn-sm btn-outline-secondary">PDF</button>
+          <button class="btn btn-sm btn-outline-secondary">Print</button>
+        </div>
+        <div class="d-flex align-items-center">
+          <label class="form-label me-2 mb-0 small">Show</label>
+          <select class="form-select form-select-sm d-inline-block w-auto">
+            <option>5</option>
+            <option>10</option>
+            <option>25</option>
+          </select>
+          <label class="form-label ms-2 mb-0 small">entries</label>
+        </div>
+        <div>
+          <input type="search" class="form-control form-control-sm" placeholder="Search...">
+        </div>
+      </div>
+
+      <table class="table table-bordered table-sm">
+        <thead class="table-light">
+          <tr>
+            <th>Username</th>
+            <th>Registered</th>
+            <th>Type</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+
+      <div class="mt-3 d-flex justify-content-between align-items-center">
+        <div class="small text-muted">
+           ${paginationInfo}
+        </div>
+        <nav>
+          <ul class="pagination pagination-sm justify-content-end mb-0">
+            <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">»</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  `;
+}
+// Sponsored Tab (table of sponsored users)
+function buildUserSponsoredTab(user) {
+  const defaultSponsoredInfo = {
+    data: [
+        { username: 'GGUILD02', fullName: 'USER TWO', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+        { username: 'GGUILD03', fullName: 'USER THREE', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+        { username: 'GGUILD04', fullName: 'USER FOUR', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+        { username: 'GGUILD05', fullName: 'USER FIVE', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+        { username: 'GGUILD06', fullName: 'USER SIX', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+    ],
+    totalEntries: 21,
+    showingFrom: 1,
+    showingTo: 10
+  };
+
+  const sponsoredInfo = user?.sponsored && user.sponsored.data ? user.sponsored : defaultSponsoredInfo;
+  const { data: sponsored, totalEntries, showingFrom, showingTo } = sponsoredInfo;
+
+  const rows = sponsored.map(s => `
+    <tr>
+        <td>${s.username}</td>
+        <td>${s.fullName}</td>
+        <td>${s.registered}</td>
+        <td>${s.package}</td>
+        <td>${s.uplineId}</td>
+    </tr>
+  `).join('');
+
+  const paginationInfo = `Showing ${showingFrom} to ${showingTo} of ${totalEntries} entries`;
+
+  return `
+    <div class="tab-pane fade" id="uv-sponsored" role="tabpanel" aria-labelledby="uv-tab-sponsored">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                <button class="btn btn-sm btn-outline-secondary">Print</button>
+            </div>
+            <div class="d-flex align-items-center">
+                <label class="form-label me-2 mb-0 small">Show</label>
+                <select class="form-select form-select-sm d-inline-block w-auto">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
+                <label class="form-label ms-2 mb-0 small">entries</label>
+            </div>
+            <div>
+                <input type="search" class="form-control form-control-sm" placeholder="Search...">
+            </div>
+        </div>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Registered</th>
+                    <th>Package</th>
+                    <th>Upline ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows}
+            </tbody>
+        </table>
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+            <div class="small text-muted">
+                ${paginationInfo}
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>`;
+}
+
+function buildUserBinaryDownlinesTab(user) {
+  const defaultDownlinesInfo = {
+    data: [
+      { level: 1, username: 'GGUILD02', fullName: 'USER TWO', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+      { level: 1, username: 'GGUILD03', fullName: 'USER THREE', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+      { level: 2, username: 'GGUILD04', fullName: 'USER FOUR', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD02' },
+      { level: 2, username: 'GGUILD05', fullName: 'USER FIVE', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD02' },
+      { level: 2, username: 'GGUILD06', fullName: 'USER SIX', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD03' },
+    ],
+    totalEntries: 21,
+    showingFrom: 1,
+    showingTo: 10
+  };
+
+  const downlinesInfo = user?.binaryDownlines && user.binaryDownlines.data ? user.binaryDownlines : defaultDownlinesInfo;
+  const { data: downlines, totalEntries, showingFrom, showingTo } = downlinesInfo;
+
+  const rows = downlines.map(d => `
+    <tr>
+        <td>${d.level}</td>
+        <td>${d.username}</td>
+        <td>${d.fullName}</td>
+        <td>${d.registered}</td>
+        <td>${d.package}</td>
+        <td>${d.uplineId}</td>
+    </tr>
+  `).join('');
+
+  const paginationInfo = `Showing ${showingFrom} to ${showingTo} of ${totalEntries} entries`;
+
+  return `
+    <div class="tab-pane fade" id="uv-binary-downlines" role="tabpanel" aria-labelledby="uv-tab-binary-downlines">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                <button class="btn btn-sm btn-outline-secondary">Print</button>
+            </div>
+            <div class="d-flex align-items-center">
+                <label class="form-label me-2 mb-0 small">Show</label>
+                <select class="form-select form-select-sm d-inline-block w-auto">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
+                <label class="form-label ms-2 mb-0 small">entries</label>
+            </div>
+            <div>
+                <input type="search" class="form-control form-control-sm" placeholder="Search...">
+            </div>
+        </div>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>SQ#</th>
+                    <th>USERNAME</th>
+                    <th>FULL NAME</th>
+                    <th>REGISTERED</th>
+                    <th>PACKAGE</th>
+                    <th>UPLINE ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows}
+            </tbody>
+        </table>
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+            <div class="small text-muted">
+                ${paginationInfo}
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>`;
+}
+
+function buildUserBinaryUplinesTab(user) {
+  return `
+    <div class="tab-pane fade" id="uv-binary-uplines" role="tabpanel" aria-labelledby="uv-tab-binary-uplines">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                <button class="btn btn-sm btn-outline-secondary">Print</button>
+            </div>
+            <div class="d-flex align-items-center">
+                <label class="form-label me-2 mb-0 small">Show</label>
+                <select class="form-select form-select-sm d-inline-block w-auto">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
+                <label class="form-label ms-2 mb-0 small">entries</label>
+            </div>
+            <div>
+                <input type="search" class="form-control form-control-sm" placeholder="Search...">
+            </div>
+        </div>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>LEVEL</th>
+                    <th>USERNAME</th>
+                    <th>FULL NAME</th>
+                    <th>REGISTERED</th>
+                    <th>PACKAGE</th>
+                    <th>UPLINE ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6" class="text-center">No data available in table</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+            <div class="small text-muted">
+                Showing 0 to 0 of 0 entries
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>`;
+}
+
+function buildUserUnilevelDownlinesTab(user) {
+  const defaultDownlinesInfo = {
+    data: [
+      { level: 1, username: 'GGUILD02', fullName: 'USER TWO', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD01' },
+      { level: 2, username: 'GGUILD04', fullName: 'USER FOUR', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD02' },
+      { level: 2, username: 'GGUILD05', fullName: 'USER FIVE', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD02' },
+      { level: 3, username: 'GGUILD07', fullName: 'USER SEVEN', registered: '2025-01-31 00:00:00', package: 'PLATINUM', uplineId: 'GGUILD04' },
+    ],
+    totalEntries: 4,
+    showingFrom: 1,
+    showingTo: 10
+  };
+
+  const downlinesInfo = user?.unilevelDownlines && user.unilevelDownlines.data ? user.unilevelDownlines : defaultDownlinesInfo;
+  const { data: downlines, totalEntries, showingFrom, showingTo } = downlinesInfo;
+
+  const rows = downlines.map(d => `
+    <tr>
+        <td>${d.level}</td>
+        <td>${d.username}</td>
+        <td>${d.fullName}</td>
+        <td>${d.registered}</td>
+        <td>${d.package}</td>
+        <td>${d.uplineId}</td>
+    </tr>
+  `).join('');
+
+  const paginationInfo = `Showing ${showingFrom} to ${Math.min(showingTo, totalEntries)} of ${totalEntries} entries`;
+
+  return `
+    <div class="tab-pane fade" id="uv-unilevel-downlines" role="tabpanel" aria-labelledby="uv-tab-unilevel-downlines">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                <button class="btn btn-sm btn-outline-secondary">Print</button>
+            </div>
+            <div class="d-flex align-items-center">
+                <label class="form-label me-2 mb-0 small">Show</label>
+                <select class="form-select form-select-sm d-inline-block w-auto">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
+                <label class="form-label ms-2 mb-0 small">entries</label>
+            </div>
+            <div>
+                <input type="search" class="form-control form-control-sm" placeholder="Search...">
+            </div>
+        </div>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>LEVEL</th>
+                    <th>USERNAME</th>
+                    <th>FULL NAME</th>
+                    <th>REGISTERED</th>
+                    <th>PACKAGE</th>
+                    <th>UPLINE ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows}
+            </tbody>
+        </table>
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+            <div class="small text-muted">
+                ${paginationInfo}
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>`;
+}
+
+function buildUserUnilevelUplinesTab(user) {
+  return `
+    <div class="tab-pane fade" id="uv-unilevel-uplines" role="tabpanel" aria-labelledby="uv-tab-unilevel-uplines">
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                <button class="btn btn-sm btn-outline-secondary">Print</button>
+            </div>
+            <div class="d-flex align-items-center">
+                <label class="form-label me-2 mb-0 small">Show</label>
+                <select class="form-select form-select-sm d-inline-block w-auto">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
+                <label class="form-label ms-2 mb-0 small">entries</label>
+            </div>
+            <div>
+                <input type="search" class="form-control form-control-sm" placeholder="Search...">
+            </div>
+        </div>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>LEVEL</th>
+                    <th>USERNAME</th>
+                    <th>FULL NAME</th>
+                    <th>REGISTERED</th>
+                    <th>PACKAGE</th>
+                    <th>UPLINE ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6" class="text-center">No data available in table</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+            <div class="small text-muted">
+                Showing 0 to 0 of 0 entries
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>`;
+}
+
+/* Matching Report Modal */
+
+function buildMatchingReportModalHtml(user) {
+    const u = user || {};
+    const matchingData = [
+        { ctrn: '105564', date: '2025-09-01 08:40:46', remarks: 'Hementera, Jonah[JonaHhementera01]<br>TYPE:GOLD<br>SKU:GOLD<br>AMOUNT:10,500.00, BV:30.00', dba: '30.00', dbb: '0.00', ea: '68800.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105614', date: '2025-09-01 09:42:10', remarks: 'Tampipi, Arcel[Arcel02]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00', dba: '10.00', dbb: '0.00', ea: '68810.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105665', date: '2025-09-01 09:45:30', remarks: 'Orbita, Mary Christine[Marychristine]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00', dba: '10.00', dbb: '0.00', ea: '68820.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105717', date: '2025-09-01 09:49:25', remarks: 'Orbita, Ginaline[Ginaline01]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00', dba: '10.00', dbb: '0.00', ea: '68830.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105748', date: '2025-09-01 10:05:45', remarks: 'Cornia, Precious Grace[Preciousgrace02]<br>TYPE:GOLD<br>SKU:GOLD<br>AMOUNT:10,500.00, BV:30.00', dba: '30.00', dbb: '0.00', ea: '68860.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' }
+    ];
+
+    return `
+    <div class="modal fade" id="matchingReportModal" tabindex="-1" aria-labelledby="matchingReportModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="matchingReportModalLabel">Matching Report</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <i class="fas fa-times"></i>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row bg-primary text-white p-3 rounded mb-3">
+                <div class="col-md-4"><strong>Configure Report</strong></div>
+                <div class="col-md-4 text-center"><strong>September 2025</strong></div>
+                <div class="col-md-4 text-end"><strong>Account: GRINDERS, GUILD[GGUILD01]</strong></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="bg-primary text-white p-3 rounded">
+                    <h5>Total Matching</h5>
+                    <p class="h3">0.00(0)</p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="bg-primary text-white p-3 rounded">
+                    <h5>Total Flushout</h5>
+                    <p class="h3">0.00</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Matching Details</h5>
+                  <div class="d-flex justify-content-between mb-3">
+                    <div>
+                      <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                      <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                      <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                      <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                      <button class="btn btn-sm btn-outline-secondary">Print</button>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <select class="form-select form-select-sm me-2" style="width: 150px;">
+                        <option value="5">5 entries per page</option>
+                      </select>
+                      <input type="search" class="form-control form-control-sm" placeholder="Search:">
+                    </div>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>CTR#</th>
+                          <th>DATE</th>
+                          <th>REMARKS</th>
+                          <th>DBA</th>
+                          <th>DBB</th>
+                          <th>EA</th>
+                          <th>EBB</th>
+                          <th>PAIR</th>
+                          <th>PAID</th>
+                          <th>AMT</th>
+                          <th>MAX</th>
+                          <th>FO</th>
+                          <th>STATUS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${matchingData.map(row => `
+                          <tr>
+                            <td>${row.ctrn}</td>
+                            <td>${row.date}</td>
+                            <td>${row.remarks}</td>
+                            <td>${row.dba}</td>
+                            <td>${row.dbb}</td>
+                            <td>${row.ea}</td>
+                            <td>${row.ebb}</td>
+                            <td>${row.pair}</td>
+                            <td>${row.paid}</td>
+                            <td>${row.amt}</td>
+                            <td>${row.max}</td>
+                            <td>${row.fo}</td>
+                            <td>${row.status}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small>Showing 1 to 5 of 252 entries</small>
+                    <nav>
+                      <ul class="pagination">
+                        <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        <li class="page-item"><a class="page-link" href="#">51</a></li>
+                        <li class="page-item"><a class="page-link" href="#">»</a></li>
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
     `;
 }
+
+function showMatchingReportModal(userId) {
+    const user = getUserMockById(userId) || { id: userId };
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    container.querySelector('#matchingReportModal')?.remove();
+    container.insertAdjacentHTML('beforeend', buildMatchingReportModalHtml(user));
+
+    const modalEl = container.querySelector('#matchingReportModal');
+    let bsModal;
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        container.querySelector('#matchingReportModal')?.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(n=>n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== 'undefined' && modalEl) {
+        bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', cleanup, { once: true });
+        });
+    }
+}
+
+(function patchMatchingReportHandler() {
+    if (window.__ggv_matching_report_patched) return;
+    window.__ggv_matching_report_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-matching-report');
+        if (!btn) return;
+        ev.preventDefault();
+        const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+        if (!uid) return;
+        showMatchingReportModal(uid);
+    }, false);
+})();
+
+/* Personal Sales Report Modal */
+function buildPersonalSalesReportModalHtml(user) {
+  const u = user || {};
+  const salesData = []; // Replace with actual data if available
+
+  return `
+<div class="modal fade" id="personalSalesReportModal" tabindex="-1" aria-labelledby="personalSalesReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="personalSalesReportModalLabel">Personal Sales Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+
+          <!-- Top Header Row -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <div class="bg-primary text-white p-3 rounded text-center">
+                <strong>Configure Report</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-primary text-white p-3 rounded text-center">
+                <strong>September 2025</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-primary text-white p-3 rounded text-center">
+                <strong>Account<br>${u.name || 'GRINDERS, GUILD'}[${u.branch || 'GGUILD01'}]</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats Row -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <div class="bg-primary text-white p-3 rounded text-center">
+                <h5>Total Sales</h5>
+                <p class="h3">0.00</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-primary text-white p-3 rounded text-center">
+                <h5>Total Store Sales</h5>
+                <p class="h3">0.00</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-primary text-white p-3 rounded text-center">
+                <h5>Total Personal Sales</h5>
+                <p class="h3">0.00</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction Table -->
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Transaction Details</h5>
+              <div class="d-flex justify-content-between mb-3">
+                <div>
+                  <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                  <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                  <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                  <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                  <button class="btn btn-sm btn-outline-secondary">Print</button>
+                </div>
+                <div class="d-flex align-items-center">
+                  <select class="form-select form-select-sm me-2" style="width: 150px;">
+                    <option value="5">5 entries per page</option>
+                  </select>
+                  <input type="search" class="form-control form-control-sm" placeholder="Search:">
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>DATE</th>
+                      <th>STORE</th>
+                      <th>SALES#</th>
+                      <th>TYPE</th>
+                      <th>USER</th>
+                      <th>DETAILS</th>
+                      <th>AMOUNT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${salesData.length ? salesData.map(row => `
+                      <tr>
+                        <td>${row.date}</td>
+                        <td>${row.store}</td>
+                        <td>${row.sales}</td>
+                        <td>${row.type}</td>
+                        <td>${row.user}</td>
+                        <td>${row.details}</td>
+                        <td>${row.amount}</td>
+                      </tr>
+                    `).join('') : `
+                      <tr><td colspan="7" class="text-center">No data available in table</td></tr>
+                    `}
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <small>Showing 0 to 0 of 0 entries</small>
+                <nav>
+                  <ul class="pagination mb-0">
+                    <li class="page-item disabled"><a class="page-link">«</a></li>
+                    <li class="page-item active"><a class="page-link">1</a></li>
+                    <li class="page-item"><a class="page-link">2</a></li>
+                    <li class="page-item"><a class="page-link">3</a></li>
+                    <li class="page-item"><a class="page-link">4</a></li>
+                    <li class="page-item"><a class="page-link">5</a></li>
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    <li class="page-item"><a class="page-link">10</a></li>
+                    <li class="page-item"><a class="page-link">»</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  `;
+}
+
+function showPersonalSalesReportModal(userId) {
+  const user = getUserMockById(userId) || { id: userId };
+  let container = document.getElementById('ggvStoreModalContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ggvStoreModalContainer';
+    document.body.appendChild(container);
+  }
+
+  container.querySelector('#personalSalesReportModal')?.remove();
+  container.insertAdjacentHTML('beforeend', buildPersonalSalesReportModalHtml(user));
+
+  const modalEl = container.querySelector('#personalSalesReportModal');
+  let bsModal;
+
+  function cleanup() {
+    try { if (bsModal) bsModal.dispose(); } catch (e) {}
+    container.querySelector('#personalSalesReportModal')?.remove();
+    document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+    document.body.classList.remove('modal-open');
+  }
+
+  if (typeof bootstrap !== 'undefined' && modalEl) {
+    bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+    bsModal.show();
+  } else if (modalEl) {
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    if (!document.querySelector('.modal-backdrop')) {
+      const bd = document.createElement('div');
+      bd.className = 'modal-backdrop fade show';
+      document.body.appendChild(bd);
+      document.body.classList.add('modal-open');
+    }
+    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+      btn.addEventListener('click', cleanup, { once: true });
+    });
+  }
+}
+
+(function patchPersonalSalesReportHandler() {
+  if (window.__ggv_personal_sales_report_patched) return;
+  window.__ggv_personal_sales_report_patched = true;
+
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.btn-personal-sales-report');
+    if (!btn) return;
+
+    ev.preventDefault();
+    const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+    if (!uid) return;
+
+    showPersonalSalesReportModal(uid); // This must be defined
+  }, false);
+})();
+
+/* Group Sales Report Modal */
+function buildGroupSalesReportModalHtml(user) {
+  const u = user || {};
+
+  // Personal Sales Data
+  const personalSalesData = [
+    { date: '2025-09-01 09:24:13', store: 'MS - Zone 1 Poblacion Digos City - Doreen Del Rosa[BUSINESS HUB]', sales: 'PS2964', type: 'PERSONAL', user: 'Gabrillo, Rubilyn[Rubz03]', details: 'SILVER*3', amount: '10,500.00' },
+    { date: '2025-09-01 11:08:25', store: 'MS - Brgy 37, San Jose, Tacloban City - AILEEN MOD[BUSINESS HUB]', sales: 'PS2965', type: 'PERSONAL', user: 'ADSUARA, ROMELYN[HERA01]', details: 'SILVER*2<br>GOLD*1', amount: '17,500.00' },
+    { date: '2025-09-01 11:39:14', store: 'Depot - Davao Del Norte [MEGA CENTER]', sales: 'PS2966', type: 'PERSONAL', user: 'Gumia, Maria Razul[razul01]', details: 'SGGUARD*2', amount: '4,560.00' },
+    { date: '2025-09-01 12:39:08', store: 'Depot - Davao Del Norte [MEGA CENTER]', sales: 'PS2967', type: 'PERSONAL', user: 'ISIDRO, NELSON[Nelson01]', details: 'GOLD*1', amount: '10,500.00' },
+    { date: '2025-09-01 13:28:36', store: 'Depot - Davao Del Norte [MEGA CENTER]', sales: 'PS2968', type: 'PERSONAL', user: 'Peñaloga, Angiely[angiely01]', details: 'SGGUARD*4', amount: '9,120.00' }
+  ];
+
+  // Store Sales Data
+  const storeSalesData = [
+    { date: '2025-09-01 16:47:51', store: 'GRINDERPH[Country Hub]', sales: 'PS2983', type: 'PERSONAL', user: 'Lecias, Irene[prettywoman]', details: 'CDSILVER*10<br>CDGOLD*10', amount: '0.00' },
+    { date: '2025-09-01 16:50:46', store: 'GRINDERPH[Country Hub]', sales: 'PS2984', type: 'PERSONAL', user: 'Quimson, Romar[Romar01]', details: 'CDGOLD*4<br>FSPLATINUM*2', amount: '0.00' },
+    { date: '2025-09-03 21:14:23', store: 'GRINDERPH[Country Hub]', sales: 'PS3082', type: 'PERSONAL', user: 'VARIACION, MONCHITO[monvariacion01]', details: 'FSGOLD*70<br>FSPLATINUM*5', amount: '0.00' },
+    { date: '2025-09-05 17:54:09', store: 'GRINDERPH[Country Hub]', sales: 'PS3138', type: 'PERSONAL', user: 'Bandilla, Edmon[marband]', details: 'FSPLATINUM*7', amount: '0.00' }
+  ];
+
+  return `
+<div class="modal fade" id="groupSalesReportModal" tabindex="-1" aria-labelledby="groupSalesReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="groupSalesReportModalLabel">Group Sales Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+
+          <!-- Top Cards Row -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <div class="bg-info text-white p-3 rounded text-center">
+                <small>Configure Report</small>
+                <h5><strong>September 2025</strong></h5>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="bg-info text-white p-3 rounded text-center">
+                <small>Account</small>
+                <h5><strong>${u.name || 'GRINDERS, GUILD'}[${u.branch || 'GGUILD01'}]</strong></h5>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="bg-info text-white p-3 rounded text-center">
+                <small>Total Sales</small>
+                <h5><strong>2,187,060.00</strong></h5>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="bg-info text-white p-3 rounded text-center">
+                <small>Total Store Sales</small>
+                <h5><strong>0.00 (0.00 POINTS)</strong></h5>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal Sales Row -->
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <div class="bg-info text-white p-3 rounded text-center">
+                <small>Total Personal Sales</small>
+                <h5><strong>2,187,060.00 (66,750.00 POINTS)</strong></h5>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal Sales Table -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Personal Sales</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>DATE</th>
+                      <th>STORE</th>
+                      <th>SALES#</th>
+                      <th>TYPE</th>
+                      <th>USER</th>
+                      <th>DETAILS</th>
+                      <th>AMOUNT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${personalSalesData.map(row => `
+                      <tr>
+                        <td>${row.date}</td>
+                        <td>${row.store}</td>
+                        <td>${row.sales}</td>
+                        <td>${row.type}</td>
+                        <td>${row.user}</td>
+                        <td>${row.details}</td>
+                        <td>${row.amount}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Store Sales Table -->
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Store Sales</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>DATE</th>
+                      <th>STORE</th>
+                      <th>SALES#</th>
+                      <th>TYPE</th>
+                      <th>USER</th>
+                      <th>DETAILS</th>
+                      <th>AMOUNT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${storeSalesData.map(row => `
+                      <tr>
+                        <td>${row.date}</td>
+                        <td>${row.store}</td>
+                        <td>${row.sales}</td>
+                        <td>${row.type}</td>
+                        <td>${row.user}</td>
+                        <td>${row.details}</td>
+                        <td>${row.amount}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  `;
+}
+
+function showGroupSalesReportModal(userId) {
+  const user = getUserMockById(userId) || { id: userId };
+  let container = document.getElementById('ggvStoreModalContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ggvStoreModalContainer';
+    document.body.appendChild(container);
+  }
+
+  container.querySelector('#groupSalesReportModal')?.remove();
+  container.insertAdjacentHTML('beforeend', buildGroupSalesReportModalHtml(user));
+
+  const modalEl = container.querySelector('#groupSalesReportModal');
+  let bsModal;
+  function cleanup() {
+    try { if (bsModal) bsModal.dispose(); } catch (e) {}
+    container.querySelector('#groupSalesReportModal')?.remove();
+    document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+    document.body.classList.remove('modal-open');
+  }
+
+  if (typeof bootstrap !== 'undefined' && modalEl) {
+    bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+    bsModal.show();
+  } else if (modalEl) {
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    if (!document.querySelector('.modal-backdrop')) {
+      const bd = document.createElement('div');
+      bd.className = 'modal-backdrop fade show';
+      document.body.appendChild(bd);
+      document.body.classList.add('modal-open');
+    }
+    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+      btn.addEventListener('click', cleanup, { once: true });
+    });
+  }
+}
+
+(function patchGroupSalesReportHandler() {
+  if (window.__ggv_group_sales_report_patched) return;
+  window.__ggv_group_sales_report_patched = true;
+
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.btn-group-sales-report');
+    if (!btn) return;
+    ev.preventDefault();
+    const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+    if (!uid) return;
+    showGroupSalesReportModal(uid);
+  }, false);
+})();
+
+/* Delete Withdrawal PIN Modal */
+function buildDeleteWithdrawalPinModalHtml(userId) {
+  return `
+<div class="modal fade" id="deleteWithdrawalPinModal" tabindex="-1" aria-labelledby="deleteWithdrawalPinModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <div class="mb-3">
+          <i class="fas fa-info-circle fa-3x text-primary"></i>
+        </div>
+        <h4 class="mb-2">Remove PIN?</h4>
+        <p>Are you sure you want to remove this account's PIN? User will be able to set a new Withdrawal PIN after this transaction is completed.</p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmRemovePinBtn">Remove PIN!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  `;
+}
+
+function showDeleteWithdrawalPinModal(userId) {
+  let container = document.getElementById('ggvStoreModalContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ggvStoreModalContainer';
+    document.body.appendChild(container);
+  }
+
+  container.querySelector('#deleteWithdrawalPinModal')?.remove();
+  container.insertAdjacentHTML('beforeend', buildDeleteWithdrawalPinModalHtml(userId));
+
+  const modalEl = container.querySelector('#deleteWithdrawalPinModal');
+  let bsModal;
+
+  function cleanup() {
+    try { if (bsModal) bsModal.dispose(); } catch (e) {}
+    container.querySelector('#deleteWithdrawalPinModal')?.remove();
+    document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+    document.body.classList.remove('modal-open');
+  }
+
+  if (typeof bootstrap !== 'undefined' && modalEl) {
+    bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+    bsModal.show();
+  } else if (modalEl) {
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    if (!document.querySelector('.modal-backdrop')) {
+      const bd = document.createElement('div');
+      bd.className = 'modal-backdrop fade show';
+      document.body.appendChild(bd);
+      document.body.classList.add('modal-open');
+    }
+    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+      btn.addEventListener('click', cleanup, { once: true });
+    });
+  }
+
+  const confirmBtn = container.querySelector('#confirmRemovePinBtn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      alert(`PIN removed for user ${userId} (mock).`);
+      if (bsModal) bsModal.hide();
+      else cleanup();
+    }, { once: true });
+  }
+}
+
+(function patchDeleteWithdrawalPinHandler() {
+  if (window.__ggv_delete_pin_patched) return;
+  window.__ggv_delete_pin_patched = true;
+
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.btn-delete-pin');
+    if (!btn) return;
+
+    ev.preventDefault();
+    const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+    if (!uid) return;
+
+    showDeleteWithdrawalPinModal(uid);
+  }, false);
+})();
+
+/* Resend Welcome Message Modal */
+function buildResendWelcomeMessageModalHtml(contact, fullname) {
+  return `
+<div class="modal fade" id="resendWelcomeMessageModal" tabindex="-1" aria-labelledby="resendWelcomeMessageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <div class="mb-3">
+          <i class="fas fa-info-circle fa-3x text-primary"></i>
+        </div>
+        <h4 class="mb-2">Send SMS?</h4>
+        <p>This will send SMS to the registered number of ${fullname || 'the account'} [${contact || 'No contact'}].</p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-info text-white" id="confirmResendWelcomeBtn">Send!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  `;
+}
+
+function showResendWelcomeMessageModal(userId) {
+  const user = getUserMockById(userId) || {};
+  const contact = user.contact || '';
+  const fullname = user.name || '';
+
+  let container = document.getElementById('ggvStoreModalContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ggvStoreModalContainer';
+    document.body.appendChild(container);
+  }
+
+  container.querySelector('#resendWelcomeMessageModal')?.remove();
+  container.insertAdjacentHTML('beforeend', buildResendWelcomeMessageModalHtml(contact, fullname));
+
+  const modalEl = container.querySelector('#resendWelcomeMessageModal');
+  let bsModal;
+
+  function cleanup() {
+    try { if (bsModal) bsModal.dispose(); } catch (e) {}
+    container.querySelector('#resendWelcomeMessageModal')?.remove();
+    document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+    document.body.classList.remove('modal-open');
+  }
+
+  if (typeof bootstrap !== 'undefined' && modalEl) {
+    bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+    bsModal.show();
+  } else if (modalEl) {
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    if (!document.querySelector('.modal-backdrop')) {
+      const bd = document.createElement('div');
+      bd.className = 'modal-backdrop fade show';
+      document.body.appendChild(bd);
+      document.body.classList.add('modal-open');
+    }
+    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+      btn.addEventListener('click', cleanup, { once: true });
+    });
+  }
+
+  const confirmBtn = container.querySelector('#confirmResendWelcomeBtn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      alert(`Welcome message sent to ${contact} (mock).`);
+      if (bsModal) bsModal.hide();
+      else cleanup();
+    }, { once: true });
+  }
+}
+
+(function patchResendWelcomeMessageHandler() {
+  if (window.__ggv_resend_welcome_patched) return;
+  window.__ggv_resend_welcome_patched = true;
+
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.btn-resend-welcome');
+    if (!btn) return;
+
+    ev.preventDefault();
+    const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+    if (!uid) return;
+
+    showResendWelcomeMessageModal(uid);
+  }, false);
+})();
+
+/* Send Credentials Modal */
+function buildSendCredentialsModalHtml(contact, fullname) {
+  return `
+<div class="modal fade" id="sendCredentialsModal" tabindex="-1" aria-labelledby="sendCredentialsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <div class="mb-3">
+          <i class="fas fa-info-circle fa-3x text-primary"></i>
+        </div>
+        <h4 class="mb-2">Send SMS?</h4>
+        <p>This will send SMS to the registered number of ${fullname || 'the account'} [${contact || 'No contact'}].</p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-info text-white" id="confirmSendCredentialsBtn">Send!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  `;
+}
+
+function showSendCredentialsModal(userId) {
+  const user = getUserMockById(userId) || {};
+  const contact = user.contact || '';
+  const fullname = user.name || '';
+
+  let container = document.getElementById('ggvStoreModalContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ggvStoreModalContainer';
+    document.body.appendChild(container);
+  }
+
+  container.querySelector('#sendCredentialsModal')?.remove();
+  container.insertAdjacentHTML('beforeend', buildSendCredentialsModalHtml(contact, fullname));
+
+  const modalEl = container.querySelector('#sendCredentialsModal');
+  let bsModal;
+
+  function cleanup() {
+    try { if (bsModal) bsModal.dispose(); } catch (e) {}
+    container.querySelector('#sendCredentialsModal')?.remove();
+    document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+    document.body.classList.remove('modal-open');
+  }
+
+  if (typeof bootstrap !== 'undefined' && modalEl) {
+    bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+    bsModal.show();
+  } else if (modalEl) {
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    if (!document.querySelector('.modal-backdrop')) {
+      const bd = document.createElement('div');
+      bd.className = 'modal-backdrop fade show';
+      document.body.appendChild(bd);
+      document.body.classList.add('modal-open');
+    }
+    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+      btn.addEventListener('click', cleanup, { once: true });
+    });
+  }
+
+  const confirmBtn = container.querySelector('#confirmSendCredentialsBtn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      alert(`Credentials sent to ${contact} (mock).`);
+      if (bsModal) bsModal.hide();
+      else cleanup();
+    }, { once: true });
+  }
+}
+
+(function patchSendCredentialsHandler() {
+  if (window.__ggv_send_credentials_patched) return;
+  window.__ggv_send_credentials_patched = true;
+
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.btn-send-credentials');
+    if (!btn) return;
+
+    ev.preventDefault();
+    const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+    if (!uid) return;
+
+    showSendCredentialsModal(uid);
+  }, false);
+})();
+
+/* Update Account Modal */
+function buildUpdateAccountModalHtml(userId) {
+  return `
+<div class="modal fade" id="updateAccountModal" tabindex="-1" aria-labelledby="updateAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <div class="mb-3">
+          <i class="fas fa-info-circle fa-3x text-primary"></i>
+        </div>
+        <h4 class="mb-2">Update Account?</h4>
+        <p>Are you sure you want to update accounts?</p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-warning text-white" id="confirmUpdateAccountBtn">Yes Set Update Account!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  `;
+}
+
+function showUpdateAccountModal(userId) {
+  let container = document.getElementById('ggvStoreModalContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ggvStoreModalContainer';
+    document.body.appendChild(container);
+  }
+
+  container.querySelector('#updateAccountModal')?.remove();
+  container.insertAdjacentHTML('beforeend', buildUpdateAccountModalHtml(userId));
+
+  const modalEl = container.querySelector('#updateAccountModal');
+  let bsModal;
+
+  function cleanup() {
+    try { if (bsModal) bsModal.dispose(); } catch (e) {}
+    container.querySelector('#updateAccountModal')?.remove();
+    document.querySelectorAll('.modal-backdrop').forEach(n => n.remove());
+    document.body.classList.remove('modal-open');
+  }
+
+  if (typeof bootstrap !== 'undefined' && modalEl) {
+    bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+    bsModal.show();
+  } else if (modalEl) {
+    modalEl.classList.add('show');
+    modalEl.style.display = 'block';
+    if (!document.querySelector('.modal-backdrop')) {
+      const bd = document.createElement('div');
+      bd.className = 'modal-backdrop fade show';
+      document.body.appendChild(bd);
+      document.body.classList.add('modal-open');
+    }
+    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+      btn.addEventListener('click', cleanup, { once: true });
+    });
+  }
+
+  const confirmBtn = container.querySelector('#confirmUpdateAccountBtn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      alert(`Account updated for user ${userId} (mock).`);
+      if (bsModal) bsModal.hide();
+      else cleanup();
+    }, { once: true });
+  }
+}
+
+(function patchUpdateAccountHandler() {
+  if (window.__ggv_update_account_patched) return;
+  window.__ggv_update_account_patched = true;
+
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.btn-update-account');
+    if (!btn) return;
+
+    ev.preventDefault();
+    const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+    if (!uid) return;
+
+    showUpdateAccountModal(uid);
+  }, false);
+})();
+
 
 function showUserViewModal(userId) {
     const user = getUserMockById(userId) || { id: userId };
@@ -2023,6 +3622,186 @@ function showUserViewModal(userId) {
         }, { once: true });
     }
 }
+
+function buildMatchingReportModalHtml(user) {
+    const u = user || {};
+    const matchingData = [
+        { ctrn: '105564', date: '2025-09-01 08:40:46', remarks: 'Hementera, Jonah[JonaHhementera01]<br>TYPE:GOLD<br>SKU:GOLD<br>AMOUNT:10,500.00, BV:30.00', dba: '30.00', dbb: '0.00', ea: '68800.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105614', date: '2025-09-01 09:42:10', remarks: 'Tampipi, Arcel[Arcel02]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00', dba: '10.00', dbb: '0.00', ea: '68810.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105665', date: '2025-09-01 09:45:30', remarks: 'Orbita, Mary Christine[Marychristine]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00', dba: '10.00', dbb: '0.00', ea: '68820.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105717', date: '2025-09-01 09:49:25', remarks: 'Orbita, Ginaline[Ginaline01]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00', dba: '10.00', dbb: '0.00', ea: '68830.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' },
+        { ctrn: '105748', date: '2025-09-01 10:05:45', remarks: 'Cornia, Precious Grace[Preciousgrace02]<br>TYPE:GOLD<br>SKU:GOLD<br>AMOUNT:10,500.00, BV:30.00', dba: '30.00', dbb: '0.00', ea: '68860.00', ebb: '0.00', pair: '0.00', paid: '0.00', amt: '0.00', max: '100', fo: '0', status: '' }
+    ];
+
+    return `
+    <div class="modal fade" id="matchingReportModal" tabindex="-1" aria-labelledby="matchingReportModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="matchingReportModalLabel">Matching Report</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row bg-primary text-white p-3 rounded mb-3">
+                <div class="col-md-4"><strong>Configure Report</strong></div>
+                <div class="col-md-4 text-center"><strong>September 2025</strong></div>
+                <div class="col-md-4 text-end"><strong>Account: GRINDERS, GUILD[GGUILD01]</strong></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="bg-primary text-white p-3 rounded">
+                    <h5>Total Matching</h5>
+                    <p class="h3">0.00(0)</p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="bg-primary text-white p-3 rounded">
+                    <h5>Total Flushout</h5>
+                    <p class="h3">0.00</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Matching Details</h5>
+                  <div class="d-flex justify-content-between mb-3">
+                    <div>
+                      <button class="btn btn-sm btn-outline-secondary">Copy</button>
+                      <button class="btn btn-sm btn-outline-secondary">CSV</button>
+                      <button class="btn btn-sm btn-outline-secondary">Excel</button>
+                      <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                      <button class="btn btn-sm btn-outline-secondary">Print</button>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <select class="form-select form-select-sm me-2" style="width: 150px;">
+                        <option value="5">5 entries per page</option>
+                      </select>
+                      <input type="search" class="form-control form-control-sm" placeholder="Search:">
+                    </div>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>CTR#</th>
+                          <th>DATE</th>
+                          <th>REMARKS</th>
+                          <th>DBA</th>
+                          <th>DBB</th>
+                          <th>EA</th>
+                          <th>EBB</th>
+                          <th>PAIR</th>
+                          <th>PAID</th>
+                          <th>AMT</th>
+                          <th>MAX</th>
+                          <th>FO</th>
+                          <th>STATUS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${matchingData.map(row => `
+                          <tr>
+                            <td>${row.ctrn}</td>
+                            <td>${row.date}</td>
+                            <td>${row.remarks}</td>
+                            <td>${row.dba}</td>
+                            <td>${row.dbb}</td>
+                            <td>${row.ea}</td>
+                            <td>${row.ebb}</td>
+                            <td>${row.pair}</td>
+                            <td>${row.paid}</td>
+                            <td>${row.amt}</td>
+                            <td>${row.max}</td>
+                            <td>${row.fo}</td>
+                            <td>${row.status}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small>Showing 1 to 5 of 252 entries</small>
+                    <nav>
+                      <ul class="pagination">
+                        <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        <li class="page-item"><a class="page-link" href="#">51</a></li>
+                        <li class="page-item"><a class="page-link" href="#">»</a></li>
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+}
+
+function showMatchingReportModal(userId) {
+    const user = getUserMockById(userId) || { id: userId };
+    let container = document.getElementById('ggvStoreModalContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ggvStoreModalContainer';
+        document.body.appendChild(container);
+    }
+
+    container.querySelector('#matchingReportModal')?.remove();
+    container.insertAdjacentHTML('beforeend', buildMatchingReportModalHtml(user));
+
+    const modalEl = container.querySelector('#matchingReportModal');
+    let bsModal;
+    function cleanup() {
+        try { if (bsModal) bsModal.dispose(); } catch (e) {}
+        container.querySelector('#matchingReportModal')?.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(n=>n.remove());
+        document.body.classList.remove('modal-open');
+    }
+
+    if (typeof bootstrap !== 'undefined' && modalEl) {
+        bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+        modalEl.addEventListener('hidden.bs.modal', cleanup, { once: true });
+        bsModal.show();
+    } else if (modalEl) {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        if (!document.querySelector('.modal-backdrop')) {
+            const bd = document.createElement('div');
+            bd.className = 'modal-backdrop fade show';
+            document.body.appendChild(bd);
+            document.body.classList.add('modal-open');
+        }
+        modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', cleanup, { once: true });
+        });
+    }
+}
+
+(function patchMatchingReportHandler() {
+    if (window.__ggv_matching_report_patched) return;
+    window.__ggv_matching_report_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-matching-report');
+        if (!btn) return;
+        ev.preventDefault();
+        const uid = btn.dataset.userId || btn.getAttribute('data-user-id');
+        if (!uid) return;
+        showMatchingReportModal(uid);
+    }, false);
+})();
 
 
 function getAdminAccountsCdContent() {
@@ -2106,9 +3885,6 @@ function getAdminAccountsCdContent() {
                 <td>2,071.80</td>
                 <td>20.72</td>
                 <td>
-                <i class="bi bi-eye text-primary me-2"></i>
-                <i class="bi bi-pencil text-success me-2"></i>
-                <i class="bi bi-share text-info"></i>
                 </td>
             </tr>
             `).join('')}
@@ -2131,7 +3907,6 @@ function getAdminAccountsCdContent() {
     </div>
     `;
 }
-
 
 /* Promos */
 function getAdminPromo2fastContent() {
@@ -5165,8 +6940,3 @@ function getAdminLogsUserLoginContent() {
       </div>
   `;
 }
-
-
-
-
-
