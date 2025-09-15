@@ -5170,6 +5170,78 @@ function buildItemDetailsModalHtml(item) {
   `;
 }
 
+function confirmAvailabilityChange(target, feature, newState) {
+  const modalHTML = `
+    <div id="availabilityConfirmModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="icon-container ${newState === 'on' ? 'success' : 'danger'}">
+          <i class="fas ${newState === 'on' ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+        </div>
+        <h4 class="modal-title">Confirm Change</h4>
+        <p class="modal-message">
+          Are you sure you want to <b>${newState.toUpperCase()}</b> <span style="color:#007bff;">${feature}</span> availability?
+        </p>
+        <div class="button-group">
+          <button class="btn-continue" onclick="applyAvailabilityChange('${feature}', '${newState}')">Yes, Continue</button>
+          <button class="btn-cancel" onclick="closeAvailabilityConfirmModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("availabilityConfirmModal")?.remove();
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  setTimeout(() => {
+    document.querySelector("#availabilityConfirmModal .modal-box").classList.add("show");
+  }, 10);
+
+  // store clicked button reference globally
+  window.__availabilityTarget = target;
+}
+
+function closeAvailabilityConfirmModal() {
+  const modal = document.getElementById("availabilityConfirmModal");
+  if (modal) modal.remove();
+}
+
+function applyAvailabilityChange(feature, newState) {
+  const btnGroup = window.__availabilityTarget.closest(".btn-group");
+  if (!btnGroup) return;
+
+  if (newState === "on") {
+    btnGroup.innerHTML = `
+      <button class="btn btn-success btn-sm">${feature} ON</button>
+      <button class="btn btn-dark btn-sm availability-toggle" data-feature="${feature}" data-state="on">TURN OFF</button>
+    `;
+  } else {
+    btnGroup.innerHTML = `
+      <button class="btn btn-danger btn-sm">${feature} OFF</button>
+      <button class="btn btn-dark btn-sm availability-toggle" data-feature="${feature}" data-state="off">TURN ON</button>
+    `;
+  }
+
+  closeAvailabilityConfirmModal();
+}
+
+function closeAvailabilityConfirmModal() {
+  const modal = document.getElementById("availabilityConfirmModal");
+  if (modal) modal.remove();
+}
+
+document.addEventListener("click", function (ev) {
+  const toggleBtn = ev.target.closest(".availability-toggle");
+  if (!toggleBtn) return;
+
+  ev.preventDefault();
+
+  const feature = toggleBtn.dataset.feature || toggleBtn.textContent.replace("TURN", "").trim();
+  const currentState = toggleBtn.dataset.state || (toggleBtn.textContent.includes("OFF") ? "on" : "off");
+  const newState = currentState === "on" ? "off" : "on";
+
+  confirmAvailabilityChange(toggleBtn, feature, newState);
+});
+
 (function patchViewItemDetailsHandler() {
     // Prevent this patcher from running more than once
     if (window.__ggv_item_details_modal_patched) return;
@@ -6093,7 +6165,7 @@ function getAdminActivationTrackerContent() {
   return `
   <div class="container-fluid bg-white shadow-sm p-4 rounded" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
     <!-- 🔷 Top Metrics Section -->
-    <div class="container-fluid bg-white shadow-sm p-4 rounded">
+    <div class="container-fluid bg-white p-4 rounded">
         <div class="row g-3">
             <!-- Row 1 -->
             <div class="col-md-4 col-12">
@@ -7666,26 +7738,91 @@ function getAdminSettingsMaintenanceContent() {
     { id: 20, title: "Bypass Reg Api Key [27]", status: "—", isActive: true }
   ];
 
+  // ✅ Keep a single instance of the modal
+  let settingNotificationModalInstance = null;
+
+  // ✅ Create modal HTML and initialize the JS instance once
+  function ensureNotificationModal() {
+    if (!document.getElementById("settingNotificationModal")) {
+      const modalHTML = `
+        <div class="modal fade" id="settingNotificationModal" tabindex="-1">
+          <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h6 class="modal-title">Setting Updated</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <p id="settingNotificationText"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML("beforeend", modalHTML);
+      
+      // ✅ Initialize the modal instance only after creating its HTML
+      settingNotificationModalInstance = new bootstrap.Modal(
+        document.getElementById("settingNotificationModal")
+      );
+    }
+  }
+
+  // Show notification modal
+function showNotification(title, action) {
+  ensureNotificationModal(); // Make sure HTML and JS instance exist
+  document.getElementById("settingNotificationText").innerHTML = 
+    `<strong>${title}</strong> has been <span class="text-primary">${action}</span>.`;
+
+  // ✅ Reuse the single modal instance
+  settingNotificationModalInstance.show();
+}
+
+
   const getSystemToggleCard = ({ title, id, status, isActive }) => `
     <div class="col">
       <div class="card bg-white shadow-sm rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
         <h6 class="fw-bold mb-2">${title}</h6>
-        <div class="d-flex gap-2 mb-2">
-          <button class="btn btn-sm fw-bold px-3 ${isActive ? 'btn-success' : 'btn-outline-success'}">ON</button>
-          <button class="btn btn-sm fw-bold px-3 ${!isActive ? 'btn-secondary' : 'btn-outline-secondary'}">TURN OFF</button>
+        
+        <div class="form-check form-switch mb-2">
+          <input 
+            class="form-check-input setting-switch" 
+            type="checkbox" 
+            role="switch" 
+            id="settingSwitch${id}" 
+            data-setting-id="${id}"
+            data-setting-title="${title}"
+            ${isActive ? "checked" : ""}>
+          <label class="form-check-label small text-muted" for="settingSwitch${id}">
+            ${isActive ? "ON" : "OFF"}
+          </label>
         </div>
+
         <div class="text-muted text-uppercase small">${status}</div>
       </div>
     </div>
   `;
 
-  const getSystemToggleGrid = (cards) => `
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        ${cards.map(getSystemToggleCard).join("")}
-      </div>
-  `;
+  // Return grid and attach events
+  setTimeout(() => {
+    document.querySelectorAll(".setting-switch").forEach(switchEl => {
+      switchEl.addEventListener("change", function () {
+        const title = this.dataset.settingTitle;
+        const action = this.checked ? "Turned ON" : "Turned OFF";
+        showNotification(title, action);
 
-  return getSystemToggleGrid(settings);
+        // Update ON/OFF label
+        const label = this.nextElementSibling;
+        if (label) label.textContent = this.checked ? "ON" : "OFF";
+      });
+    });
+  }, 100);
+
+  return `
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      ${settings.map(getSystemToggleCard).join("")}
+    </div>
+  `;
 }
 
 
