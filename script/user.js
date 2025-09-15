@@ -160,11 +160,18 @@ function loadUserPage(pageName) {
     return;
   }
 
+  if (pageName === 'switch-account') {
+       userPageContainer.innerHTML = getSwitchAccountContent();
+       console.log(`Loaded Switch Account page`);
+       return;
+    }
+
   // Create page title from page name
   const title = pageName
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+    
 
   // Update user page content with placeholder
   userPageContainer.innerHTML = `
@@ -636,7 +643,6 @@ function getCodeBankContent() {
     `;
 }
 
-// eWallet sub-module functions
 function getWithdrawalPinContent() {
   return `
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -669,6 +675,9 @@ function getWithdrawalPinContent() {
         </div>
     `;
 }
+
+
+// Organization list
 
 function getSwitchAccountContent() {
   return `
@@ -714,9 +723,14 @@ function getSwitchAccountContent() {
                   <td>₱0.00</td>
                   <td>₱36.00</td>
                   <td class="text-center">
-                    <button class="btn btn-sm btn-primary">
-                      <i class="fas fa-sign-in-alt me-1"></i>Switch
-                    </button>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-sm btn-primary" onclick="openSwitchAccountModal()" title="Switch Account">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                            <i class="fas fa-sitemap"></i>
+                        </button>
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -733,9 +747,14 @@ function getSwitchAccountContent() {
                   <td>₱0.00</td>
                   <td>₱0.00</td>
                   <td class="text-center">
-                    <button class="btn btn-sm btn-primary">
-                      <i class="fas fa-sign-in-alt me-1"></i>Switch
-                    </button>
+                     <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-sm btn-primary" onclick="openSwitchAccountModal()" title="Switch Account">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                            <i class="fas fa-sitemap"></i>
+                        </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -842,147 +861,278 @@ function getGenealogyTreeContent() {
 
 function getDirectSponsorsContent() {
   return `
-    <div class="container-fluid px-3 px-md-4 py-4">
-      <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">
-          <i class="fas fa-user-friends me-2"></i>Direct Sponsored
-        </h2>
-        <button class="btn btn-outline-primary btn-sm">
-          #JNDLONSOD01 #2
-        </button>
-      </div>
-
-      <!-- Table -->
-      <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>DATE</th>
-                  <th>USERNAME</th>
-                  <th>NAME</th>
-                  <th>TYPE</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>2025-06-24 19:56:12</td>
-                  <td>jndalonsod</td>
-                  <td>Dlanosod, Jesher Charles <span class="text-muted">[jndalonsod]</span></td>
-                  <td><span class="badge bg-secondary">SERVER</span></td>
-                </tr>
-                <tr>
-                  <td>2025-07-11 18:50:37</td>
-                  <td>ITadmin</td>
-                  <td>Admin, IT <span class="text-muted">[ITadmin]</span></td>
-                  <td><span class="badge bg-secondary">SERVER</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0 me-3"><i class="fas fa-user-friends me-2"></i>Direct Sponsors</h4>
+                <button class="btn btn-sm btn-primary" onclick="openSwitchAccountModal()">
+                    <i class="fas fa-exchange-alt me-1"></i>Change Account
+                </button>
+            </div>
         </div>
-      </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Show</span>
+                    <select class="form-select form-select-sm me-2" style="width: 80px;">
+                        <option>10</option>
+                        <option>25</option>
+                        <option>50</option>
+                    </select>
+                    <span class="me-3">entries</span>
+                </div>
+                <div class="input-group" style="width: 200px;">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>DATE</th>
+                                <th>USERNAME</th>
+                                <th>NAME</th>
+                                <th>TYPE</th>
+                                <th class="text-center">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-06-24 19:56:12</td>
+                                <td>jndalonsod</td>
+                                <td>Dlanosod, Jesher Charles <span class="text-muted">[jndalonsod]</span></td>
+                                <td><span class="badge bg-secondary">SERVER</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                                        <i class="fas fa-sitemap"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-11 18:50:37</td>
+                                <td>ITadmin</td>
+                                <td>Admin, IT <span class="text-muted">[ITadmin]</span></td>
+                                <td><span class="badge bg-secondary">SERVER</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                                        <i class="fas fa-sitemap"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing 1 to 2 of 2 entries</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
   `;
 }
 
 function getBinaryListContent() {
   return `
-    <div class="container-fluid px-3 px-md-4 py-4">
-      <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">
-          <i class="fas fa-list-ol me-2"></i>Binary List
-        </h2>
-        <button class="btn btn-outline-primary btn-sm">
-          JMDLONSOD01
-        </button>
-      </div>
-
-      <!-- Controls -->
-      <div class="row align-items-center mb-3">
-
-      <!-- Table -->
-      <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>SQ#</th>
-                  <th>DATE</th>
-                  <th>USERNAME</th>
-                  <th>NAME</th>
-                  <th>TYPE</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>2025-03-04 19:15:21</td>
-                  <td>JMDLONSOD01</td>
-                  <td>Admin, IT</td>
-                  <td>
-                    <span class="badge bg-success">PLATINUM</span>
-                    <span class="badge bg-success">ACTIVE</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>2025-06-24 19:56:12</td>
-                  <td>jmdionsod</td>
-                  <td>
-                    Dlonsod, Jesher Charles<br>
-                    <span class="badge bg-info">PLACEMENT Admin, IT</span>
-                    <span class="badge bg-info">BACKEND/DEPT LEFT</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-success">SILVER</span>
-                    <span class="badge bg-success">ACTIVE</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>2025-07-11 18:50:37</td>
-                  <td>ITAdmin</td>
-                  <td>
-                    Admin, IT<br>
-                    <span class="badge bg-info">PLACEMENT Admin, IT</span>
-                    <span class="badge bg-info">BACKEND/DEPT RIGHT</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-success">SILVER</span>
-                    <span class="badge bg-success">ACTIVE</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Footer -->
-          <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top">
-            <small class="text-muted">Showing 1 to 3 of 3 entries</small>
-            <nav>
-              <ul class="pagination pagination-sm mb-0">
-                <li class="page-item disabled">
-                  #<i class="fas fa-chevron-left"></i></a>
-                </li>
-                <li class="page-item active">
-                  #1</a>
-                </li>
-                <li class="page-item disabled">
-                  #<i class="fas fa-chevron-right"></i></a>
-                </li>
-              </ul>
-            </nav>
-          </div>
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+             <div class="d-flex align-items-center">
+                <h4 class="mb-0 me-3"><i class="fas fa-list-ol me-2"></i>Binary List</h4>
+                 <button class="btn btn-sm btn-primary" onclick="openSwitchAccountModal()">
+                    <i class="fas fa-exchange-alt me-1"></i>Change Account
+                </button>
+            </div>
         </div>
-      </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Show</span>
+                    <select class="form-select form-select-sm me-2" style="width: 80px;">
+                        <option>10</option>
+                        <option>25</option>
+                        <option>50</option>
+                    </select>
+                    <span class="me-3">entries</span>
+                </div>
+                <div class="input-group" style="width: 200px;">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>SQ#</th>
+                                <th>DATE</th>
+                                <th>USERNAME</th>
+                                <th>NAME</th>
+                                <th>TYPE</th>
+                                <th class="text-center">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>2025-03-04 19:15:21</td>
+                                <td>JMDLONSOD01</td>
+                                <td>Admin, IT</td>
+                                <td>
+                                    <span class="badge bg-success">PLATINUM</span>
+                                    <span class="badge bg-success">ACTIVE</span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                                        <i class="fas fa-sitemap"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>2025-06-24 19:56:12</td>
+                                <td>jmdionsod</td>
+                                <td>
+                                    Dlonsod, Jesher Charles<br>
+                                    <span class="badge bg-info">PLACEMENT Admin, IT</span>
+                                    <span class="badge bg-info">BACKEND/DEPT LEFT</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">SILVER</span>
+                                    <span class="badge bg-success">ACTIVE</span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                                        <i class="fas fa-sitemap"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>2025-07-11 18:50:37</td>
+                                <td>ITAdmin</td>
+                                <td>
+                                    Admin, IT<br>
+                                    <span class="badge bg-info">PLACEMENT Admin, IT</span>
+                                    <span class="badge bg-info">BACKEND/DEPT RIGHT</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">SILVER</span>
+                                    <span class="badge bg-success">ACTIVE</span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                                        <i class="fas fa-sitemap"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing 1 to 3 of 3 entries</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
   `;
 }
+
+function getUnilevelListContent() {
+  return `
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0 me-3">Unilevel List</h4>
+                <button class="btn btn-sm btn-primary" onclick="openSwitchAccountModal()">
+                    <i class="fas fa-exchange-alt me-1"></i>Change Account
+                </button>
+            </div>
+        </div>
+        
+        <!-- Unilevel List Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Show</span>
+                    <select class="form-select form-select-sm me-2" style="width: 80px;">
+                        <option>10</option>
+                        <option>25</option>
+                        <option>50</option>
+                    </select>
+                    <span class="me-3">entries</span>
+                </div>
+                <div class="input-group" style="width: 200px;">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>SQ# <i class="fas fa-sort"></i></th>
+                                <th>DATE <i class="fas fa-sort"></i></th>
+                                <th>USERNAME <i class="fas fa-sort"></i></th>
+                                <th>NAME <i class="fas fa-sort"></i></th>
+                                <th class="text-center">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>2025-06-24 19:56:12</td>
+                                <td>jmdlonsod</td>
+                                <td>
+                                    Dlonsod, Jesher Charles<br>
+                                    <small class="badge bg-info text-white">ACCOUNT Admin [JMDLONSO001]</small>
+                                </td>
+                                <td class="text-center">
+                                   <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')" title="View in Tree">
+                                    <i class="fas fa-sitemap"></i>                                                
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing 1 to 1 of 1 entries</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    `;
+}
+
+
+
 
 function getEwalletSummaryContent() {
   return `
@@ -1126,83 +1276,6 @@ function getEwalletSummaryContent() {
   `;
 }
 
-function getUnilevelListContent() {
-  return `
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="d-flex align-items-center">
-                <h4 class="mb-0 me-3">Unilevel List</h4>
-                <span class="badge bg-info text-white">JMDLONSO001</span>
-            </div>
-        </div>
-        
-        <!-- Unilevel List Table -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <span class="me-2">Show</span>
-                    <select class="form-select form-select-sm me-2" style="width: 80px;">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                    </select>
-                    <span class="me-3">entries</span>
-                </div>
-                <div class="input-group" style="width: 200px;">
-                    <input type="text" class="form-control form-control-sm" placeholder="Search...">
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>SQ# <i class="fas fa-sort"></i></th>
-                                <th>DATE <i class="fas fa-sort"></i></th>
-                                <th>USERNAME <i class="fas fa-sort"></i></th>
-                                <th>NAME <i class="fas fa-sort"></i></th>
-                                <th class="text-center">ACTION</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>2025-06-24 19:56:12</td>
-                                <td>jmdlonsod</td>
-                                <td>
-                                    Dlonsod, Jesher Charles<br>
-                                    <small class="badge bg-info text-white">ACCOUNT Admin [JMDLONSO001]</small>
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-info">
-                                        <i class="fas fa-arrow-up"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing 1 to 1 of 1 entries</small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
-                        </li>
-                        <li class="page-item active">
-                            <a class="page-link" href="#">1</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    `;
-}
-
-// Helper function for formatting date and time
 function formatDateTime(date) {
   const options = {
     year: "numeric",
@@ -1382,154 +1455,6 @@ function getClaimProductsContent() {
     `;
 }
 
-function getDirectSponsorsContent() {
-  return `
-    <div class="p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-user-friends me-2"></i>Direct Sponsors</h2>
-        </div>
-        
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Your Direct Sponsors</h5>
-                <button class="btn btn-sm btn-primary" onclick="openSwitchAccountModal()">
-                    <i class="fas fa-exchange-alt me-1"></i>Change Account
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Sponsor ID</th>
-                                <th>Name</th>
-                                <th>Join Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>SPONSOR001</td>
-                                <td>John Martinez</td>
-                                <td>2024-01-15</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')">
-                                        <i class="fas fa-sitemap me-1"></i>View in Tree
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>SPONSOR002</td>
-                                <td>Maria Santos</td>
-                                <td>2024-02-20</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-info" onclick="loadUserPage('genealogy-tree')">
-                                        <i class="fas fa-sitemap me-1"></i>View in Tree
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-  `;
-}
-
-function getBinaryListContent() {
-  return `
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-list-ol me-2"></i>Binary List</h2>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h5>Binary Network Details</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Member ID</th>
-                                <th>Position</th>
-                                <th>Volume</th>
-                                <th>Level</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>BIN001</td>
-                                <td>Left-1</td>
-                                <td>₱2,500</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>BIN002</td>
-                                <td>Right-1</td>
-                                <td>₱3,200</td>
-                                <td>1</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function getUnilevelListContent() {
-  return `
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-layer-group me-2"></i>Unilevel List</h2>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h5>Unilevel Network Structure</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Level</th>
-                                <th>Members</th>
-                                <th>Total Volume</th>
-                                <th>Commission</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Level 1</td>
-                                <td>12</td>
-                                <td>₱25,400</td>
-                                <td>₱2,540</td>
-                            </tr>
-                            <tr>
-                                <td>Level 2</td>
-                                <td>48</td>
-                                <td>₱86,200</td>
-                                <td>₱4,310</td>
-                            </tr>
-                            <tr>
-                                <td>Level 3</td>
-                                <td>124</td>
-                                <td>₱195,600</td>
-                                <td>₱5,868</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
 function getEncashWalletContent() {
   return `
         <div class="container-fluid px-3 px-md-4 py-3">
@@ -1598,7 +1523,7 @@ function getEncashWalletContent() {
                                         <div class="d-flex gap-2">
                                             <input type="password" class="form-control form-control-lg flex-grow-1" id="withdrawalPin" placeholder="Enter PIN" 
                                                    style="border: 1px solid #e9ecef; border-radius: 8px; padding: 12px 16px;">
-                                            <button type="button" class="btn btn-info px-3 py-2" style="border-radius: 8px; white-space: nowrap;">
+                                            <button type="button" class="btn btn-info px-3 py-2" onclick="loadUserPage('withdrawal-pin')" style="border-radius: 8px; white-space: nowrap;">
                                                 <i class="fas fa-shield-alt me-2"></i>
                                                 Set withdrawal PIN
                                             </button>
@@ -1777,45 +1702,6 @@ function getSalesMatchBonusContent() {
     `;
 }
 
-function getLeadershipBonusContent() {
-  return `
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-crown me-2"></i>Leadership Bonus</h2>
-        </div>
-        
-        <div class="card">
-            <div class="card-body">
-                <h5>Leadership Qualification Status</h5>
-                <div class="progress mb-3">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 75%"></div>
-                </div>
-                <p>You are 75% qualified for next leadership level</p>
-                
-                <div class="table-responsive mt-4">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Period</th>
-                                <th>Level</th>
-                                <th>Bonus Amount</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>January 2025</td>
-                                <td>Silver Leader</td>
-                                <td>₱2,500</td>
-                                <td><span class="badge bg-success">Paid</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
 function getPersonalRebatesContent() {
   return `
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -1842,48 +1728,6 @@ function getPersonalRebatesContent() {
                                 <td>₱3,500</td>
                                 <td>10%</td>
                                 <td>₱350</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function getUnilevelBonusContent() {
-  return `
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-layer-group me-2"></i>Unilevel Bonus</h2>
-        </div>
-        
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Level</th>
-                                <th>Members</th>
-                                <th>Volume</th>
-                                <th>Rate</th>
-                                <th>Bonus</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>12</td>
-                                <td>₱25,400</td>
-                                <td>10%</td>
-                                <td>₱2,540</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>48</td>
-                                <td>₱86,200</td>
-                                <td>5%</td>
-                                <td>₱4,310</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1958,6 +1802,9 @@ function getTransactionsContent() {
         </div>
     `;
 }
+
+
+// Reports
 
 function getDirectReferralContent() {
   return `
@@ -2319,212 +2166,167 @@ function getUnilevelBonusContent() {
     `;
 }
 
-// Shop Section Content Functions
+
+// Shop Now
+
 function getShopNowContent() {
+  const products = [
+    { id: 'silver', name: 'PAID SILVER', price: 500.00, details: '10,000PV/SALES MATCH' },
+    { id: 'gold', name: 'PAID GOLD', price: 10500.00, details: '30,000PV/SALES MATCH' },
+    { id: 'platinum', name: 'PAID PLATINUM', price: 35000.00, details: '100,000PV/SALES MATCH' },
+    { id: 'synbiotic', name: 'Synbiotic+Gutguard', price: 2280.00, details: '250.00 BV' },
+    { id: 'maintenance', name: 'Monthly Maintenance', price: 2280.00, details: '250.00 BV' },
+    { id: 'bpguard', name: 'Synbiotic+Gutguard BPGUARD*1.00', price: 520.00, details: '50.00 BV' }
+  ];
+
   return `
-        <!-- Product Grid -->
-        <div class="row g-4">
-            <!-- PAID SILVER Package -->
-            <div class="col-md-4 col-lg-2">
-                <div class="card h-100">
-                    <div class="card-body text-center p-3">
-                        <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e9ecef'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='14'%3EPAID SILVER%3C/text%3E%3C/svg%3E" alt="PAID SILVER" class="img-fluid">
-                        </div>
-                        <h6 class="card-title">PAID SILVER</h6>
-                        <p class="text-primary mb-2">₱500.00</p>
-                        <small class="text-muted d-block mb-3">10,000PV/SALES MATCH</small>
-                        <button class="btn btn-primary btn-sm w-100">Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- PAID GOLD Package -->
-            <div class="col-md-4 col-lg-2">
-                <div class="card h-100">
-                    <div class="card-body text-center p-3">
-                        <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e9ecef'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='14'%3EPAID GOLD%3C/text%3E%3C/svg%3E" alt="PAID GOLD" class="img-fluid">
-                        </div>
-                        <h6 class="card-title">PAID GOLD</h6>
-                        <p class="text-primary mb-2">10,500.00</p>
-                        <small class="text-muted d-block mb-3">30,000PV/SALES MATCH</small>
-                        <button class="btn btn-primary btn-sm w-100">Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- PAID PLATINUM Package -->
-            <div class="col-md-4 col-lg-2">
-                <div class="card h-100">
-                    <div class="card-body text-center p-3">
-                        <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e9ecef'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='14'%3EPAID PLATINUM%3C/text%3E%3C/svg%3E" alt="PAID PLATINUM" class="img-fluid">
-                        </div>
-                        <h6 class="card-title">PAID PLATINUM</h6>
-                        <p class="text-primary mb-2">35,000.00</p>
-                        <small class="text-muted d-block mb-3">100,000PV/SALES MATCH</small>
-                        <button class="btn btn-primary btn-sm w-100">Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Synbiotic+Gutguard -->
-            <div class="col-md-4 col-lg-2">
-                <div class="card h-100">
-                    <div class="card-body text-center p-3">
-                        <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e9ecef'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='12'%3ESynbiotic+%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='12'%3EGutguard%3C/text%3E%3C/svg%3E" alt="Synbiotic+Gutguard" class="img-fluid">
-                        </div>
-                        <h6 class="card-title">Synbiotic+Gutguard</h6>
-                        <p class="text-primary mb-2">2,280.00</p>
-                        <small class="text-muted d-block mb-3">250.00 BV</small>
-                        <button class="btn btn-primary btn-sm w-100">Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Monthly Maintenance -->
-            <div class="col-md-4 col-lg-2">
-                <div class="card h-100">
-                    <div class="card-body text-center p-3">
-                        <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e9ecef'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='12'%3EMonthly%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='12'%3EMaintenance%3C/text%3E%3C/svg%3E" alt="Monthly Maintenance" class="img-fluid">
-                        </div>
-                        <h6 class="card-title">Monthly Maintenance</h6>
-                        <p class="text-primary mb-2">2,280.00</p>
-                        <small class="text-muted d-block mb-3">250.00 BV</small>
-                        <button class="btn btn-primary btn-sm w-100">Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Synbiotic+Gutguard BPGUARD*1.00 -->
-            <div class="col-md-4 col-lg-2">
-                <div class="card h-100">
-                    <div class="card-body text-center p-3">
-                        <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Crect width='200' height='120' fill='%23e9ecef'/%3E%3Ctext x='50%25' y='35%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='10'%3ESynbiotic+Gutguard%3C/text%3E%3Ctext x='50%25' y='55%25' dominant-baseline='central' text-anchor='middle' fill='%236c757d' font-size='10'%3EBPGUARD*1.00%3C/text%3E%3C/svg%3E" alt="Synbiotic+Gutguard BPGUARD*1.00" class="img-fluid">
-                        </div>
-                        <h6 class="card-title">Synbiotic+Gutguard BPGUARD*1.00</h6>
-                        <p class="text-primary mb-2">520.00</p>
-                        <small class="text-muted d-block mb-3">50.00 BV</small>
-                        <button class="btn btn-primary btn-sm w-100">Add to cart</button>
-                    </div>
-                </div>
+    <div class="p-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold"><i class="fas fa-store me-2"></i>Shop</h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary position-relative" onclick="openCartOffcanvas()">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    Cart
+                    <span id="cart-item-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        0
+                    </span>
+                </button>
+                <button class="btn btn-success" onclick="loadUserPage('checkout')">
+                    <i class="fas fa-credit-card me-2"></i>Checkout
+                </button>
             </div>
         </div>
-    `;
+
+        <!-- Product Grid -->
+        <div class="row g-4">
+            ${products.map(p => `
+            <div class="col-md-4 col-lg-2">
+                <div class="card h-100">
+                    <div class="card-body text-center p-3 d-flex flex-column">
+                        <div class="mb-3 flex-grow-1" style="display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                           <img src="https://placehold.co/200x120/e9ecef/6c757d?text=${p.name.replace(/\s/g, '+')}" alt="${p.name}" class="img-fluid">
+                        </div>
+                        <h6 class="card-title">${p.name}</h6>
+                        <p class="text-primary mb-2">₱${p.price.toFixed(2)}</p>
+                        <small class="text-muted d-block mb-3">${p.details}</small>
+                        <button class="btn btn-primary btn-sm w-100 mt-auto" onclick="addToCart('${p.name}', ${p.price})">Add to cart</button>
+                    </div>
+                </div>
+            </div>
+            `).join('')}
+        </div>
+    </div>
+  `;
 }
 
 function getCheckoutContent() {
+  const cartItemsHtml = userCart.map(item => `
+    <li class="list-group-item d-flex justify-content-between lh-sm">
+      <div>
+        <h6 class="my-0">${item.name}</h6>
+        <small class="text-muted">Quantity: ${item.quantity}</small>
+      </div>
+      <span class="text-muted">₱${(item.price * item.quantity).toFixed(2)}</span>
+    </li>
+  `).join('');
+
+  const total = userCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
   return `
-        <div class="row g-4">
-            <!-- Shipping Address Form -->
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">Shipping Address</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="firstName" class="form-label">First name</label>
-                                <input type="text" class="form-control" id="firstName" value="IT" placeholder="IT">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="lastName" class="form-label">Last name</label>
-                                <input type="text" class="form-control" id="lastName" value="Admin" placeholder="Admin">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="contactNumber" class="form-label">Contact Number</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">📞</span>
-                                    <input type="text" class="form-control" id="contactNumber" value="639308670485" placeholder="639308670485">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="email" class="form-label">Email (Optional)</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">@</span>
-                                    <input type="email" class="form-control" id="email" value="you@example.com" placeholder="you@example.com">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address" value="1234 Main St" placeholder="1234 Main St">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="country" class="form-label">Country</label>
-                                <input type="text" class="form-control" id="country" value="Philippines" placeholder="Philippines">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="region" class="form-label">Region</label>
-                                <input type="text" class="form-control" id="region" value="Region" placeholder="Region">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="province" class="form-label">Province</label>
-                                <input type="text" class="form-control" id="province" value="Province" placeholder="Province">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" id="city" value="City" placeholder="City">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="barangay" class="form-label">Barangay</label>
-                                <input type="text" class="form-control" id="barangay" value="Click to set barangay" placeholder="Click to set barangay">
-                            </div>
-                            <div class="col-12">
-                                <small class="text-muted">Need to update your details? Edit profile here</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Cart Summary -->
-            <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">Your cart 🛒</h6>
-                        <span class="badge bg-primary">0</span>
-                    </div>
-                    <div class="card-body text-center py-5">
-                        <p class="text-muted mb-2">Cart is empty</p>
-                        <a href="#" class="text-decoration-none" onclick="showUserModule('shop', 'user')">shop now</a>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <span>Total</span>
-                        <strong>0.00</strong>
-                    </div>
-                </div>
-                
-                <!-- Payment Section -->
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">Payment</h6>
-                    </div>
-                    <div class="card-body">
-                        <select class="form-select mb-3">
-                            <option selected>Select Payment</option>
-                            <option value="cash">Cash on Delivery</option>
-                            <option value="gcash">GCash</option>
-                            <option value="bank">Bank Transfer</option>
-                        </select>
-                        
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-warning">
-                                <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
-                            </button>
-                            <button class="btn btn-primary">
-                                <i class="fas fa-credit-card me-2"></i>Place Order
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+    <div class="p-4">
+      <div class="row g-4">
+          <!-- Shipping Address Form -->
+          <div class="col-lg-8">
+              <div class="card">
+                  <div class="card-header"><h6 class="mb-0">Shipping Address</h6></div>
+                  <div class="card-body">
+                      <div class="row g-3">
+                          <div class="col-md-6">
+                              <label for="firstName" class="form-label">First name</label>
+                              <input type="text" class="form-control" id="firstName" value="IT" placeholder="IT">
+                          </div>
+                          <div class="col-md-6">
+                              <label for="lastName" class="form-label">Last name</label>
+                              <input type="text" class="form-control" id="lastName" value="Admin" placeholder="Admin">
+                          </div>
+                          <div class="col-md-6">
+                              <label for="contactNumber" class="form-label">Contact Number</label>
+                              <div class="input-group">
+                                  <span class="input-group-text">📞</span>
+                                  <input type="text" class="form-control" id="contactNumber" value="639308670485" placeholder="639308670485">
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <label for="email" class="form-label">Email (Optional)</label>
+                              <div class="input-group">
+                                  <span class="input-group-text">@</span>
+                                  <input type="email" class="form-control" id="email" value="you@example.com" placeholder="you@example.com">
+                              </div>
+                          </div>
+                          <div class="col-12">
+                              <label for="address" class="form-label">Address</label>
+                              <input type="text" class="form-control" id="address" value="1234 Main St" placeholder="1234 Main St">
+                          </div>
+                          <div class="col-md-6">
+                              <label for="country" class="form-label">Country</label>
+                              <input type="text" class="form-control" id="country" value="Philippines" placeholder="Philippines">
+                          </div>
+                          <div class="col-md-6">
+                              <label for="region" class="form-label">Region</label>
+                              <input type="text" class="form-control" id="region" value="Region" placeholder="Region">
+                          </div>
+                          <div class="col-md-4">
+                              <label for="province" class="form-label">Province</label>
+                              <input type="text" class="form-control" id="province" value="Province" placeholder="Province">
+                          </div>
+                          <div class="col-md-4">
+                              <label for="city" class="form-label">City</label>
+                              <input type="text" class="form-control" id="city" value="City" placeholder="City">
+                          </div>
+                          <div class="col-md-4">
+                              <label for="barangay" class="form-label">Barangay</label>
+                              <input type="text" class="form-control" id="barangay" value="Click to set barangay" placeholder="Click to set barangay">
+                          </div>
+                          <div class="col-12">
+                              <small class="text-muted">Need to update your details? Edit profile here</small>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Cart Summary -->
+          <div class="col-lg-4">
+              <div class="card mb-4">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                      <h6 class="mb-0">Your cart 🛒</h6>
+                      <span class="badge bg-primary">${userCart.reduce((sum, item) => sum + item.quantity, 0)}</span>
+                  </div>
+                  <ul class="list-group list-group-flush">
+                      ${userCart.length > 0 ? cartItemsHtml : '<li class="list-group-item text-center text-muted p-5">Cart is empty</li>'}
+                  </ul>
+                  <div class="card-footer d-flex justify-content-between">
+                      <span>Total</span>
+                      <strong>₱${total.toFixed(2)}</strong>
+                  </div>
+              </div>
+              
+              <!-- Payment Section -->
+              <div class="card">
+                  <div class="card-header"><h6 class="mb-0">Payment</h6></div>
+                  <div class="card-body">
+                      <select class="form-select mb-3"><option selected>Select Payment</option></select>
+                      <div class="d-grid gap-2">
+                          <button class="btn btn-warning" onclick="loadUserPage('shop-now')"><i class="fas fa-shopping-cart me-2"></i>Continue Shopping</button>
+                          <button class="btn btn-primary"><i class="fas fa-credit-card me-2"></i>Place Order</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  `;
 }
 
 function getTransactionsContent() {
@@ -2662,7 +2464,134 @@ function getTransactionsContent() {
     `;
 }
 
-// Account Setting Section Content Functions
+
+// Shop contents
+
+let userCart = [];
+
+/**
+ * Adds an item to the cart and updates the display.
+ */
+function addToCart(name, price) {
+  const existingItem = userCart.find(item => item.name === name);
+  if (existingItem) {
+    existingItem.quantity++;
+  } else {
+    userCart.push({ name, price, quantity: 1 });
+  }
+  updateCartDisplay();
+  showAddToCartSuccessPopup(name);
+}
+
+/**
+ * Updates the cart item count in the header.
+ */
+function updateCartDisplay() {
+  const cartCountEl = document.getElementById('cart-item-count');
+  if (cartCountEl) {
+    const totalItems = userCart.reduce((sum, item) => sum + item.quantity, 0);
+    cartCountEl.textContent = totalItems;
+  }
+}
+
+/**
+ * Shows a temporary success popup when an item is added to the cart.
+ */
+function showAddToCartSuccessPopup(productName) {
+  const popup = document.createElement('div');
+  popup.className = 'add-to-cart-popup';
+  popup.innerHTML = `<i class="fas fa-check-circle me-2"></i>Successfully added ${productName} to cart!`;
+  document.body.appendChild(popup);
+
+  // Animate in
+  setTimeout(() => popup.classList.add('show'), 10);
+
+  // Animate out and remove
+  setTimeout(() => {
+    popup.classList.remove('show');
+    setTimeout(() => popup.remove(), 500);
+  }, 3000);
+
+  // Add some basic styles for the popup if they don't exist
+  if (!document.getElementById('cart-popup-styles')) {
+    const style = document.createElement('style');
+    style.id = 'cart-popup-styles';
+    style.innerHTML = `
+      .add-to-cart-popup {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #28a745;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 1060;
+        opacity: 0;
+        transition: opacity 0.5s ease, bottom 0.5s ease;
+      }
+      .add-to-cart-popup.show {
+        opacity: 1;
+        bottom: 40px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+
+/**
+ * Creates the HTML for the cart offcanvas.
+ */
+function getCartOffcanvasHtml() {
+  const cartItemsHtml = userCart.map(item => `
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h6 class="mb-0">${item.name}</h6>
+            <small class="text-muted">Qty: ${item.quantity} x ₱${item.price.toFixed(2)}</small>
+        </div>
+        <span class="fw-bold">₱${(item.price * item.quantity).toFixed(2)}</span>
+    </div>
+  `).join('');
+  const total = userCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  return `
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title"><i class="fas fa-shopping-cart me-2"></i>Your Cart</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        ${userCart.length > 0 ? cartItemsHtml : '<p class="text-center text-muted">Your cart is empty.</p>'}
+      </div>
+      <div class="offcanvas-footer p-3 border-top">
+        <div class="d-flex justify-content-between fs-5 fw-bold mb-3">
+            <span>Total:</span>
+            <span>₱${total.toFixed(2)}</span>
+        </div>
+        <button class="btn btn-success w-100" onclick="loadUserPage('checkout')">Proceed to Checkout</button>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Opens the cart offcanvas.
+ */
+function openCartOffcanvas() {
+    const existingOffcanvas = document.getElementById('cartOffcanvas');
+    if (existingOffcanvas) existingOffcanvas.remove();
+    
+    document.body.insertAdjacentHTML('beforeend', getCartOffcanvasHtml());
+    
+    const cartOffcanvasEl = document.getElementById('cartOffcanvas');
+    const cartOffcanvas = new bootstrap.Offcanvas(cartOffcanvasEl);
+    cartOffcanvas.show();
+}
+
+
+
 function getWithdrawalSettingsContent() {
   return `
         <div class="row g-4">
