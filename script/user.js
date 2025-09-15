@@ -1523,7 +1523,7 @@ function getEncashWalletContent() {
                                         <div class="d-flex gap-2">
                                             <input type="password" class="form-control form-control-lg flex-grow-1" id="withdrawalPin" placeholder="Enter PIN" 
                                                    style="border: 1px solid #e9ecef; border-radius: 8px; padding: 12px 16px;">
-                                            <button type="button" class="btn btn-info px-3 py-2" style="border-radius: 8px; white-space: nowrap;">
+                                            <button type="button" class="btn btn-info px-3 py-2" onclick="loadUserPage('withdrawal-pin')" style="border-radius: 8px; white-space: nowrap;">
                                                 <i class="fas fa-shield-alt me-2"></i>
                                                 Set withdrawal PIN
                                             </button>
