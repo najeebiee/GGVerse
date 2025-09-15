@@ -4958,9 +4958,24 @@ function getAdminItemTableContent() {
                 <td>${item.info}</td>
                 <td>
                   <span class="badge ${item.components === 'WITH COMPONENTS' ? 'bg-success' : 'bg-danger'}">
-                    ${item.components}
+                  ${item.components}
                   </span>
-                  <button class="btn btn-sm btn-info ms-2" title="View"><i class="fas fa-search"></i></button>
+                  </td>
+                <td>
+                  <button 
+                    class="btn btn-sm btn-info view-item-btn" 
+                    title="View" 
+                    style="margin-bottom: 5px;" 
+                    data-item='${JSON.stringify(item)}'>
+                        <i class="fas fa-search"></i>
+                </button>
+                  <button 
+                    class="btn btn-sm btn-warning text-white item-logs-btn" 
+                    title="Edit" 
+                    data-code="${item.code}" 
+                    data-desc="${item.desc}">
+                      <i class="fas fa-edit"></i>
+                  </button>
                 </td>
               </tr>
             `).join('')}
@@ -4983,6 +4998,574 @@ function getAdminItemTableContent() {
     </div>
   `;
 }
+
+function buildItemDetailsModalHtml(item) {
+  // Helper function to generate <option> tags for a <select> dropdown
+  const generateOptions = (options, selectedValue) => {
+    return options.map(opt => 
+      `<option value="${opt}" ${opt === selectedValue ? 'selected' : ''}>${opt}</option>`
+    ).join('');
+  };
+
+  // A comprehensive default object to prevent errors
+  const safeItem = {
+    code: '', name: '', description: '', unitCode: 'Select Unit', category: 'Select Category',
+    packageType: 'Select Package Type', packagePayment: 'Select Status', binaryStatus: 'ACTIVE',
+    cost: '0.00', srp: '0.00', dp: '0.00', branchPrice: '0.00', provincialPrice: '0.00',
+    megaDepotPrice: '0.00', hubPrice: '0.00', unilevelPV: '0.00', psrBV: '0.00',
+    binaryBV: '0.00', directReferral: '0.00', drp: '0.00', drpConversion: '0.00',
+    updateVouchers: 0, componentCost: '0.00', componentValueDP: '0.00', componentValueSRP: '0.00',
+    itemComponents: [],
+  };
+
+  return `
+    <div class="modal fade" id="itemDetailsModal" tabindex="-1" aria-labelledby="itemDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable" style="max-width: 600px; max-height: 90vh; margin-top: 4.5rem;">
+        <div class="modal-content">
+          <div class="modal-header py-2"><h5 class="modal-title" id="itemDetailsModalLabel">View item details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            
+            <div class="item-details-form">
+              <div class="row"><div class="col-md-3 text-muted">Code</div><div class="col-md-9 mb-3"><input type="text" class="form-control form-control-sm" value="${safeItem.code}"></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Name</div><div class="col-md-9 mb-3"><input type="text" class="form-control form-control-sm" value="${safeItem.name}"></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Description</div><div class="col-md-9 mb-3"><input type="text" class="form-control form-control-sm" value="${safeItem.description}"></div></div>
+              
+              <div class="row"><div class="col-md-3 text-muted">Unit Code</div><div class="col-md-9 mb-3"><select class="form-select form-select-sm">${generateOptions(['Select Unit', 'PC', 'BOX', 'PACK', 'GRAMS', 'KILO', 'OZ', 'LITER', 'ML', 'BOTTLE'], safeItem.unitCode)}</select></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Category</div><div class="col-md-9 mb-3"><select class="form-select form-select-sm">${generateOptions(['Select Category', 'Product Lines - Product Lines', 'Entry Package - Entry Package', 'Store/Stockist Packages - Store/Stockist Packages', 'Loose Product Packages - Loose Product Packages', 'Items - Items for Inventory'], safeItem.category)}</select></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Package Type</div><div class="col-md-9 mb-3"><select class="form-select form-select-sm">${generateOptions(['Select Package Type', 'SHADOW', 'SILVER', 'GOLD', 'PLATINUM'], safeItem.packageType)}</select></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Package Payment</div><div class="col-md-9 mb-3"><select class="form-select form-select-sm">${generateOptions(['Select Status', 'PAID', 'FREE'], safeItem.packagePayment)}</select></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Package Binary Status</div><div class="col-md-9 mb-3"><select class="form-select form-select-sm">${generateOptions(['ACTIVE', 'INACTIVE'], safeItem.binaryStatus)}</select></div></div>
+
+              <div class="row"><div class="col-md-3 text-muted">COST</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.cost}"><small class="text-muted">For ADMINS viewing and reporting purposes only.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">SRP</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.srp}"><small class="text-muted">Price for non-members and customers of Franchisee.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">DP</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.dp}"><small class="text-muted">Price for members & franchisee.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Branch Price</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.branchPrice}"></div></div>
+              <div class="row"><div class="col-md-3 text-muted">PROVINCIAL Price</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.provincialPrice}"></div></div>
+              <div class="row"><div class="col-md-3 text-muted">MEGA DEPOT Price</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.megaDepotPrice}"></div></div>
+              <div class="row"><div class="col-md-3 text-muted">HUB Price</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.hubPrice}"></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Unilevel PV</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.unilevelPV}"><small class="text-muted">Used to record points of members sales.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Personal Sales Rebates BV</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.psrBV}"><small class="text-muted">Personal Rebates PV of user.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Binary BV</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.binaryBV}"><small class="text-muted">Used for the matching bonus.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Direct Referral</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.directReferral}"><small class="text-muted">Cash Amount as Direct Referral.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">DRP</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.drp}"><small class="text-muted">Product Referral QTY.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">DRP Conversion Value</div><div class="col-md-9 mb-3"><input type="number" step="0.01" class="form-control form-control-sm" value="${safeItem.drpConversion}"><small class="text-muted">Amount equivalent when Voucher is converted to E-Wallet Credits.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">UPDATE ALL VOUCHERS</div><div class="col-md-9 mb-3"><input type="number" class="form-control form-control-sm" value="${safeItem.updateVouchers}"><small class="text-muted">Set value to 1 to update all vouchers, or 0 for new vouchers only.</small></div></div>
+
+              <div class="row"><div class="col-md-3 text-muted">Component COST</div><div class="col-md-9 mb-3"><input type="text" readonly class="form-control-plaintext form-control-sm" value="${safeItem.componentCost}"><small class="text-muted">Automatically computed based on total cost of components.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Component VALUE DP</div><div class="col-md-9 mb-3"><input type="text" readonly class="form-control-plaintext form-control-sm" value="${safeItem.componentValueDP}"><small class="text-muted">Automatically computed based on total DP of components.</small></div></div>
+              <div class="row"><div class="col-md-3 text-muted">Component VALUE SRP</div><div class="col-md-9 mb-3"><input type="text" readonly class="form-control-plaintext form-control-sm" value="${safeItem.componentValueSRP}"><small class="text-muted">Automatically computed based on total SRP of components.</small></div></div>
+            </div>
+
+            <div class="alert alert-info mt-4" role="alert" style="font-size: 0.85rem;">
+              <strong>Note:</strong> Packages & Components are the same. Available Items/Components are based on the category. (e.g., Category 'Package' can add components from 'Product Lines').
+            </div>
+            
+            <hr>
+
+            <div class="d-grid gap-2 mb-3">
+                <button id="updateChangesBtn" class="btn btn-primary"><i class="fas fa-save me-1"></i> Update Changes Above</button>
+                <button id="reloadDataBtn" class="btn btn-success"><i class="fas fa-sync-alt me-1"></i> Reload Data</button>
+            </div>
+
+            <div class="d-flex gap-2 mb-3">
+              ${(safeItem.itemComponents && safeItem.itemComponents.length > 0) ? `
+                <span class="btn btn-success w-50 fw-bold status-components-btn" data-state="has-components">
+                  <i class="fas fa-check me-1"></i> HAS COMPONENTS
+                </span>
+              ` : `
+                <span class="btn btn-secondary w-50 fw-bold status-components-btn" data-state="no-components">
+                  <i class="fas fa-times me-1"></i> NO COMPONENTS
+                </span>
+              `}
+              
+              ${safeItem.isAvailable ? `
+                <span class="btn btn-success w-50 fw-bold status-available-btn"><i class="fas fa-check me-1"></i> AVAILABLE</span>
+              ` : `
+                <span class="btn btn-danger w-50 fw-bold status-available-btn"><i class="fas fa-times me-1"></i> UNAVAILABLE</span>
+              `}
+            </div>
+
+            <h6 class="mb-2 mt-4 text-primary">Components</h6>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <select class="form-select form-select-sm d-inline-block" style="width: 80px;">
+                        <option selected>10</option>
+                        <option>25</option>
+                        <option>50</option>
+                    </select>
+                    <span class="ms-1 small text-muted">entries per page</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <label class="form-label me-2 mb-0 small text-muted">Search:</label>
+                    <input type="search" class="form-control form-control-sm" style="width: 200px;">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>CODE <i class="fas fa-sort text-muted"></i></th>
+                            <th>NAME <i class="fas fa-sort text-muted"></i></th>
+                            <th>CATEGORY <i class="fas fa-sort text-muted"></i></th>
+                            <th>UNIT <i class="fas fa-sort text-muted"></i></th>
+                            <th>QTY <i class="fas fa-sort text-muted"></i></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${(safeItem.itemComponents && safeItem.itemComponents.length > 0) ? safeItem.itemComponents.map(comp => `
+                            <tr>
+                                <td>${comp.code}</td>
+                                <td>${comp.name}</td>
+                                <td>${comp.category}</td>
+                                <td>${comp.unit}</td>
+                                <td><input type="number" class="form-control form-control-sm" value="${comp.qty}" style="width: 80px;"></td>
+                                <td class="text-center">
+                                    <button class="btn btn-danger btn-sm delete-component-btn" title="Delete Component"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('') : `<tr><td colspan="6" class="text-center">No components found.</td></tr>`}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted">Showing 1 to 1 of 1 entry</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">»</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="d-grid mt-3">
+                <button id="addComponentBtn" class="btn btn-info text-white"><i class="fas fa-plus me-1"></i> Add Component</button>
+            </div>
+
+            <h6 class="mt-4 text-center text-muted">Portal Product Availability</h6>
+            <div class="text-center portal-availability">
+                <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">MEMBER ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+                <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">EWALLET ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+                <div class="btn-group my-1 shadow-sm"><button class="btn btn-dark btn-sm availability-toggle">TURN ON</button><button class="btn btn-danger btn-sm">GC OFF</button></div>
+                <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">BRANCH ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+                <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">STOCKIST ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+            </div>
+          </div>
+
+          <div class="modal-footer justify-content-between py-2">
+            <button id="prevBtn" type="button" class="btn btn-primary"><i class="fas fa-arrow-left me-1"></i> PREVIOUS</button>
+            <button type="button" class="btn btn-warning" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> Close</button>
+            <button id="nextBtn" type="button" class="btn btn-primary">NEXT <i class="fas fa-arrow-right ms-1"></i></button>
+          </div>
+
+          <style>.item-details-form .row { display: flex; align-items: baseline; }</style>
+
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+(function patchViewItemDetailsHandler() {
+    // Prevent this patcher from running more than once
+    if (window.__ggv_item_details_modal_patched) return;
+    window.__ggv_item_details_modal_patched = true;
+
+    document.addEventListener('click', function (ev) {
+        // Find the trigger button
+        const btn = ev.target.closest('.view-item-btn');
+        if (!btn) return;
+
+        ev.preventDefault();
+
+        // Safely parse the item data from the button's data-item attribute
+        let itemData = {};
+        try {
+            itemData = JSON.parse(btn.dataset.item || '{}');
+        } catch (e) {
+            console.warn("Invalid item JSON:", e);
+        }
+
+        // Remove any existing modal from the DOM to avoid conflicts
+        const existingModal = document.getElementById('itemDetailsModal');
+        if (existingModal) existingModal.remove();
+
+        // Build the new modal HTML and add it to the page
+        if (typeof buildItemDetailsModalHtml === 'function') {
+            document.body.insertAdjacentHTML('beforeend', buildItemDetailsModalHtml(itemData));
+            
+            // Create a new Bootstrap modal instance and show it
+            const modalElement = document.getElementById('itemDetailsModal');
+            if (modalElement) {
+                new bootstrap.Modal(modalElement).show();
+
+                // Optional: clean up the DOM after the modal is hidden
+                modalElement.addEventListener('hidden.bs.modal', () => {
+                    modalElement.remove();
+                });
+            }
+        }
+    });
+})();
+
+function buildAddComponentModalHtml(item = {}) {
+  // Use the item's name to create a dynamic title, with a fallback.
+  const modalTitle = `Select Component for ${item.name || 'PAID SILVER'}`;
+
+  // Mock data based on the provided image
+  const mockData = [
+    { code: 'BPGUARD', category: 'Product Lines', name: 'Synbiotic+Gutguard BPGUARD*1.00', unit: 'PACK' },
+    { code: 'CDGOLD', category: 'Entry Package', name: 'CD GOLD', unit: 'PACK' },
+    { code: 'CDPLATINUM', category: 'Entry Package', name: 'CD PLATINUM', unit: 'PACK' },
+    { code: 'CDSILVER', category: 'Entry Package', name: 'CD SILVER', unit: 'PACK' },
+    { code: 'CREDITS', category: 'Product Lines', name: 'CASH-IN', unit: 'PC' },
+    { code: 'FSGOLD', category: 'Entry Package', name: 'FS GOLD', unit: 'PACK' },
+    { code: 'FSPLATINUM', category: 'Entry Package', name: 'FS PLATINUM', unit: 'PACK' },
+    { code: 'FSSILVER', category: 'Entry Package', name: 'FS SILVER', unit: 'PACK' },
+    { code: 'GOLD', category: 'Entry Package', name: 'PAID GOLD', unit: 'PACK' },
+    { code: 'ITEM_SGGURGUARD', category: 'Items', name: 'ITEM_SGGURGUARD', unit: 'BOTTLE' },
+  ];
+
+  // Generate table rows from mock data
+  const tableRows = mockData.map(data => `
+    <tr>
+      <td>${data.code}</td>
+      <td>${data.category}</td>
+      <td>${data.name}</td>
+      <td>${data.unit}</td>
+      <td class="text-center">
+        <button class="btn btn-primary btn-sm rounded-circle">
+          <i class="fas fa-plus"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+
+  return `
+    <div class="modal fade" id="addComponentModal" tabindex="-1" aria-labelledby="addComponentModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl" style="max-width: 900px; max-height: 90vh; margin-top: 4.5rem;">
+        <div class="modal-content">
+          <div class="modal-header py-2">
+            <h5 class="modal-title" id="addComponentModalLabel">${modalTitle}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            
+            <!-- Top Controls: Entries per page and Search -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                  <option selected>10</option>
+                  <option>25</option>
+                  <option>50</option>
+                  <option>100</option>
+                </select>
+                <span class="ms-1">entries per page</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <label for="componentSearch" class="form-label me-2 mb-0">Search:</label>
+                <input type="search" id="componentSearch" class="form-control form-control-sm" style="width: 250px;">
+              </div>
+            </div>
+
+            <!-- Components Table -->
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>CODE <i class="fas fa-sort"></i></th>
+                    <th>CATEGORY <i class="fas fa-sort"></i></th>
+                    <th>NAME <i class="fas fa-sort"></i></th>
+                    <th>UNIT <i class="fas fa-sort"></i></th>
+                    <th class="text-center">ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Bottom Controls: Entry count and Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <small class="text-muted">Showing 1 to 10 of 14 entries</small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                  <li class="page-item disabled"><a class="page-link" href="#">&lsaquo;</a></li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">&rsaquo;</a></li>
+                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                </ul>
+              </nav>
+            </div>
+
+          </div>
+          <div class="modal-footer py">
+             <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                <i class="fas fa-times me-1"></i> Close
+             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  `;
+}
+
+(function patchAddComponentHandler() {
+    // 1. A flag to ensure this listener is only attached once.
+    if (window.__ggv_add_component_modal_patched) return;
+    window.__ggv_add_component_modal_patched = true;
+
+    // 2. A single, delegated event listener for the whole document.
+    document.addEventListener('click', function (ev) {
+        
+        // --- Logic for OPENING the modal ---
+        const openBtn = ev.target.closest('#addComponentBtn');
+        if (openBtn) {
+            ev.preventDefault();
+
+            // Remove any existing modal to avoid duplicates
+            const existingModal = document.getElementById('addComponentModal');
+            if (existingModal) existingModal.remove();
+
+            // Build the modal's HTML and add it to the page
+            if (typeof buildAddComponentModalHtml === 'function') {
+                document.body.insertAdjacentHTML('beforeend', buildAddComponentModalHtml());
+                
+                // Use Bootstrap's JS to create and show the modal
+                const modalElement = document.getElementById('addComponentModal');
+                if(modalElement) {
+                    new bootstrap.Modal(modalElement).show();
+                }
+            }
+            return; // Stop further execution
+        }
+
+        // --- Logic for the "Add Selected" button INSIDE the modal ---
+        const addSelectedBtn = ev.target.closest('#addSelectedComponentsBtn');
+        if (addSelectedBtn) {
+            ev.preventDefault();
+            
+            const modalElement = document.getElementById('addComponentModal');
+            if (!modalElement) return;
+
+            // Find all checked checkboxes within the modal's table body
+            const selectedCheckboxes = modalElement.querySelectorAll('tbody .form-check-input:checked');
+            const selectedItems = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+            if (selectedItems.length > 0) {
+                Swal.fire(
+                    'Components Selected!',
+                    `You selected: ${selectedItems.join(', ')}`,
+                    'success'
+                );
+                // TODO: Add your logic to handle the selected item codes
+            } else {
+                Swal.fire('No Selection', 'Please select at least one component.', 'warning');
+            }
+
+            // Hide the modal after the action
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            return; // Stop further execution
+        }
+    });
+})();
+
+function buildItemLogsModal(item) {
+  // Use the item's desc and code for a dynamic title
+  const modalTitle = `ITEM LOGS : ${item.desc}[${item.code}]`;
+
+  return `
+    <div class="modal fade" id="itemLogsModal" tabindex="-1" aria-labelledby="itemLogsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" style="margin-top: 200px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="itemLogsModalLabel">${modalTitle}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <select class="form-select form-select-sm d-inline-block" style="width: auto;">
+                  <option selected>10</option>
+                  <option>25</option>
+                  <option>50</option>
+                </select>
+                <span class="ms-1">entries per page</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <label for="logSearch" class="form-label me-2 mb-0">Search:</label>
+                <input type="search" id="logSearch" class="form-control form-control-sm" style="width: 250px;">
+              </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>DATE <i class="fas fa-sort"></i></th>
+                            <th>REMARKS <i class="fas fa-sort"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="2" class="text-center">No data available in table</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">Showing 0 to 0 of 0 entries</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="#">&lsaquo;</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="#">&rsaquo;</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+                    </ul>
+                </nav>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                <i class="fas fa-times me-1"></i> Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function patchItemDetailsModal() {
+    // This uses event delegation, so it only needs to be called once.
+    document.body.addEventListener('click', function(event) {
+        
+        // --- 1. UPDATE CHANGES BUTTON ---
+        // Shows a confirmation modal before proceeding.
+        if (event.target.closest('#updateChangesBtn')) {
+            Swal.fire({
+                title: 'Update Details',
+                text: "Please double check your inputs if all are correct.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#d33', // A nice red/orange
+                cancelButtonColor: '#6c757d', // Bootstrap's secondary color
+                confirmButtonText: 'Update Details!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // This is where you would send the data to the server.
+                    // For now, we just show a success message.
+                    Swal.fire(
+                        'Updated!',
+                        'Your changes have been saved.',
+                        'success'
+                    );
+                }
+            });
+            return;
+        }
+        
+        // --- 2. RELOAD DATA BUTTON ---
+        // Shows a warning before discarding changes.
+        if (event.target.closest('#reloadDataBtn')) {
+            Swal.fire({
+                title: 'Reload Data?',
+                text: "This will discard all unsaved changes. Are you sure?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745', // A nice green
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, reload!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // This is where you would re-fetch the original data.
+                    // For now, we just show a confirmation message.
+                    Swal.fire(
+                        'Reloaded!',
+                        'The original data has been restored.',
+                        'success'
+                    );
+                }
+            });
+            return;
+        }
+
+        // --- 3. DELETE COMPONENT BUTTON ---
+        // (This is the existing logic from before)
+        if (event.target.closest('.delete-component-btn')) {
+            Swal.fire({
+                title: 'Delete Component?',
+                text: "Are you sure you want to delete this component?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Delete Component!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.closest('tr').remove();
+                    Swal.fire('Deleted!', 'The component has been removed.', 'success');
+                }
+            });
+            return;
+        }
+
+        // --- Confirmation for AVAILABLE/UNAVAILABLE status ---
+        if (event.target.closest('.status-available-btn')) {
+            const isAvailable = event.target.closest('.status-available-btn').textContent.includes('AVAILABLE');
+            const newStatus = isAvailable ? 'Unavailable' : 'Available';
+
+            Swal.fire({
+                title: `Change Status to ${newStatus}?`,
+                text: `Are you sure you want to change this item's availability?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: `Yes, make it ${newStatus}`,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Status Changed!', `The item is now ${newStatus}.`, 'success');
+                    // TODO: API call to update status
+                }
+            });
+            return;
+        }
+
+        // --- Confirmation for HAS/NO COMPONENTS status --- //
+        if (event.target.closest('.status-components-btn')) {
+            const hasComponents = event.target.closest('.status-components-btn').textContent.includes('HAS COMPONENTS');
+            const newState = hasComponents ? 'No Components' : 'Has Components';
+            Swal.fire({
+                title: `Change to ${newState}?`,
+                text: `Are you sure you want to change this item's component status?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: `Yes, change to ${newState}`,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Status Changed!', `The item now ${newState}.`, 'success');
+                    // TODO: API call to update component status
+                }
+            });
+            return;
+        }
+    });
+}
+patchItemLogsModal();
 
 function getAdminItemManageContent() {
     return `
@@ -5318,6 +5901,194 @@ function getAdminActivationSearchContent() {
   `;
 }
 
+function getAdminActivationConfigureModal() {
+  return `
+  <div style="margin-top:90px" class="modal fade" id="reportConfigModal" tabindex="-1" aria-labelledby="reportConfigLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        
+        <!-- Header -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="reportConfigLabel">Report Configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">CTRL# From</label>
+              <input type="text" class="form-control" placeholder="Ctrl# From">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">CTRL# To</label>
+              <input type="text" class="form-control" placeholder="Ctrl# To">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Date From</label>
+              <input type="date" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Date To</label>
+              <input type="date" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">CODE</label>
+              <input type="text" class="form-control" placeholder="Enter CODE here.">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">PIN</label>
+              <input type="text" class="form-control" placeholder="Enter PIN here.">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Transaction#</label>
+              <input type="text" class="form-control" placeholder="Enter Trans# here.">
+            </div>
+          </div>
+
+          <!-- Checkboxes -->
+          <div class="mt-3">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="chkCtrl">
+              <label class="form-check-label" for="chkCtrl">Ctrl#</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="chkDate">
+              <label class="form-check-label" for="chkDate">Date Used</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="chkCode">
+              <label class="form-check-label" for="chkCode">Code/Pin</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="chkTrans">
+              <label class="form-check-label" for="chkTrans">Trans#</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer flex-column">
+          <button type="button" class="btn btn-primary w-100 mb-2" onclick="searchCode()">
+            🔍 Search Activation Code
+          </button>
+          <button type="button" class="btn btn-warning w-100" data-bs-dismiss="modal">
+            ✖ Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function getAdminActivationSearchContent() {
+  return `
+  <div class="container-fluid bg-white shadow-sm p-4 rounded">
+    <!-- 🔷 Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold text-dark mb-0">Activation Code</h4>
+      <button onclick="openReportConfigModal()" class="btn btn-primary rounded">
+        <i class="fas fa-cogs me-2"></i>Configure
+      </button>
+    </div>
+
+    <!-- 🔍 Controls -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
+      <div>
+        <label class="form-label mb-0">Show 
+          <select class="form-select form-select-sm d-inline w-auto">
+            <option selected>10</option>
+            <option>25</option>
+            <option>50</option>
+          </select> entries
+        </label>
+      </div>
+      <input type="text" class="form-control form-control-sm w-100 w-md-25 rounded" placeholder="Search:" />
+    </div>
+
+    <!-- 📋 Activation Code Table -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-light text-dark fw-bold text-uppercase">
+          <tr>
+            <th>CTR#</th>
+            <th>TRANS#</th>
+            <th>STATUS</th>
+            <th>PAYMENT</th>
+            <th>TYPE</th>
+            <th>CODE</th>
+            <th>PIN</th>
+            <th>USERID</th>
+            <th>USED</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            {
+              ctr: 2297, trans: 74, status: "USED", payment: "FS", type: "SILVER",
+              code: "FSS-1000-2297", pin: "PIN2297", user: "Elaine Pasod[elainepnos]", used: "2020-02-26"
+            },
+            {
+              ctr: 2296, trans: 75, status: "USED", payment: "PD", type: "GOLD",
+              code: "FSG-1000-2296", pin: "PIN2296", user: "Gerlie Mondejar[Geramondejar21]", used: "2020-03-01"
+            },
+            {
+              ctr: 2295, trans: 76, status: "USED", payment: "FS", type: "PLATINUM",
+              code: "PDS-1021-2295", pin: "PIN2295", user: "ROSITA C CICHOSA[okinawa001]", used: "2020-04-15"
+            }
+          ].map(row => `
+            <tr>
+              <td>${row.ctr}</td>
+              <td>${row.trans}</td>
+              <td>${row.status}</td>
+              <td><span class="badge bg-primary">${row.payment}</span></td>
+              <td>${row.type}</td>
+              <td>${row.code}</td>
+              <td>${row.pin}</td>
+              <td><span class="badge bg-primary">${row.user}</span></td>
+              <td><span class="badge bg-primary">${row.used}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 📈 Footer -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mt-3">
+      <small class="text-muted">Showing 1 to 10 of 112 entries</small>
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><a class="page-link" href="#">4</a></li>
+          <li class="page-item"><a class="page-link" href="#">5</a></li>
+          <li class="page-item"><a class="page-link" href="#">»</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  `;
+}
+
+function openReportConfigModal() {
+  // Remove existing modal if any
+  const existingModal = document.getElementById("reportConfigModal");
+  if (existingModal) existingModal.remove();
+
+  // Append modal HTML
+  document.body.insertAdjacentHTML("beforeend", getAdminActivationConfigureModal());
+
+  // Show modal using Bootstrap
+  const modal = new bootstrap.Modal(document.getElementById("reportConfigModal"));
+  modal.show();
+}
+
 function getAdminActivationTrackerContent() {
   return `
   <div class="container-fluid bg-white shadow-sm p-4 rounded" style="background-color: #ffffff; padding: 3rem; border-radius: 1rem;">
@@ -5521,7 +6292,7 @@ function getAdminWalletBalanceSummaryContent() {
             <td>${row.debit}</td>
             <td>${row.balance}</td>
             <td>
-                <button class="btn p-0 border-0 rounded-circle d-flex align-items-center justify-content-center"
+                <button onclick="showPage('account-summary')" class="btn p-0 border-0 rounded-circle d-flex align-items-center justify-content-center"
                 title="View Profile"
                 style="width: 32px; height: 32px; background-color: #f8cba6;">
                 <i class="bi bi-person-fill text-white"></i>
@@ -5671,7 +6442,10 @@ function getAdminWalletCreditHistoryContent() {
               </td>
               <td>${row.credit}</td>
               <td>
-                <button class="btn btn-sm btn-danger" title="Remove">
+                <button class="btn btn-sm btn-danger" title="Delete Voucher" onclick="confirmDeleteVoucher(${row.id})">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+                <button class="btn btn-sm btn-warning" title="Void Voucher" onclick="confirmVoidVoucher(${row.id})">
                   <i class="bi bi-x-circle"></i>
                 </button>
               </td>
@@ -5697,6 +6471,94 @@ function getAdminWalletCreditHistoryContent() {
     </div>
   </div>
   `;
+}
+
+function confirmDeleteVoucher(id) {
+  const modalHTML = `
+    <div id="deleteVoucherModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="icon-container danger">
+          <i class="fas fa-trash-alt"></i>
+        </div>
+        <h4 class="modal-title">Delete Voucher</h4>
+        <p class="modal-message">
+          Are you sure you want to <b>DELETE</b> voucher with ID: <b>${id}</b>?<br>
+          This action <span style="color:red;">cannot be undone</span>.
+        </p>
+        <div class="button-group">
+          <button class="btn-continue" onclick="deleteVoucher(${id})">Yes, Delete</button>
+          <button class="btn-cancel" onclick="closeDeleteVoucherModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("deleteVoucherModal")?.remove();
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  setTimeout(() => {
+    document.querySelector("#deleteVoucherModal .modal-box").classList.add("show");
+  }, 10);
+}
+
+function closeDeleteVoucherModal() {
+  const modal = document.getElementById("deleteVoucherModal");
+  if (modal) {
+    modal.querySelector(".modal-box").classList.remove("show");
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+function confirmVoidVoucher(id) {
+  const modalHTML = `
+    <div id="voidVoucherModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="icon-container warning">
+          <i class="fas fa-ban"></i>
+        </div>
+        <h4 class="modal-title">Void Voucher</h4>
+        <p class="modal-message">
+          Do you want to <b>VOID</b> voucher with ID: <b>${id}</b>?<br>
+          Once voided, it will be marked as <span style="color:orange;">Invalid</span>.
+        </p>
+        <textarea id="voidReason" class="form-control mb-3" rows="3" placeholder="Enter reason for voiding..."></textarea>
+        <div class="button-group">
+          <button class="btn-continue" onclick="voidVoucher(${id})">Confirm Void</button>
+          <button class="btn-cancel" onclick="closeVoidVoucherModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("voidVoucherModal")?.remove();
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  setTimeout(() => {
+    document.querySelector("#voidVoucherModal .modal-box").classList.add("show");
+  }, 10);
+}
+
+function closeVoidVoucherModal() {
+  const modal = document.getElementById("voidVoucherModal");
+  if (modal) {
+    modal.querySelector(".modal-box").classList.remove("show");
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+function deleteVoucher(id) {
+  closeDeleteVoucherModal();
+  // FIX: Used backticks `` instead of parentheses () for the alert string.
+  alert(`Voucher ${id} deleted successfully!`);
+  // TODO: API call + refresh table
+}
+
+function voidVoucher(id) {
+  const reason = document.getElementById("voidReason")?.value || "No reason provided";
+  closeVoidVoucherModal();
+  // FIX: Used backticks `` for this alert string as well.
+  alert(`Voucher ${id} has been voided.\nReason: ${reason}`);
+  // TODO: API call + refresh table
 }
 
 function getAdminWalletDebitHistoryContent() {
@@ -5969,8 +6831,8 @@ function getAdminWalletDebitProcessContent() {
                     <td>${row.date}</td>
                     <td>
                         <div class="d-flex flex-column gap-1">
-                        <button class="btn btn-sm btn-warning text-white">SET TO CLAIMED</button>
-                        <button class="btn btn-sm btn-primary">For Process</button>
+                          <button onclick="confirmClaimVoucher(${row.id})" class="btn btn-sm btn-warning text-white">SET TO CLAIMED</button>
+                          <button class="btn btn-sm btn-primary">For Process</button>
                         </div>
                     </td>
                     <td>
@@ -5987,21 +6849,21 @@ function getAdminWalletDebitProcessContent() {
 
                     <!-- 🧾 Modal -->
                     <div class="modal fade" id="claimModal-${row.id}" tabindex="-1" aria-labelledby="claimModalLabel-${row.id}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="claimModalLabel-${row.id}">Set Voucher to Claimed?</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            This will set the VOUCHER <strong>${row.id}</strong> to CLAIMED STATUS, meaning that this is already claimed.
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, cancel pls!</button>
-                            <button type="button" class="btn btn-primary">Yes!</button>
-                        </div>
-                        </div>
-                    </div>
+                      <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="claimModalLabel-${row.id}">Set Voucher to Claimed?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                          <div class="modal-body">
+                              This will set the VOUCHER <strong>${row.id}</strong> to CLAIMED STATUS, meaning that this is already claimed.
+                          </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, cancel pls!</button>
+                                <button type="button" class="btn btn-primary">Yes!</button>
+                            </div>
+                          </div>
+                      </div>
                     </div>
                 `).join('')}
                 </tbody>
@@ -6013,16 +6875,57 @@ function getAdminWalletDebitProcessContent() {
             <small class="text-muted">Showing 1 to 6 of 6 entries</small>
             <nav>
                 <ul class="pagination pagination-sm mb-0">
-                <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">»</a></li>
+                  <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="pag  e-item"><a class="page-link" href="#">»</a></li>
                 </ul>
             </nav>
             </div>
         </div>
     `;
+}
+
+function confirmClaimVoucher(id) {
+  const modalHTML = `
+    <div id="claimVoucherModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="icon-container success">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h4 class="modal-title">Set Voucher to Claimed</h4>
+        <p class="modal-message">
+          Are you sure you want to mark voucher with ID: <b>${id}</b> as <span style="color:green;">CLAIMED</span>?
+        </p>
+        <div class="button-group">
+          <button class="btn-continue" onclick="claimVoucher(${id})">Yes, Set to Claimed</button>
+          <button class="btn-cancel" onclick="closeClaimVoucherModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("claimVoucherModal")?.remove();
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  setTimeout(() => {
+    document.querySelector("#claimVoucherModal .modal-box").classList.add("show");
+  }, 10);
+}
+
+function closeClaimVoucherModal() {
+  const modal = document.getElementById("claimVoucherModal");
+  if (modal) {
+    modal.querySelector(".modal-box").classList.remove("show");
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+function claimVoucher(id) {
+  closeClaimVoucherModal();
+  alert(`Voucher ${id} has been marked as Claimed ✅`);
+  // TODO: API call to update status + refresh table
 }
 
 function getAdminWalletDebitProcessCdContent() {
