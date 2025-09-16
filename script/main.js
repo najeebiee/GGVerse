@@ -465,6 +465,7 @@ function loadAdminModule(moduleId, event) {
     "daily-sales": getAdminSalesDailyContent,
     "add-item": getAdminItemAddContent,
     "manage-items": getAdminItemManageContent,
+    "item-stock-report": getAdminStockManageContent,
     "item-sales-report": getAdminItemSalesReportContent,
     "activation-summary": getAdminActivationSummaryContent,
     "activation-search": getAdminActivationSearchContent,

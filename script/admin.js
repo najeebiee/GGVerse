@@ -5767,6 +5767,118 @@ function getAdminItemSalesReportContent() {
     `;
 }
 
+function getAdminStockManageContent() {
+  const items = [
+        { id: 1, sku: 'SILVER', desc: 'PAID SILVER<br>SGGUARD*1.00', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 2, sku: 'GOLD', desc: 'PAID GOLD<br>SGGUARD*3.00', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 3, sku: 'PLATINUM', desc: 'PAID PLATINUM<br>SGGUARD*10.00', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 4, sku: 'CDSILVER', desc: 'CD SILVER', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 5, sku: 'CDGOLD', desc: 'CD GOLD', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 6, sku: 'CDPLATINUM', desc: 'CD PLATINUM', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 7, sku: 'FSSILVER', desc: 'FS SILVER', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 8, sku: 'FSGOLD', desc: 'FS GOLD', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 9, sku: 'FSPLATINUM', desc: 'FS PLATINUM', cat: 'PROD_CATEGORY:<br>Entry Package' },
+        { id: 10, sku: '0CREDIT', desc: 'CASH-IN', cat: 'PROD_CATEGORY:<br>Product Lines' }
+    ];
+
+    const availabilityButtons = `
+        <div class="text-center portal-availability">
+            <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">MEMBER ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+            <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">EWALLET ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+            <div class="btn-group my-1 shadow-sm"><button class="btn btn-dark btn-sm availability-toggle">TURN ON</button><button class="btn btn-danger btn-sm">GC OFF</button></div>
+            <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">BRANCH ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+            <div class="btn-group my-1 shadow-sm"><button class="btn btn-success btn-sm">STOCKIST ON</button><button class="btn btn-dark btn-sm availability-toggle">TURN OFF</button></div>
+        </div>
+    `;
+
+    return `
+      <div class="card">
+          <div class="card-body">
+              <h4 class="card-title">Manager Item Availability</h4>
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs" role="tablist">
+                  <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#all-items" role="tab"><span class="hidden-sm-up"><i class="ti-home"></i></span> <span class="hidden-xs-down">All Items</span></a> </li>
+                  <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#add-item" role="tab"><span class="hidden-sm-up"><i class="ti-user"></i></span> <span class="hidden-xs-down">Add Item</span></a> </li>
+              </ul>
+              <!-- Tab panes -->
+              <div class="tab-content tabcontent-border">
+                  <div class="tab-pane active" id="all-items" role="tabpanel">
+                      <div class="p-20">
+                          <div class="card shadow-sm">
+                              <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                  <div>
+                                      <label class="me-2">Show</label>
+                                      <select class="form-select form-select-sm d-inline-block" style="width: 80px;">
+                                          <option>10</option>
+                                          <option>25</option>
+                                          <option>50</option>
+                                          <option>100</option>
+                                      </select>
+                                      <span class="ms-2">entries</span>
+                                  </div>
+                                  <input type="text" class="form-control form-control-sm" placeholder="Search..." style="width: 200px;">
+                              </div>
+
+                              <div class="table-responsive">
+                                  <table class="table table-sm table-bordered table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                                      <thead class="table-light">
+                                          <tr>
+                                              <th>ITEM#</th>
+                                              <th>SKU</th>
+                                              <th>DESC</th>
+                                              <th>CAT</th>
+                                              <th>AVAILABILITY</th>
+                                              <th></th>
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                          ${items.map(item => `
+                                              <tr>
+                                                  <td>${item.id}</td>
+                                                  <td>${item.sku}</td>
+                                                  <td>${item.desc}</td>
+                                                  <td>${item.cat}</td>
+                                                  <td>${availabilityButtons}</td>
+                                                  <td>
+                                                      <button 
+                                                        class="btn btn-sm btn-info view-item-btn" 
+                                                        title="View" 
+                                                        style="margin-bottom: 5px;" 
+                                                        data-item='${JSON.stringify(item)}'>
+                                                            <i class="fas fa-search"></i>
+                                                    </button>
+                                                  </td>
+                                              </tr>
+                                          `).join('')}
+                                      </tbody>
+                                  </table>
+                              </div>
+
+                              <div class="card-footer d-flex justify-content-between align-items-center">
+                                  <small class="text-muted">Showing 1 to ${items.length} of ${items.length} entries</small>
+                                  <nav>
+                                      <ul class="pagination pagination-sm mb-0">
+                                          <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                                          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                          <li class="page-item"><a class="page-link" href="#">»</a></li>
+                                      </ul>
+                                  </nav>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="tab-pane" id="add-item" role="tabpanel">
+                      <div class="p-20">
+                          <!-- Content for adding an item goes here -->
+                          <p>Add item form will be displayed here.</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    `;
+}
+
 
 /* Activation */
 function getAdminActivationSummaryContent() {
@@ -7262,7 +7374,7 @@ function getAdminWalletDebitSummaryContent() {
       <td class="text-end">${formatMoney(row.pending)}</td>
       <td>
         <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-primary" aria-label="View"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-outline-primary" aria-label="View" onclick='showWithdrawalDetailsModal(${JSON.stringify(row)})'><i class="bi bi-eye"></i></button>
           <button class="btn btn-sm btn-outline-success" aria-label="Edit"><i class="bi bi-pencil"></i></button>
           <button class="btn btn-sm btn-outline-danger" aria-label="Delete"><i class="bi bi-trash"></i></button>
         </div>
@@ -7331,6 +7443,243 @@ function getAdminWalletDebitSummaryContent() {
       </div>
     </div>
   `;
+}
+
+function showWithdrawalDetailsModal(summaryData) {
+    // This data is mocked based on your provided screenshot
+    const mockedDetails = {
+        transId: 372,
+        date: "September 16, 2025 12:00:36",
+        totalVouchers: 53170.00,
+        claimed: 53170.00,
+        pending: 0.00,
+        vouchers: [
+            { id: 64392, account: 'Sofia Umemura<br>[Sofie72]', pin: 'fhe5wG-2HsUsWk', date: '2025-09-15 17:41:53', remarks: 'CHANNEL:GCASH<br>NAME:Sofia Umemura<br>ACCOUNT_NO:09075574094<br>TYPE:SAVINGS<br>CONTACT_NO:09075574094<br>PICKUP BRANCH:GRINDERSPH<br>Type: GCASH', gross: 2900.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 2840.00 },
+            { id: 64394, account: 'Elizabeth Cabusas<br>[Beth1957]', pin: 'wzaaFs-H5CfAtC', date: '2025-09-15 18:55:46', remarks: 'CHANNEL:BDO<br>NAME:Elizabeth Cabusas<br>ACCOUNT_NO:007150031428<br>TYPE:SAVINGS<br>CONTACT_NO:09469357194<br>PICKUP BRANCH:GRINDERSPH<br>Type: BDO', gross: 4300.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 4240.00 },
+            { id: 64567, account: 'Edeley Tarrazona<br>[Edeley01]', pin: 'ydy3CS-5esalWg', date: '2025-09-15 21:05:27', remarks: 'CHANNEL:BDO<br>NAME:Edeley Tarrazona<br>ACCOUNT_NO:010618004202<br>TYPE:CURRENT<br>CONTACT_NO:639171441978<br>PICKUP BRANCH:GRINDERSPH<br>Type: BDO', gross: 2333.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 2273.00 },
+            { id: 64701, account: 'Lily Oton<br>[Quinshan]', pin: 'VpfbeM-w6EfwlY', date: '2025-09-15 22:25:22', remarks: 'CHANNEL:GCASH<br>NAME:Lily Oton<br>ACCOUNT_NO:09952250593<br>TYPE:SAVINGS<br>CONTACT_NO:09952250593<br>PICKUP BRANCH:GRINDERSPH<br>Type: GCASH', gross: 3120.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 3060.00 },
+            { id: 64702, account: 'Rubilyn Gabrillo<br>[Rubz03]', pin: 'aSe7fs-ukfceqw', date: '2025-09-15 22:29:00', remarks: 'CHANNEL:BDO<br>NAME:Rubilyn Gabrillo<br>ACCOUNT_NO:010680101578<br>TYPE:SAVINGS<br>CONTACT_NO:639510370529<br>PICKUP BRANCH:GRINDERSPH<br>Type: BDO', gross: 4728.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 4668.00 },
+            { id: 64703, account: 'Ricaredo Gabrillo<br>[Ricaredo01]', pin: 'VBF2wa-1ujH5U3', date: '2025-09-15 22:32:45', remarks: 'CHANNEL:GOTYME<br>NAME:RICAREDO GABRILLO<br>ACCOUNT_NO:012204582217<br>TYPE:SAVINGS<br>CONTACT_NO:09090771610<br>PICKUP BRANCH:GRINDERSPH<br>Type: GOTYME', gross: 1380.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 1320.00 },
+            { id: 64727, account: 'Eunice Espina<br>[Eunice03]', pin: 'ujyLaG-6urCma7', date: '2025-09-15 22:47:13', remarks: 'CHANNEL:GOTYME<br>NAME:Eunice Espina<br>ACCOUNT_NO:013126795612<br>TYPE:Gotyme<br>CONTACT_NO:639059519653<br>PICKUP BRANCH:GRINDERSPH<br>Type: GOTYME', gross: 1762.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 1702.00 },
+            { id: 64818, account: 'Luciana Llido<br>[Richwealth]', pin: 'fBjUwt-gUpb3gf', date: '2025-09-16 07:47:23', remarks: 'CHANNEL:GCASH<br>NAME:Luciana Llido<br>ACCOUNT_NO:09327818100<br>TYPE:SAVINGS<br>CONTACT_NO:09327818100<br>PICKUP BRANCH:GRINDERSPH<br>Type: GCASH', gross: 2800.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 2740.00 },
+            { id: 64819, account: 'LOUIE JAY BORELA<br>[LouieB01]', pin: 'kQVARj-sy8afYt', date: '2025-09-16 08:26:59', remarks: 'CHANNEL:GCASH<br>NAME:Louie Jay Borela<br>ACCOUNT_NO:09168325694<br>TYPE:SAVINGS<br>CONTACT_NO:639168325694<br>PICKUP BRANCH:GRINDERSPH<br>Type: GCASH', gross: 5435.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 5375.00 },
+            { id: 64820, account: 'KENNETH VELEZ<br>[KENNETH102]', pin: 'Rjf6eD-WfHsu5u', date: '2025-09-16 09:08:02', remarks: 'CHANNEL:GCASH<br>NAME:Kenneth Velez<br>ACCOUNT_NO:09128080404<br>TYPE:GCASH<br>CONTACT_NO:09128080404<br>PICKUP BRANCH:GRINDERSPH<br>Type: GCASH', gross: 1000.00, mfee: 0.00, admin: 60.00, tax: 0.00, net: 940.00 },
+        ]
+    };
+    
+    // Merge passed data with mocked data for a more dynamic display
+    const data = {
+        ...mockedDetails, // Start with the full mocked details as a base
+        transId: summaryData?.trans || mockedDetails.transId, // Use transId from passed row data if available
+        date: summaryData?.date || mockedDetails.date, // Use date from passed row data if available
+        claimed: summaryData?.claimed ?? mockedDetails.claimed, // Use claimed from passed row data if available
+        pending: summaryData?.pending ?? mockedDetails.pending, // Use pending from passed row data if available
+        // Note: totalVouchers and the vouchers list still come from the mock data for this example
+        totalVouchers: summaryData?.gross ?? mockedDetails.totalVouchers // Use gross amount from summary as total
+    };
+
+    const modalHTML = buildWithdrawalDetailsModal(data);
+    document.getElementById("withdrawalDetailsModal")?.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    patchWithdrawalDetailsModalListeners();
+    
+    // Assumes Bootstrap's JS is loaded to handle the modal display
+    const modalElement = document.getElementById('withdrawalDetailsModal');
+    if (typeof bootstrap !== 'undefined') {
+        const modalInstance = new bootstrap.Modal(modalElement);
+        modalInstance.show();
+    } else {
+        console.error('Bootstrap JS not loaded. Cannot show modal.');
+    }
+}
+
+function buildWithdrawalDetailsModal(data) {
+    const formatMoney = val => parseFloat(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const voucherRows = data.vouchers.map(voucher => `
+        <tr>
+            <td>${voucher.id}</td>
+            <td>${voucher.account}</td>
+            <td>${voucher.pin}</td>
+            <td>${voucher.date}</td>
+            <td style="font-size: 0.75rem;">${voucher.remarks}</td>
+            <td class="text-end">${formatMoney(voucher.gross)}</td>
+            <td class="text-end">${formatMoney(voucher.mfee)}</td>
+            <td class="text-end">${formatMoney(voucher.admin)}</td>
+            <td class="text-end">${formatMoney(voucher.tax)}</td>
+            <td class="text-end">${formatMoney(voucher.net)}</td>
+            <td>
+                <div class="d-flex flex-column align-items-stretch gap-1">
+                    <button class="btn btn-sm btn-success action-btn" data-action="Claimed" data-voucher-id="${voucher.id}">CLAIMED</button>
+                    <button class="btn btn-sm btn-primary action-btn" data-action="Processed" data-voucher-id="${voucher.id}">PROCESSED</button>
+                    <button class="btn btn-sm btn-danger action-btn" data-action="Delete" data-voucher-id="${voucher.id}">DELETE</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    return `
+    <div class="modal fade" id="withdrawalDetailsModal" tabindex="-1" aria-labelledby="withdrawalDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-lg-down modal-xl" style="max-height: 90vh; max-width: 90vw; margin-top: 4.75rem;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawalDetailsModalLabel">Withdrawal Summary Details - # ${data.transId} <small>Date: ${data.date}</small></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Summary Cards -->
+                    <div class="row mb-3 g-3">
+                        <div class="col-md-4">
+                            <div class="card text-white bg-primary shadow">
+                                <div class="card-body">
+                                    <h6 class="card-title fw-light">Total Vouchers</h6>
+                                    <p class="card-text fs-4 fw-bold mb-0">PHP ${formatMoney(data.totalVouchers)}</p>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="col-md-4">
+                            <div class="card text-white bg-success shadow">
+                                <div class="card-body">
+                                    <h6 class="card-title fw-light" style="color: #000;">Claimed</h6>
+                                    <p class="card-text fs-4 fw-bold mb-0" style="color: #000;">PHP ${formatMoney(data.claimed)}</p>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="col-md-4">
+                            <div class="card text-dark bg-warning shadow">
+                                <div class="card-body">
+                                    <h6 class="card-title fw-light">Pending</h6>
+                                    <p class="card-text fs-4 fw-bold mb-0">PHP ${formatMoney(data.pending)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vouchers Table -->
+                    <div class="table-responsive">
+                       <table class="table table-sm table-bordered table-hover align-middle">
+                           <thead class="table-light">
+                               <tr>
+                                   <th>Voucher#</th>
+                                   <th>Account</th>
+                                   <th>PinCode</th>
+                                   <th>Date</th>
+                                   <th>Remarks</th>
+                                   <th class="text-end">Gross</th>
+                                   <th class="text-end">MFee</th>
+                                   <th class="text-end">Admin</th>
+                                   <th class="text-end">Tax</th>
+                                   <th class="text-end">Net</th>
+                                   <th>Actions</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               ${voucherRows}
+                           </tbody>
+                       </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+function patchWithdrawalDetailsModalListeners() {
+    const actionButtons = document.querySelectorAll('#withdrawalDetailsModal .action-btn');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const target = event.currentTarget;
+            const action = target.dataset.action;
+            const voucherId = target.dataset.voucherId;
+            showConfirmationModal(target, action, voucherId);
+        });
+    });
+}
+
+function showConfirmationModal(target, action, voucherId) {
+    const actionLower = action.toLowerCase();
+    let iconClass = 'fa-question-circle';
+    let containerClass = 'info';
+    if (actionLower === 'delete') {
+        iconClass = 'fa-trash-alt';
+        containerClass = 'danger';
+    } else if (actionLower === 'claimed' || actionLower === 'processed') {
+        iconClass = 'fa-check-circle';
+        containerClass = 'success';
+    }
+
+    const modalStyle = `
+        <style id="confirmModalStyle">
+            .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1060; }
+            .modal-box { background: white; padding: 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transform: scale(0.9); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+            .modal-box.show { transform: scale(1); opacity: 1; }
+            .modal-box .icon-container { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; font-size: 40px; color: white; }
+            .modal-box .icon-container.success { background-color: #28a745; }
+            .modal-box .icon-container.danger { background-color: #dc3545; }
+            .modal-box .icon-container.info { background-color: #17a2b8; }
+            .modal-title { font-weight: bold; margin-bottom: 10px; }
+            .modal-message { margin-bottom: 25px; color: #555; }
+            .button-group { display: flex; justify-content: center; gap: 15px; }
+            .button-group button { border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+            .btn-continue { background-color: #007bff; color: white; }
+            .btn-continue:hover { background-color: #0056b3; }
+            .btn-cancel { background-color: #e9ecef; color: #333; }
+            .btn-cancel:hover { background-color: #d6d8db; }
+        </style>
+    `;
+    if (!document.getElementById('confirmModalStyle')) {
+        document.head.insertAdjacentHTML('beforeend', modalStyle);
+    }
+
+    const modalHTML = `
+    <div id="confirmationModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="icon-container ${containerClass}">
+          <i class="fas ${iconClass}"></i>
+        </div>
+        <h4 class="modal-title">Confirm ${action}</h4>
+        <p class="modal-message">
+          Are you sure you want to mark voucher <b>#${voucherId}</b> as <b>${action.toUpperCase()}</b>?
+        </p>
+        <div class="button-group">
+          <button class="btn-continue" onclick="applyAction('${action}', '${voucherId}')">Yes, Continue</button>
+          <button class="btn-cancel" onclick="closeConfirmationModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+    `;
+
+    document.getElementById("confirmationModal")?.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    setTimeout(() => {
+        document.querySelector("#confirmationModal .modal-box").classList.add("show");
+    }, 10);
+
+    window.__actionTarget = target;
+}
+
+function applyAction(action, voucherId) {
+    console.log(`Action: ${action} applied to Voucher ID: ${voucherId}`);
+    if (window.__actionTarget) {
+        // Example: Visually confirm the action on the UI
+        const buttonGroup = window.__actionTarget.closest('.d-flex');
+        buttonGroup.innerHTML = `<span class="badge bg-info">${action.toUpperCase()}</span>`;
+    }
+    closeConfirmationModal();
+}
+
+function closeConfirmationModal() {
+    const modal = document.getElementById("confirmationModal");
+    if (modal) {
+        modal.querySelector(".modal-box").classList.remove("show");
+        setTimeout(() => modal.remove(), 300);
+    }
 }
 
 
@@ -8102,7 +8451,16 @@ function getAdminReportSponsoringContent() {
 }
 
 function getAdminReportFlushoutContent() {
-  const getConfigReportHeader = () => `
+    const flushoutData = [
+        { ctr: 108950, date: "2025-09-04 18:03:34", user: "Lecias, Irene[prettywoman01][SILVER]", remarks: "Loberanes, Susette[Susette01]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00", dba: "0.00", dbb: "10.00", eaa: "0.00", ebb: "0.00", pair: "1.00", paid: "0.00", amt: "0.00", max: 10, fo: 1 },
+        { ctr: 110860, date: "2025-09-06 20:07:38", user: "Lecias, Irene[prettywoman01][SILVER]", remarks: "Nisnea, Lucelyn[Nisnea1]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00", dba: "10.00", dbb: "0.00", eaa: "0.00", ebb: "0.00", pair: "1.00", paid: "0.00", amt: "0.00", max: 10, fo: 1 },
+        { ctr: 112345, date: "2025-09-07 10:15:00", user: "Gabrillo, Rubilyn[Rubz03][GOLD]", remarks: "Oton, Lily[Quinshan]<br>TYPE:GOLD<br>SKU:GOLD<br>AMOUNT:10,500.00, BV:30.00", dba: "30.00", dbb: "0.00", eaa: "0.00", ebb: "0.00", pair: "1.00", paid: "350.00", amt: "350.00", max: 30, fo: 0 },
+        { ctr: 113892, date: "2025-09-08 14:30:12", user: "Cabusas, Elizabeth[Beth1957][PLATINUM]", remarks: "Tarrazona, Edeley [Edeley01]<br>TYPE:PLATINUM<br>SKU:PLATINUM<br>AMOUNT:20,500.00, BV:50.00", dba: "0.00", dbb: "50.00", eaa: "0.00", ebb: "0.00", pair: "1.00", paid: "1050.00", amt: "1050.00", max: 50, fo: 0 },
+        { ctr: 115021, date: "2025-09-09 09:00:05", user: "Umemura, Sofia[Sofie72][SILVER]", remarks: "Velez, Kenneth[KENNETH102]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00", dba: "10.00", dbb: "0.00", eaa: "0.00", ebb: "0.00", pair: "1.00", paid: "0.00", amt: "0.00", max: 10, fo: 1 }
+        
+    ];
+
+    const getConfigReportHeader = () => `
     <div class="row g-3 mb-4">
       <div class="col-md-6">
         <div class="card bg-primary text-white rounded-3 p-3 text-center h-100">
@@ -8119,7 +8477,7 @@ function getAdminReportFlushoutContent() {
     </div>
   `;
 
-  const getMatchingDetailsControls = () => `
+    const getMatchingDetailsControls = () => `
     <h5 class="fw-bold text-uppercase mb-3">Matching Details</h5>
     <div class="mb-3 d-flex justify-content-between flex-wrap">
       <div class="d-flex align-items-center gap-2">
@@ -8135,31 +8493,50 @@ function getAdminReportFlushoutContent() {
     </div>
   `;
 
-  const getMatchingDetailsTable = () => {
-    const headers = [
-      "CTR#", "DATE", "USER", "REMARKS", "DBA", "DBB", "EAA", "EBB",
-      "PAIR", "PAID", "AMT", "MAX", "FO", "STATUS"
-    ];
+    const getMatchingDetailsTable = () => {
+        const headers = [ "CTR#", "DATE", "USER", "REMARKS", "DBA", "DBB", "EAA", "EBB", "PAIR", "PAID", "AMT", "MAX", "FO", "STATUS" ];
+        const headerRow = headers.map(h => `<th>${h}</th>`).join("");
+        const dataRows = flushoutData.map(row => `
+            <tr>
+                <td>${row.ctr}</td>
+                <td>${row.date}</td>
+                <td>${row.user}</td>
+                <td class="text-start" style="font-size: 0.75rem;">${row.remarks}</td>
+                <td>${row.dba}</td>
+                <td>${row.dbb}</td>
+                <td>${row.eaa}</td>
+                <td>${row.ebb}</td>
+                <td>${row.pair}</td>
+                <td>${row.paid}</td>
+                <td>${row.amt}</td>
+                <td>${row.max}</td>
+                <td>${row.fo}</td>
+                <td>
+                    <div class="d-flex flex-column gap-1">
+                        <button type="button" class="btn btn-sm btn-danger">FLUSHEDOUT</button>
+                        <button type="button" class="btn btn-sm btn-info text-white" onclick='showFlushoutDetailsModal(${JSON.stringify(row)})'>VIEW DETAILS</button>
+                    </div>
+                </td>
+            </tr>
+        `).join("");
 
-    const headerRow = headers.map(h => `<th>${h}</th>`).join("");
-
-    return `
-      <table class="table table-bordered table-hover table-sm text-center">
-        <thead class="table-light">
-          <tr>${headerRow}</tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colspan="${headers.length}" class="text-muted">No data available in table</td>
-          </tr>
-        </tbody>
-      </table>
+        return `
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover table-sm text-center align-middle">
+          <thead class="table-light">
+            <tr>${headerRow}</tr>
+          </thead>
+          <tbody>
+            ${dataRows}
+          </tbody>
+        </table>
+      </div>
     `;
-  };
+    };
 
-  const getMatchingDetailsPagination = () => `
+    const getMatchingDetailsPagination = () => `
     <div class="d-flex justify-content-between align-items-center">
-      <small class="text-muted">Showing 0 to 0 of 0 entries</small>
+      <small class="text-muted">Showing 1 to ${flushoutData.length} of ${flushoutData.length} entries</small>
       <ul class="pagination pagination-sm mb-0">
         <li class="page-item disabled"><a class="page-link">Previous</a></li>
         <li class="page-item active"><a class="page-link">1</a></li>
@@ -8168,16 +8545,147 @@ function getAdminReportFlushoutContent() {
     </div>
   `;
 
-  return `
+    return `
     <div class="bg-white rounded-4 shadow-sm p-4">
       ${getConfigReportHeader()}
-      ${getMatchingDetailsControls()}
-      ${getMatchingDetailsTable()}
-      ${getMatchingDetailsPagination()}
+      <div class="mt-4">
+        ${getMatchingDetailsControls()}
+        ${getMatchingDetailsTable()}
+        ${getMatchingDetailsPagination()}
+      </div>
     </div>
   `;
 }
 
+function showFlushoutDetailsModal(rowData) {
+    const modalData = {
+        user: rowData.user,
+        totalPairs: 10, // Mock data
+        totalPaid: 0.00, // Mock data
+        totalFlushedout: 2, // Mock data
+        details: [
+            { ctr: 108507, date: "2025-09-04 12:10:47", remarks: "ALCEBAR, DELANO[ALLAN04]<br>TYPE:GOLD<br>SKU:GOLD<br>AMOUNT:10,500.00, BV:30.00", dba: "30.00", dbb: "0.00", eae: "910.00", ebb: "0.00", pair: "0.00", paid: "0.00", amt: "0.00", max: 10, fo: 0, status: "CLAIMED" },
+            { ctr: 108611, date: "2025-09-04 15:22:31", remarks: "Manguinimba, Cleofe[Cleofe3]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00", dba: "10.00", dbb: "0.00", eae: "920.00", ebb: "0.00", pair: "0.00", paid: "0.00", amt: "0.00", max: 10, fo: 0, status: "CLAIMED" },
+            { ctr: 108650, date: "2025-09-04 15:23:33", remarks: "Raganas, Consolacion[Conch02]<br>TYPE:PLATINUM<br>SKU:PLATINUM<br>AMOUNT:35,000.00, BV:100.00", dba: "0.00", dbb: "100.00", eae: "820.00", ebb: "0.00", pair: "10.00", paid: "10.00", amt: "3000.00", max: 10, fo: 0, status: "FLASHED OUT" },
+            { ctr: 108702, date: "2025-09-04 15:50:15", remarks: "Del Delfierro, Trisha ross[Trisha ross 01]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00", dba: "10.00", dbb: "0.00", eae: "830.00", ebb: "0.00", pair: "0.00", paid: "0.00", amt: "0.00", max: 10, fo: 0, status: "CLAIMED" },
+            { ctr: 108950, date: "2025-09-04 18:03:34", remarks: "Loberanes, Susette[Susette01]<br>TYPE:SILVER<br>SKU:SILVER<br>AMOUNT:3,500.00, BV:10.00", dba: "0.00", dbb: "10.00", eae: "0.00", ebb: "0.00", pair: "1.00", paid: "0.00", amt: "0.00", max: 10, fo: 1, status: "FLASHED OUT" }
+        ]
+    };
+    const modalHTML = buildFlushoutDetailsModal(modalData);
+    document.getElementById("flushoutDetailsModal")?.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+    patchFlushoutDetailsModalListeners();
+}
+
+function buildFlushoutDetailsModal(data) {
+    const formatMoney = val => parseFloat(val).toLocaleString("en-US", { minimumFractionDigits: 2 });
+    
+    const summaryCards = `
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card bg-light shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">User</h6>
+                        <p class="card-text fw-bold mb-0" style="font-size: 0.8rem;">${data.user}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">Total Pairs</h6>
+                        <p class="card-text fs-5 fw-bold mb-0">${data.totalPairs}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">Total Paid</h6>
+                        <p class="card-text fs-5 fw-bold mb-0">${formatMoney(data.totalPaid)}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">Total Flushedout</h6>
+                        <p class="card-text fs-5 fw-bold mb-0">${data.totalFlushedout}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const tableRows = data.details.map(row => `
+        <tr>
+            <td>${row.ctr}</td>
+            <td>${row.date}</td>
+            <td class="text-start" style="font-size: 0.75rem;">${row.remarks}</td>
+            <td>${row.dba}</td>
+            <td>${row.dbb}</td>
+            <td>${row.eae}</td>
+            <td>${row.ebb}</td>
+            <td>${row.pair}</td>
+            <td>${row.paid}</td>
+            <td>${row.amt}</td>
+            <td>${row.max}</td>
+            <td>${row.fo}</td>
+            <td>
+                <span class="badge ${row.status === 'CLAIMED' ? 'bg-success' : 'bg-danger'}">
+                    ${row.status}
+                </span>
+            </td>
+        </tr>`).join('');
+        
+    const tableHeaders = ["CTR#", "DATE", "REMARKS", "DBA", "DBB", "EAE", "EBB", "PAIR", "PAID", "AMT", "MAX", "FO", "STATUS"];
+
+    return `
+        <div id="flushoutDetailsModal" class="modal-overlay">
+            <style>
+                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; justify-content: center; align-items: flex-start; }
+                .modal-custom-size { width: 90vw; height: 90vh; margin-top: 4.5rem; background: white; border-radius: 0.5rem; display: flex; flex-direction: column; }
+                .modal-custom-body { overflow-y: auto; padding: 1.5rem; }
+            </style>
+            <div class="modal-custom-size shadow-lg">
+                <div class="modal-header px-4 py-3 border-bottom">
+                    <h5 class="modal-title fw-bold">Flushout Details</h5>
+                    <button type="button" class="btn-close" onclick="patchFlushoutDetailsModalListeners(true)"></button>
+                </div>
+                <div class="modal-custom-body">
+                    ${summaryCards}
+                    <h5 class="fw-bold">Matching Details</h5>
+                     <div class="d-flex justify-content-between my-2">
+                        <div>
+                            <select class="form-select form-select-sm w-auto d-inline-block"><option>5</option><option>10</option><option>25</option></select>
+                            <small>entries per page</small>
+                        </div>
+                        <input type="search" class="form-control form-control-sm w-auto" placeholder="Search...">
+                     </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered table-hover text-center align-middle">
+                            <thead class="table-light">
+                                <tr>${tableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
+                            </thead>
+                            <tbody>${tableRows}</tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small>Showing 1 to 5 of 6 entries</small>
+                        <nav><ul class="pagination pagination-sm mb-0"><li class="page-item"><a class="page-link" href="#">&laquo;</a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item"><a class="page-link" href="#">2</a></li><li class="page-item"><a class="page-link" href="#">&raquo;</a></li></ul></nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function patchFlushoutDetailsModalListeners(close = false) {
+    const modal = document.getElementById("flushoutDetailsModal");
+    if (close && modal) {
+        modal.remove();
+    }
+}
 
 /* Logs */
 function getAdminLogsUserLoginContent() {
