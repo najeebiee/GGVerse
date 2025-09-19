@@ -1315,10 +1315,10 @@ function getEpointsSummaryContent() {
               <small class="epoints-small text-white-50">Account</small>
               <div class="d-flex align-items-center justify-content-between w-100">
                 <h4 class="mb-0 fw-bold">JMDLONSOD01</h4>
-                <i class="fas fa-exchange-alt fa-lg text-white" aria-hidden="true"></i>
+                <i class="fas fa-exchange-alt fa-lg text-white" aria-hidden="true" onclick="openSwitchAccountModal()"></i>
               </div>
               <div class="mt-2">
-                <button onclick="loadUserPage('claim-pruduct')" class="btn btn-sm btn-light">Claim Products</button>
+                <button onclick="loadUserPage('claim-products')" class="btn btn-sm btn-light">Claim Products</button>
               </div>
             </div>
           </div>
@@ -3085,7 +3085,7 @@ function getUserDashboardContent() {
                 
                 <!-- Other Earnings -->
                 <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
+                    <div class="card border-0 shadow-sm" style="background: #0e141aff; border-radius: 12px;">
                         <div class="card-body py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="text-muted mb-0 fw-normal" style="font-size: 0.75rem;">OTHER EARNINGS</h6>
@@ -3093,7 +3093,7 @@ function getUserDashboardContent() {
                             </div>
                             <div class="d-flex justify-content-between align-items-end">
                             <h4 class="mb-0 fw-bold text-dark">PHP0.00</h4>
-                            <i class="fas fa-arrow-right text-muted" style="cursor: pointer" onclick="loadUserPage('')"></i>
+                            <i class="fas fa-arrow-right text-muted" style="cursor: pointer"></i>
                             </div>
                         </div>
                     </div>
