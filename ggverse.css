@@ -352,6 +352,50 @@ body {
     color: #ffffff;
 }
 
+/* User-page-only header */
+.user-local-header{
+  background:#fff;
+  border-bottom:1px solid #e9ecef;
+  margin-bottom:12px;       
+  padding: 0.5rem 2rem;
+}
+.user-local-header .dashboard_bar{font-weight:700;font-size:1.125rem;}
+/* Before: 1080 (covers the modal) */
+.user-local-header .dropdown-menu { z-index: 1040; } /* or just delete this rule */
+ 
+.header-profile2 .dropdown-menu{min-width:260px;}
+
+.user-local-header .dashboard_bar{
+  font-weight:700;
+  font-size:1.125rem;
+}
+
+/* Small utilities so the avatar and dropdown look sane even without theme CSS */
+.header-profile2 .dropdown-menu{ min-width:260px; }
+.header-media img{ width:32px; height:32px; border-radius:50%; object-fit:cover; }
+.navbar-nav>li{ list-style:none; }
+
+/* Dropdown menu polish */
+.dropdown-menu {
+  min-width: 220px;
+  font-size: 0.95rem;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+/* Hover effects for items */
+.dropdown-item {
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+  color: #0d6efd;
+}
+
+/* Divider spacing */
+.dropdown-divider {
+  margin: 0.4rem 0;
+}
+
 /* Signout Button */
 .user-sidebar .signout-btn {
     margin: 1rem;

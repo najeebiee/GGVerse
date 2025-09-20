@@ -1,213 +1,213 @@
+// Helper: prepend the User header to whatever page HTML we render
+function setUserContent(html) {
+  const userPageContainer = document.querySelector("#user-page-container");
+  if (!userPageContainer) return;
+  userPageContainer.innerHTML = getUserHeaderBar() + html;
+}
+
 function loadUserPage(pageName) {
   const userPageContainer = document.querySelector("#user-page-container");
   if (!userPageContainer) return;
 
   // Dashboard and Main Pages
   if (pageName === "dashboard") {
-    userPageContainer.innerHTML = getUserDashboardContent();
+    setUserContent(getUserDashboardContent());
     console.log(`Loaded Dashboard page`);
     return;
   }
 
   if (pageName === "codebank") {
-    userPageContainer.innerHTML = getCodeBankContent();
+    setUserContent(getCodeBankContent());
     console.log(`Loaded Code Bank page`);
     return;
   }
 
   // Account Settings
   if (pageName === "user-profile") {
-    userPageContainer.innerHTML = getUserProfileContent();
+    setUserContent(getUserProfileContent());
     console.log(`Loaded User Profile page`);
     return;
   }
 
   if (pageName === "withdrawal-settings") {
-    userPageContainer.innerHTML = getWithdrawalSettingsContent();
+    setUserContent(getWithdrawalSettingsContent());
     console.log(`Loaded Withdrawal Settings page`);
     return;
   }
 
   if (pageName === "change-password") {
-    userPageContainer.innerHTML = getChangePasswordContent();
+    setUserContent(getChangePasswordContent());
     console.log(`Loaded Change Password page`);
     return;
   }
 
   if (pageName === "withdrawal-pin-settings") {
-    userPageContainer.innerHTML = getWithdrawalPinContent();
+    setUserContent(getWithdrawalPinContent());
     console.log(`Loaded Withdrawal PIN page`);
     return;
   }
 
   // Shop
   if (pageName === "shop-now") {
-    userPageContainer.innerHTML = getShopNowContent();
+    setUserContent(getShopNowContent());
     console.log(`Loaded Shop Now page`);
     return;
   }
 
   if (pageName === "checkout") {
-    userPageContainer.innerHTML = getCheckoutContent();
+    setUserContent(getCheckoutContent());
     console.log(`Loaded Checkout page`);
     return;
   }
 
   if (pageName === "transactions") {
-    userPageContainer.innerHTML = getTransactionsContent();
+    setUserContent(getTransactionsContent());
     console.log(`Loaded Transactions page`);
     return;
   }
 
   // Reports
   if (pageName === "direct-referral") {
-    userPageContainer.innerHTML = getDirectReferralContent();
+    setUserContent(getDirectReferralContent());
     console.log(`Loaded Direct Referral page`);
     return;
   }
 
   if (pageName === "sales-match") {
-    userPageContainer.innerHTML = getSalesMatchBonusContent();
+    setUserContent(getSalesMatchBonusContent());
     console.log(`Loaded Sales Match page`);
     return;
   }
 
   if (pageName === "leadership-bonus") {
-    userPageContainer.innerHTML = getLeadershipBonusContent();
+    setUserContent(getLeadershipBonusContent());
     console.log(`Loaded Leadership Bonus page`);
     return;
   }
 
   if (pageName === "personal-rebates") {
-    userPageContainer.innerHTML = getPersonalRebatesContent();
+    setUserContent(getPersonalRebatesContent());
     console.log(`Loaded Personal Rebates page`);
     return;
   }
 
   if (pageName === "unilevel-bonus") {
-    userPageContainer.innerHTML = getUnilevelBonusContent();
+    setUserContent(getUnilevelBonusContent());
     console.log(`Loaded Unilevel Bonus page`);
     return;
   }
 
   // Organization
   if (pageName === "switch-account") {
-    userPageContainer.innerHTML = getSwitchAccountContent();
+    setUserContent(getSwitchAccountContent());
     console.log(`Loaded Switch Account page`);
     return;
   }
 
   if (pageName === "genealogy-tree") {
-    userPageContainer.innerHTML = getGenealogyTreeContent();
+    setUserContent(getGenealogyTreeContent());
     console.log(`Loaded Genealogy Tree page`);
     return;
   }
 
   if (pageName === "direct-sponsors") {
-    userPageContainer.innerHTML = getDirectSponsorsContent();
+    setUserContent(getDirectSponsorsContent());
     console.log(`Loaded Direct Sponsors page`);
     return;
   }
 
   if (pageName === "binary-list") {
-    userPageContainer.innerHTML = getBinaryListContent();
+    setUserContent(getBinaryListContent());
     console.log(`Loaded Binary List page`);
     return;
   }
 
   if (pageName === "unilevel-list") {
-    userPageContainer.innerHTML = getUnilevelListContent();
+    setUserContent(getUnilevelListContent());
     console.log(`Loaded Unilevel List page`);
     return;
   }
 
-  // Check if this is a special page with custom content
+  // Special pages
   if (pageName === "ewallet-summary") {
-    userPageContainer.innerHTML = getEwalletSummaryContent();
+    setUserContent(getEwalletSummaryContent());
     console.log(`Loaded eWallet Summary page`);
     return;
   }
 
   if (pageName === "epoints-summary") {
-    userPageContainer.innerHTML = getEpointsSummaryContent();
+    setUserContent(getEpointsSummaryContent());
     console.log(`Loaded ePoints Summary page`);
     return;
   }
 
   if (pageName === "claim-products") {
-    userPageContainer.innerHTML = getEpointsClaimProductsContent();
+    setUserContent(getEpointsClaimProductsContent());
     console.log(`Loaded ePoints Claim Products page`);
     return;
   }
 
-  // Check if this is encash wallet page
+  // Encash wallet
   if (pageName === "encash-wallet") {
-    userPageContainer.innerHTML = getEncashWalletContent();
+    setUserContent(getEncashWalletContent());
     console.log(`Loaded Encash eWallet page`);
     return;
   }
 
   if (pageName === "withdrawal-pin") {
-    userPageContainer.innerHTML = getWithdrawalPinContent();
+    setUserContent(getWithdrawalPinContent());
     console.log(`Loaded Withdrawal PIN page`);
     return;
   }
 
-  // Check if this is dashboard - redirect to Account Summary instead
+  // Dashboard redirect
   if (pageName === "account-summary") {
-    userPageContainer.innerHTML = getAccountSummaryContent();
+    setUserContent(getAccountSummaryContent());
     console.log(`Loaded Account Summary for dashboard request`);
     return;
   }
-
-  if (pageName === 'switch-account') {
-       userPageContainer.innerHTML = getSwitchAccountContent();
-       console.log(`Loaded Switch Account page`);
-       return;
-    }
 
   // Create page title from page name
   const title = pageName
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
-    
 
-  // Update user page content with placeholder
-  userPageContainer.innerHTML = `
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h2 class="card-title mb-0">
-                                <i class="fas fa-file-alt me-2"></i>${title}
-                            </h2>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <p class="lead text-muted">Content coming soon...</p>
-                                    <p>This page will contain the <strong>${title}</strong> functionality.</p>
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        Page identifier: <code>${pageName}</code>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="bg-light p-3 rounded">
-                                        <h6 class="fw-bold mb-2">Quick Actions</h6>
-                                        <button class="btn btn-primary btn-sm me-2 mb-2">Action 1</button>
-                                        <button class="btn btn-secondary btn-sm mb-2">Action 2</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  // Default placeholder
+  setUserContent(`
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+              <h2 class="card-title mb-0">
+                <i class="fas fa-file-alt me-2"></i>${title}
+              </h2>
             </div>
+            <div class="card-body p-4">
+              <div class="row">
+                <div class="col-md-8">
+                  <p class="lead text-muted">Content coming soon...</p>
+                  <p>This page will contain the <strong>${title}</strong> functionality.</p>
+                  <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Page identifier: <code>${pageName}</code>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="bg-light p-3 rounded">
+                    <h6 class="fw-bold mb-2">Quick Actions</h6>
+                    <button class="btn btn-primary btn-sm me-2 mb-2">Action 1</button>
+                    <button class="btn btn-secondary btn-sm mb-2">Action 2</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    `;
+      </div>
+    </div>
+  `);
 
   console.log(`Loaded user page: ${pageName}`);
 
@@ -218,6 +218,95 @@ function loadUserPage(pageName) {
     userSidebar.classList.remove("open");
   }
 }
+
+
+// Renders the mini header used on User pages only
+function getUserHeaderBar() {
+  return `
+  <div class="user-local-header">
+    <div class="container-fluid py-2" style="padding: 2rem; border-radius: 2.5rem;">
+      <div class="d-flex w-100 justify-content-between align-items-center gap-3">
+
+        <!-- Left: title -->
+        <div class="header-left">
+          <div class="dashboard_bar m-0">User Profile</div>
+        </div>
+
+        <!-- Right: actions -->
+        <div class="header-right d-flex align-items-center gap-2">
+
+          <!-- BUY MAINTENANCE -->
+          <button class="btn btn-danger btn-md d-inline-flex align-items-center"
+                  onclick="loadUserPage('shop-now')"
+                  title="Buy maintenance for October 2025">
+            BUY MAINTENANCE
+          </button>
+
+          <!-- CART -->
+          <button class="btn btn-primary position-relative"
+                  onclick="openCartOffcanvas()">
+            <i class="fas fa-shopping-cart me-2"></i>
+            Cart
+            <span id="cart-item-count"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  style="z-index: 1;">
+              0
+            </span>
+          </button>
+
+          <!-- Profile dropdown -->
+            <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button"
+                    id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle me-2"></i>
+                Profile
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2" 
+                aria-labelledby="userProfileDropdown">
+
+                <!-- Header -->
+                <li class="px-3 py-2 text-muted small">
+                Signed in as <strong id="profileUsername">JMDLONSOD01</strong>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+
+                <!-- View Profile -->
+                <li>
+                <a class="dropdown-item d-flex align-items-center rounded-2" 
+                    href="#" onclick="loadUserPage('user-profile'); return false;">
+                    <i class="fa-solid fa-id-card me-2 text-primary"></i> View Profile
+                </a>
+                </li>
+
+                <!-- Switch Account -->
+                <li>
+                <a class="dropdown-item d-flex align-items-center rounded-2" 
+                    href="#" onclick="loadUserPage('switch-account'); return false;">
+                    <i class="fa-solid fa-right-left me-2 text-success"></i> Switch Account
+                </a>
+                </li>
+
+                <!-- Logout -->
+                <li>
+                <a class="dropdown-item d-flex align-items-center rounded-2 text-danger" 
+                    href="#" return false;">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                </a>
+                </li>
+            </ul>
+            </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Returns the HTML content for a standalone user page by module ID
+
+
 
 function getStandaloneContent(moduleId) {
   const standaloneContents = {
@@ -1737,37 +1826,6 @@ function getPersonalRebatesContent() {
     `;
 }
 
-function getShopNowContent() {
-  return `
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-store me-2"></i>Shop Now</h2>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Wellness Supplement</h5>
-                        <p class="text-muted">Premium health supplement</p>
-                        <h4 class="text-primary">₱2,500</h4>
-                        <button class="btn btn-success w-100">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Nutrition Pack</h5>
-                        <p class="text-muted">Complete nutrition bundle</p>
-                        <h4 class="text-primary">₱3,200</h4>
-                        <button class="btn btn-success w-100">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
 function getTransactionsContent() {
   return `
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -2185,13 +2243,7 @@ function getShopNowContent() {
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold"><i class="fas fa-store me-2"></i>Shop</h2>
             <div class="d-flex gap-2">
-                <button class="btn btn-primary position-relative" onclick="openCartOffcanvas()">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Cart
-                    <span id="cart-item-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        0
-                    </span>
-                </button>
+                
                 <button class="btn btn-success" onclick="loadUserPage('checkout')">
                     <i class="fas fa-credit-card me-2"></i>Checkout
                 </button>
@@ -3562,6 +3614,43 @@ function getGenealogyRegisterModalHtml(sponsor, position) {
     </div>
   `;
 }
+
+// Populate the user modal right before it opens (Bootstrap data-API triggers this)
+// Populate the user modal right before it opens (works with data-API buttons)
+(function () {
+  const modalEl = document.getElementById('userPageModal');
+  if (!modalEl) return;
+
+  modalEl.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;                 // clicked button
+    const which = trigger?.dataset?.modal;               // "profile" | "switch"
+
+    // Close dropdown so it won't overlay the modal (in case CSS changes later)
+    const toggle = trigger?.closest('.dropdown')?.querySelector('[data-bs-toggle="dropdown"]');
+    if (toggle) { try { bootstrap.Dropdown.getOrCreateInstance(toggle).hide(); } catch(e) {} }
+
+    const titleEl = modalEl.querySelector('#userPageModalTitle');
+    const bodyEl  = modalEl.querySelector('#userPageModalBody');
+
+    if (which === 'profile') {
+      if (titleEl) titleEl.textContent = 'Profile';
+      if (bodyEl)  bodyEl.innerHTML = (typeof getUserProfileContent === 'function')
+        ? getUserProfileContent()
+        : '<div class="text-muted">Profile content is not available.</div>';
+    } else if (which === 'switch') {
+      if (titleEl) titleEl.textContent = 'Switch Account';
+      if (bodyEl)  bodyEl.innerHTML = (typeof getSwitchAccountContent === 'function')
+        ? getSwitchAccountContent()
+        : '<div class="text-muted">Switch account content is not available.</div>';
+    } else {
+      if (titleEl) titleEl.textContent = 'Details';
+      if (bodyEl)  bodyEl.textContent  = 'No content specified.';
+    }
+  });
+})();
+
+
+
 
 /**
  * Handles the creation and display of the genealogy registration modal.
